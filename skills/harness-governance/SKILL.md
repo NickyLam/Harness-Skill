@@ -113,6 +113,18 @@ description: Use when governing AI-assisted software engineering work across rol
 - 命中数据库内容时，必须有 DBA
 - 涉及上线、发布、监控时，建议加入发布经理和运维/可观测性工程师
 
+如果已经决定某个角色必须参加，就继续加载对应的角色 Skill：
+- 需求分析师：`skills/requirements-analyst/SKILL.md`
+- 项目经理：`skills/project-manager/SKILL.md`
+- 架构师：`skills/architect/SKILL.md`
+- 前端开发工程师：`skills/frontend-engineer/SKILL.md`
+- 后端开发工程师：`skills/backend-engineer/SKILL.md`
+- 测试工程师：`skills/test-engineer/SKILL.md`
+- 安全审计工程师：`skills/security-auditor/SKILL.md`
+- DBA：`skills/dba/SKILL.md`
+- 发布经理：`skills/release-manager/SKILL.md`
+- 运维/可观测性工程师：`skills/observability-engineer/SKILL.md`
+
 ## 第三步：补齐必需工件
 
 至少要补齐下面这些工件中的相关部分：

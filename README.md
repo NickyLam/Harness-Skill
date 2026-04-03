@@ -26,6 +26,10 @@
   - 总控入口
   - 用来判断任务级别、参与角色、门禁、交接和完成条件
 
+- `skills/*/SKILL.md`
+  - 独立角色 Skill
+  - 用来约束各个角色该拿什么、该产出什么、什么时候必须停下
+
 - `docs/01_平台无关约束原则.md`
   - 最上层原则
   - 解释为什么要分级、为什么高风险必须先声明、为什么不能没证据就说完成
@@ -100,6 +104,19 @@
 - `templates/08_项目收口模板.md`
 - `templates/09_高风险触发模板.md`
 - `templates/角色Skill模板.md`
+
+## 已拆分的角色 Skill
+
+- `skills/requirements-analyst/SKILL.md`
+- `skills/project-manager/SKILL.md`
+- `skills/architect/SKILL.md`
+- `skills/frontend-engineer/SKILL.md`
+- `skills/backend-engineer/SKILL.md`
+- `skills/test-engineer/SKILL.md`
+- `skills/security-auditor/SKILL.md`
+- `skills/dba/SKILL.md`
+- `skills/release-manager/SKILL.md`
+- `skills/observability-engineer/SKILL.md`
 
 ## 这套规则保证什么
 
