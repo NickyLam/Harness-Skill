@@ -1,5 +1,9 @@
 # Harness Engineering 通用治理 Skill 包
 
+[中文](#zh-cn) | [English](#en)
+
+<a id="zh-cn"></a>
+
 这个仓库提供一套平台无关的治理规则，用来约束 AI 参与的软件研发过程。
 
 它不替代需求、设计、开发、测试、安全、数据库等角色本身，而是回答下面这些问题：
@@ -167,3 +171,177 @@
 - 某种固定的代码仓库结构
 
 如果后面要接具体平台，建议把平台细节放到单独适配层，不要反过来污染通用规则。
+
+---
+
+<a id="en"></a>
+
+# Harness Engineering Governance Skill Bundle
+
+This repository provides a platform-agnostic governance package for AI-assisted software engineering work.
+
+It does not replace roles such as requirements, architecture, development, testing, security, or database review. Instead, it answers these questions:
+- What level of task is this work?
+- Which roles must participate?
+- When can the work proceed?
+- When must it stop?
+- What written artifacts must exist at each step?
+- Under what conditions can the work be considered complete?
+
+## Use Cases
+
+This repository fits scenarios such as:
+- Multi-agent software engineering collaboration
+- Workflow governance for AI coding platforms
+- Internal engineering process standards
+- Teams that need explicit rules for who can do what and what counts as done
+
+It is not tied to any specific platform. The goal is to express the rules in a way that can be mapped to different platforms.
+
+## Repository Contents
+
+- `skills/harness-governance/SKILL.md`
+  - Main governance entry point
+  - Used to decide task level, required roles, gates, handoffs, and completion conditions
+
+- `skills/*/SKILL.md`
+  - Independent role skills
+  - Used to define what each role must receive, produce, and when it must stop
+
+- `docs/01_平台无关约束原则.md`
+  - Top-level principles
+  - Explains why work is tiered, why high-risk actions must be declared first, and why completion cannot be claimed without evidence
+
+- `docs/02_标准角色模型_v1.md`
+  - Standard role catalog
+  - Explains when each role should join, what it must receive, what it must deliver, and what it must not do
+
+- `docs/03_多角色协作工作流规范_v1.md`
+  - End-to-end workflow from task intake to closure
+  - Covers task levels, stages, handoff states, rollback, and conflict handling
+
+- `docs/04_角色治理规则与总控要求.md`
+  - Fast execution rules
+  - Suitable as a governance checklist
+
+- `templates/`
+  - Standardized templates
+  - Used to keep each handoff and artifact in a consistent format
+
+## Three Task Modes
+
+### Lightweight Mode
+Suitable for small changes with clear impact and simple rollback.
+
+All of the following must be true:
+- Only affects a single local area
+- Does not change interface contracts
+- Does not change database schema or bulk data
+- Does not change permissions, authentication, secrets, or security rules
+- Rollback is simple
+- Impact scope is clear
+
+### Standard Mode
+Suitable for normal features, common bug fixes, and routine frontend-backend collaboration.
+
+This is the default mode:
+- The task does not qualify as lightweight
+- The task does not trigger strict mode
+
+### Strict Mode
+If any of the following is true, the task must enter strict mode:
+- Core business flow
+- Interface contract changes
+- Database schema, migration, or bulk data changes
+- Permissions, authentication, sensitive data, or security configuration changes
+- Batch, scheduling, or message flow changes
+- Rollback is difficult
+- Impact scope is unclear
+
+If uncertain, choose the stricter mode rather than the looser one.
+
+## Recommended Usage Order
+
+1. Start with `templates/00_任务入口模板.md`
+2. Decide whether the task is lightweight, standard, or strict
+3. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
+4. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
+5. Fill the corresponding templates as the task progresses
+6. Before closure, verify evidence, risks, rollback plan, and handoff status
+
+## How To Use
+
+Minimum workflow:
+
+1. Start from `skills/harness-governance/SKILL.md` and determine whether the task is lightweight, standard, or strict.
+2. Select roles based on the mode:
+   - Lightweight: either the requirements analyst or the project manager handles intake; one implementation role performs the change; if behavior changes, the test engineer validates it.
+   - Standard: usually requirements analyst, project manager, implementation role, and test engineer; add the security auditor or DBA when security or database scope is involved.
+   - Strict: based on standard mode, usually add the architect explicitly and complete the high-risk trigger document.
+3. Fill templates stage by stage:
+   - Task intake: `templates/00_任务入口模板.md`
+   - Requirements clarification: `templates/01_需求说明模板.md`
+   - Task breakdown: `templates/02_任务拆解模板.md`
+   - Solution decision: `templates/03_方案决策模板.md`
+   - Implementation prep: `templates/10_实现准备模板.md`
+   - Implementation and self-check: `templates/04_实现交接模板.md`
+   - Integration: `templates/11_联调结论模板.md`
+   - Independent verification: `templates/05_测试结论模板.md`
+   - Security review: `templates/06_安全审查模板.md`
+   - Database review: `templates/07_数据库审核模板.md`
+   - Closure: `templates/08_项目收口模板.md`
+4. Every handoff should include current role, current stage, input artifacts, output artifacts, completed items, unfinished items, verification evidence, risks and open items, handoff status, and next step.
+5. If testing, security review, or database review blocks the flow:
+   - The project manager decides which implementation role receives the rework
+   - The implementation role fixes the issue and resubmits the implementation handoff
+   - The test engineer or relevant review role validates again
+
+If you are trying the package for the first time, start with a small standard-mode feature or a normal bug fix and run the full workflow end to end.
+
+## Provided Templates
+
+- `templates/00_任务入口模板.md`
+- `templates/01_需求说明模板.md`
+- `templates/02_任务拆解模板.md`
+- `templates/03_方案决策模板.md`
+- `templates/10_实现准备模板.md`
+- `templates/04_实现交接模板.md`
+- `templates/11_联调结论模板.md`
+- `templates/05_测试结论模板.md`
+- `templates/06_安全审查模板.md`
+- `templates/07_数据库审核模板.md`
+- `templates/08_项目收口模板.md`
+- `templates/09_高风险触发模板.md`
+- `templates/角色Skill模板.md`
+
+## Included Role Skills
+
+- `skills/requirements-analyst/SKILL.md`
+- `skills/project-manager/SKILL.md`
+- `skills/architect/SKILL.md`
+- `skills/frontend-engineer/SKILL.md`
+- `skills/backend-engineer/SKILL.md`
+- `skills/test-engineer/SKILL.md`
+- `skills/security-auditor/SKILL.md`
+- `skills/dba/SKILL.md`
+- `skills/release-manager/SKILL.md`
+- `skills/observability-engineer/SKILL.md`
+
+## What This Package Guarantees
+
+This package is designed to ensure:
+- One agent is not assumed to own the entire responsibility chain by default
+- High-risk actions do not silently move into execution
+- Critical handoffs are not reduced to informal conversation only
+- Work does not keep moving forward after failed verification
+- No completion claim passes without evidence
+
+## What This Package Does Not Do Yet
+
+This repository intentionally does not bind itself to:
+- Platform-specific commands
+- Industry-specific approval systems
+- A fixed organizational structure
+- A fixed repository layout
+
+If platform-specific adaptation is needed later, place it in a separate adapter layer instead of polluting the general governance rules.
