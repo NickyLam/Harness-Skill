@@ -58,15 +58,29 @@
   - 固定模板
   - 用来把每一步的交接写成统一格式
 
+- `templates/13_AGENTS模板.md`
+  - 项目初始化模板
+  - 用来在目标项目根目录生成 `AGENTS.md`
+
 ## 规则与项目产物的边界
 
 - 这个仓库里的 `skills/`、`docs/`、`templates/` 属于 Skill 包自身，是规则资产，不是目标项目产物。
 - 实际项目里不应该把这套规则文档整体复制进工程目录。
 - 实际项目只应该落本次任务产生的业务工件、交接记录和收口材料。
+- 用 skill 初始化项目时，应额外在项目根目录创建一份 `AGENTS.md`，承接项目级硬约束。
 
 ## 项目内产物目录建议
 
-建议在目标项目里统一使用 `project-docs/`：
+建议在目标项目根目录至少包含：
+
+```text
+AGENTS.md
+project-docs/
+```
+
+其中，`AGENTS.md` 建议基于 `templates/13_AGENTS模板.md` 生成。
+
+`project-docs/` 建议使用下面的结构：
 
 ```text
 project-docs/
@@ -124,13 +138,16 @@ project-docs/
 
 ## 建议使用顺序
 
-1. 先填写 `templates/00_任务入口模板.md`
-2. 先澄清需求内容、主要场景和验收标准，再判断任务属于轻量、标准还是严格模式
-3. 如果命中高风险，先填写 `templates/09_高风险触发模板.md`
-4. 使用 `skills/harness-governance/SKILL.md` 决定需要哪些角色和哪些门禁
-5. 需求说明经任务提出方确认后，再进入拆解、方案、实现准备和实现
-6. 按任务推进过程填写对应模板
-7. 收口前核对证据、风险、回退方案和交接状态
+1. 先检查当前平台是否支持 `sub-agent`
+2. 在目标项目根目录创建 `AGENTS.md`
+3. 创建 `project-docs/`
+4. 再填写 `templates/00_任务入口模板.md`
+5. 先澄清需求内容、主要场景和验收标准，再判断任务属于轻量、标准还是严格模式
+6. 如果命中高风险，先填写 `templates/09_高风险触发模板.md`
+7. 使用 `skills/harness-governance/SKILL.md` 决定需要哪些角色和哪些门禁
+8. 需求说明经任务提出方确认后，再进入拆解、方案、实现准备和实现
+9. 按任务推进过程填写对应模板
+10. 收口前核对证据、风险、回退方案和交接状态
 
 ## 最小完整角色工作流图
 
@@ -178,13 +195,14 @@ flowchart TD
 最小用法：
 
 1. 先从 `skills/harness-governance/SKILL.md` 开始，判断这次任务是轻量、标准还是严格模式。
-2. 在进入拆解和方案前，先由需求分析师把需求内容、主要场景和验收标准澄清；关键未知问题必须继续跟任务提出方沟通，并让任务提出方确认当前需求说明。
-3. 按模式决定角色：
+2. 初始化项目时，先检查平台是否支持 `sub-agent`，并在项目根目录创建 `AGENTS.md`；建议直接使用 `templates/13_AGENTS模板.md`。
+3. 在进入拆解和方案前，先由需求分析师把需求内容、主要场景和验收标准澄清；关键未知问题必须继续跟任务提出方沟通，并让任务提出方确认当前需求说明。
+4. 按模式决定角色：
    - 轻量模式：需求分析师或项目经理负责入口；一个实施角色负责改动；行为有变化时由测试工程师验证。
    - 标准模式：通常使用需求分析师、项目经理、实施角色、测试工程师；命中安全或数据库时加入安全审计工程师或 DBA。
    - 严格模式：在标准模式基础上，通常还要显式加入架构师，并补齐高风险触发单。
-4. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；有实质性方案取舍时，先让任务提出方确认方案，再进入实现准备。
-5. 按阶段填写模板：
+5. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；有实质性方案取舍时，先让任务提出方确认方案，再进入实现准备。
+6. 按阶段填写模板：
    - 任务入口：`templates/00_任务入口模板.md`
    - 需求澄清：`templates/01_需求说明模板.md`
    - 拆解安排：`templates/02_任务拆解模板.md`
@@ -197,14 +215,15 @@ flowchart TD
    - 数据库审核：`templates/07_数据库审核模板.md`
    - 收口：`templates/08_项目收口模板.md`
    - 通用交接：`templates/12_通用交接模板.md`
-6. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
-7. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
-8. 先检查平台是否支持 sub-agent：支持时按一角色一 sub-agent 执行；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
-9. 如果测试、安全或 DBA 卡住，不要直接往后推：
+   - 项目初始化：`templates/13_AGENTS模板.md`
+7. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
+8. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
+9. 先检查平台是否支持 sub-agent：支持时按一角色一 sub-agent 执行；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
+10. 如果测试、安全或 DBA 卡住，不要直接往后推：
    - 项目经理负责决定回流给哪个实施角色
    - 实施角色修复后重新提交实现交接
    - 测试工程师或相关审核角色重新验证
-10. 测试至少要覆盖基本功能测试、集成测试、关键边界和必要回归；如果没有集成面，必须在测试结论里写清原因。
+11. 测试至少要覆盖基本功能测试、集成测试、关键边界和必要回归；如果没有集成面，必须在测试结论里写清原因。
 
 如果只是第一次试运行，建议先用一个标准模式的小功能或普通缺陷修复走完整链路。
 
@@ -223,6 +242,7 @@ flowchart TD
 - `templates/08_项目收口模板.md`
 - `templates/09_高风险触发模板.md`
 - `templates/12_通用交接模板.md`
+- `templates/13_AGENTS模板.md`
 - `templates/角色Skill模板.md`
 
 ## 已拆分的角色 Skill
@@ -317,15 +337,29 @@ It is not tied to any specific platform. The goal is to express the rules in a w
   - Standardized templates
   - Used to keep each handoff and artifact in a consistent format
 
+- `templates/13_AGENTS模板.md`
+  - Project initialization template
+  - Used to generate `AGENTS.md` in the target project root
+
 ## Boundary Between Package Rules and Project Outputs
 
 - The `skills/`, `docs/`, and `templates/` directories in this repository belong to the skill bundle itself.
 - A target project should not copy this full rule set into its own engineering directory.
 - A target project should only store the actual business artifacts, handoff records, and closure materials produced for that project.
+- When initializing a project with this bundle, create a root-level `AGENTS.md` to hold project-level hard constraints.
 
 ## Recommended Project Output Layout
 
-Inside the target project, use a dedicated `project-docs/` root:
+Inside the target project root, create at least:
+
+```text
+AGENTS.md
+project-docs/
+```
+
+Generate `AGENTS.md` from `templates/13_AGENTS模板.md`.
+
+Then use this `project-docs/` layout:
 
 ```text
 project-docs/
@@ -424,25 +458,29 @@ flowchart TD
 
 ## Recommended Usage Order
 
-1. Start with `templates/00_任务入口模板.md`
-2. Decide whether the task is lightweight, standard, or strict
-3. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
-4. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
-5. Fill the corresponding templates as the task progresses
-6. Before closure, verify evidence, risks, rollback plan, and handoff status
+1. Check whether the current platform supports `sub-agent`
+2. Create `AGENTS.md` in the target project root
+3. Create `project-docs/`
+4. Start with `templates/00_任务入口模板.md`
+5. Decide whether the task is lightweight, standard, or strict
+6. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
+7. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
+8. Fill the corresponding templates as the task progresses
+9. Before closure, verify evidence, risks, rollback plan, and handoff status
 
 ## How To Use
 
 Minimum workflow:
 
 1. Start from `skills/harness-governance/SKILL.md` and determine whether the task is lightweight, standard, or strict.
-2. Before breakdown or solution work starts, the requirements analyst clarifies the requirement content, main scenarios, and acceptance criteria. Critical unknowns must be discussed with the requester before the requirements handoff can move forward.
-3. Select roles based on the mode:
+2. During project initialization, check whether the platform supports `sub-agent`, then create `AGENTS.md` in the target project root. The recommended starting point is `templates/13_AGENTS模板.md`.
+3. Before breakdown or solution work starts, the requirements analyst clarifies the requirement content, main scenarios, and acceptance criteria. Critical unknowns must be discussed with the requester before the requirements handoff can move forward.
+4. Select roles based on the mode:
    - Lightweight: either the requirements analyst or the project manager handles intake; one implementation role performs the change; if behavior changes, the test engineer validates it.
    - Standard: usually requirements analyst, project manager, implementation role, and test engineer; add the security auditor or DBA when security or database scope is involved.
    - Strict: based on standard mode, usually add the architect explicitly and complete the high-risk trigger document.
-4. In the solution stage, provide multiple viable options, explain each option's pros and cons, add an architecture diagram, and get requester confirmation before moving into implementation preparation when a meaningful trade-off exists.
-5. Fill templates stage by stage:
+5. In the solution stage, provide multiple viable options, explain each option's pros and cons, add an architecture diagram, and get requester confirmation before moving into implementation preparation when a meaningful trade-off exists.
+6. Fill templates stage by stage:
    - Task intake: `templates/00_任务入口模板.md`
    - Requirements clarification: `templates/01_需求说明模板.md`
    - Task breakdown: `templates/02_任务拆解模板.md`
@@ -455,14 +493,15 @@ Minimum workflow:
    - Database review: `templates/07_数据库审核模板.md`
    - Closure: `templates/08_项目收口模板.md`
    - Generic handoff: `templates/12_通用交接模板.md`
-6. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
-7. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
-8. First check whether the platform supports sub-agents: if yes, run one role per sub-agent; if not, let governance simulate roles serially while keeping role boundaries and handoffs intact.
-9. If testing, security review, or database review blocks the flow:
+   - Project initialization: `templates/13_AGENTS模板.md`
+7. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
+8. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
+9. First check whether the platform supports sub-agents: if yes, run one role per sub-agent; if not, let governance simulate roles serially while keeping role boundaries and handoffs intact.
+10. If testing, security review, or database review blocks the flow:
    - The project manager decides which implementation role receives the rework
    - The implementation role fixes the issue and resubmits the implementation handoff
    - The test engineer or relevant review role validates again
-10. Testing should cover basic functional checks, integration checks, key edges, and necessary regression. If there is no integration surface, the test result must explicitly say why.
+11. Testing should cover basic functional checks, integration checks, key edges, and necessary regression. If there is no integration surface, the test result must explicitly say why.
 
 If you are trying the package for the first time, start with a small standard-mode feature or a normal bug fix and run the full workflow end to end.
 
@@ -481,6 +520,7 @@ If you are trying the package for the first time, start with a small standard-mo
 - `templates/08_项目收口模板.md`
 - `templates/09_高风险触发模板.md`
 - `templates/12_通用交接模板.md`
+- `templates/13_AGENTS模板.md`
 - `templates/角色Skill模板.md`
 
 ## Included Role Skills
