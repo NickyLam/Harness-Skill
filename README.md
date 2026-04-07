@@ -182,10 +182,12 @@ flowchart TD
 ## 阶段门禁与失败回流
 
 - 需求分析师先把需求内容、主要场景和验收标准讲清，技术栈讨论只能作为约束补充，不能替代需求确认。
+- 涉及页面、交互或视觉变化时，需求分析师先完成 UI 原型调研或参考案例收口；没有独立设计角色时，由前端工程师负责出原图或可实现原型，并先拿到确认。
 - 需求说明未确认前，不进入正式拆解、方案冻结或实现。
 - 架构师必须给出备选方案和边界说明；存在实质取舍时，要先拿到任务提出方确认。
-- 测试工程师至少要覆盖基本功能测试、集成测试、关键边界和必要回归；不适用项必须写理由。
-- 项目经理负责检查测试覆盖是否满足验收标准、功能测试和集成测试要求，不满足就补测或阻塞。
+- 测试工程师至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；不适用项必须写理由。
+- 项目经理负责检查测试覆盖是否满足验收标准、启动或运行验证、功能测试和集成测试要求，不满足就补测或阻塞。
+- 任何角色检查不通过时，默认回流给上一个产出该工件的责任角色返工；项目经理只协调顺序和重验入口。
 - 能拆成独立子任务时，责任角色应优先使用 sub-agent 并行处理；最终判断和交接仍由当前责任角色负责。
 - 命中安全或数据库内容时，在“测试”与“收口”之间插入对应审核支线，不改变主线结构。
 - 先检查平台是否支持 sub-agent；支持时按“一角色一 sub-agent”执行，不支持时才由主控串行模拟角色。
@@ -197,12 +199,13 @@ flowchart TD
 1. 先从 `skills/harness-governance/SKILL.md` 开始，判断这次任务是轻量、标准还是严格模式。
 2. 初始化项目时，先检查平台是否支持 `sub-agent`，并在项目根目录创建 `AGENTS.md`；建议直接使用 `templates/13_AGENTS模板.md`。
 3. 在进入拆解和方案前，先由需求分析师把需求内容、主要场景和验收标准澄清；关键未知问题必须继续跟任务提出方沟通，并让任务提出方确认当前需求说明。
-4. 按模式决定角色：
+4. 涉及页面、交互或视觉变化时，先补 UI 原型调研或参考案例；当前项目没有独立设计角色时，由前端工程师负责出原图或可实现原型，并先拿到任务提出方确认。
+5. 按模式决定角色：
    - 轻量模式：需求分析师或项目经理负责入口；一个实施角色负责改动；行为有变化时由测试工程师验证。
    - 标准模式：通常使用需求分析师、项目经理、实施角色、测试工程师；命中安全或数据库时加入安全审计工程师或 DBA。
    - 严格模式：在标准模式基础上，通常还要显式加入架构师，并补齐高风险触发单。
-5. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；有实质性方案取舍时，先让任务提出方确认方案，再进入实现准备。
-6. 按阶段填写模板：
+6. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；有实质性方案取舍时，先让任务提出方确认方案，再进入实现准备。
+7. 按阶段填写模板：
    - 任务入口：`templates/00_任务入口模板.md`
    - 需求澄清：`templates/01_需求说明模板.md`
    - 拆解安排：`templates/02_任务拆解模板.md`
@@ -216,14 +219,15 @@ flowchart TD
    - 收口：`templates/08_项目收口模板.md`
    - 通用交接：`templates/12_通用交接模板.md`
    - 项目初始化：`templates/13_AGENTS模板.md`
-7. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
-8. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
-9. 先检查平台是否支持 sub-agent：支持时按一角色一 sub-agent 执行；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
-10. 如果测试、安全或 DBA 卡住，不要直接往后推：
-   - 项目经理负责决定回流给哪个实施角色
-   - 实施角色修复后重新提交实现交接
+8. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
+9. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
+10. 先检查平台是否支持 sub-agent：支持时按一角色一 sub-agent 执行；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
+11. 如果测试、安全或 DBA 卡住，不要直接往后推：
+   - 默认回流给上一个产出该工件的责任角色返工
+   - 项目经理负责决定回流顺序、责任边界和重验入口
+   - 返工角色修复后重新提交对应阶段主工件和通用交接
    - 测试工程师或相关审核角色重新验证
-11. 测试至少要覆盖基本功能测试、集成测试、关键边界和必要回归；如果没有集成面，必须在测试结论里写清原因。
+12. 测试至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；如果没有集成面或没有独立启动面，必须在测试结论里写清原因。
 
 如果只是第一次试运行，建议先用一个标准模式的小功能或普通缺陷修复走完整链路。
 
@@ -448,10 +452,12 @@ flowchart TD
 ## Stage Gates and Failure Loop
 
 - The requirements analyst must clarify the real requirement content, main scenarios, and acceptance criteria before technical stack discussion drives the work.
+- For tasks that change pages, interactions, or visuals, requirement work must first capture UI prototype research or reference cases. If there is no dedicated design role, the frontend engineer owns the source mock or implementable prototype and gets requester confirmation before implementation.
 - No confirmed requirement handoff means no formal breakdown, no frozen solution, and no implementation start.
 - The architect must provide options and boundary definitions. If the choice has meaningful trade-offs, the requester must confirm the selected solution.
-- The test engineer must cover basic functional testing, integration testing, key edges, and necessary regression. If integration does not apply, that reason must be written down.
-- The project manager checks whether test coverage satisfies acceptance criteria plus functional and integration coverage. If not, the work is blocked or sent back for more testing.
+- The test engineer must cover startup or runability checks, basic functional testing, integration testing, key edges, and necessary regression. If startup or integration does not apply, that reason must be written down.
+- The project manager checks whether test coverage satisfies acceptance criteria plus startup or runability verification, functional coverage, and integration coverage. If not, the work is blocked or sent back for more testing.
+- When any role fails a check, rework defaults to the previous role that produced the artifact. The project manager coordinates order and revalidation entry points, but does not take over the rework itself.
 - When work can be split into independent bounded subtasks, the responsible role should prefer sub-agents for parallel execution. Final judgment and handoff stay with the responsible role.
 - If security or database review is required, insert that review branch between testing and closure without changing the main flow.
 - First check whether the platform supports sub-agents. If it does, run with one role per sub-agent. Only fall back to serial role simulation when the platform does not support it.
@@ -462,11 +468,13 @@ flowchart TD
 2. Create `AGENTS.md` in the target project root
 3. Create `project-docs/`
 4. Start with `templates/00_任务入口模板.md`
-5. Decide whether the task is lightweight, standard, or strict
-6. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
-7. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
-8. Fill the corresponding templates as the task progresses
-9. Before closure, verify evidence, risks, rollback plan, and handoff status
+5. Clarify requirement content, main scenarios, and acceptance criteria before freezing stack or solution
+6. For tasks with page, interaction, or visual changes, confirm the UI prototype direction or reference cases first
+7. Decide whether the task is lightweight, standard, or strict
+8. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
+9. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
+10. Fill the corresponding templates as the task progresses
+11. Before closure, verify evidence, risks, rollback plan, and handoff status
 
 ## How To Use
 
@@ -475,12 +483,13 @@ Minimum workflow:
 1. Start from `skills/harness-governance/SKILL.md` and determine whether the task is lightweight, standard, or strict.
 2. During project initialization, check whether the platform supports `sub-agent`, then create `AGENTS.md` in the target project root. The recommended starting point is `templates/13_AGENTS模板.md`.
 3. Before breakdown or solution work starts, the requirements analyst clarifies the requirement content, main scenarios, and acceptance criteria. Critical unknowns must be discussed with the requester before the requirements handoff can move forward.
-4. Select roles based on the mode:
+4. For tasks that change pages, interactions, or visuals, add UI prototype research or reference collection first. If the project has no dedicated design role, the frontend engineer owns the source mock or implementable prototype and gets requester confirmation before implementation.
+5. Select roles based on the mode:
    - Lightweight: either the requirements analyst or the project manager handles intake; one implementation role performs the change; if behavior changes, the test engineer validates it.
    - Standard: usually requirements analyst, project manager, implementation role, and test engineer; add the security auditor or DBA when security or database scope is involved.
    - Strict: based on standard mode, usually add the architect explicitly and complete the high-risk trigger document.
-5. In the solution stage, provide multiple viable options, explain each option's pros and cons, add an architecture diagram, and get requester confirmation before moving into implementation preparation when a meaningful trade-off exists.
-6. Fill templates stage by stage:
+6. In the solution stage, provide multiple viable options, explain each option's pros and cons, add an architecture diagram, and get requester confirmation before moving into implementation preparation when a meaningful trade-off exists.
+7. Fill templates stage by stage:
    - Task intake: `templates/00_任务入口模板.md`
    - Requirements clarification: `templates/01_需求说明模板.md`
    - Task breakdown: `templates/02_任务拆解模板.md`
@@ -494,14 +503,15 @@ Minimum workflow:
    - Closure: `templates/08_项目收口模板.md`
    - Generic handoff: `templates/12_通用交接模板.md`
    - Project initialization: `templates/13_AGENTS模板.md`
-7. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
-8. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
-9. First check whether the platform supports sub-agents: if yes, run one role per sub-agent; if not, let governance simulate roles serially while keeping role boundaries and handoffs intact.
-10. If testing, security review, or database review blocks the flow:
-   - The project manager decides which implementation role receives the rework
-   - The implementation role fixes the issue and resubmits the implementation handoff
+8. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
+9. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
+10. First check whether the platform supports sub-agents: if yes, run one role per sub-agent; if not, let governance simulate roles serially while keeping role boundaries and handoffs intact.
+11. If testing, security review, or database review blocks the flow:
+   - Rework defaults to the previous role that produced the artifact
+   - The project manager decides the order, ownership boundary, and revalidation entry point
+   - The rework owner resubmits the stage artifact plus a generic handoff record
    - The test engineer or relevant review role validates again
-11. Testing should cover basic functional checks, integration checks, key edges, and necessary regression. If there is no integration surface, the test result must explicitly say why.
+12. Testing should cover startup or runability checks, basic functional checks, integration checks, key edges, and necessary regression. If there is no startup surface or no integration surface, the test result must explicitly say why.
 
 If you are trying the package for the first time, start with a small standard-mode feature or a normal bug fix and run the full workflow end to end.
 

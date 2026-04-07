@@ -32,8 +32,8 @@ description: Use when a task changes services, APIs, transactions, backend workf
 
 1. 明确这次改什么、不改什么。
 2. 按需求和方案完成后端实现。
-3. 自检接口契约、异常处理、日志和关键流程。
-4. 用 `templates/04_实现交接模板.md` 写清已完成内容、自检结果和已知问题。
+3. 自检接口契约、异常处理、日志、关键流程，以及服务是否能按约定启动和基本运行。
+4. 用 `templates/04_实现交接模板.md` 写清已完成内容、自检结果、启动或运行验证结果和已知问题。
 5. 把需要测试、安全或 DBA 继续核对的点写清楚。
 6. 如果测试、安全、DBA 或联调反馈问题，负责修复本角色范围内的问题，更新实现交接，再交回测试或相关审核角色。
 
@@ -50,6 +50,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 - 后端改动说明
 - 自检结果
 - 接口实现说明
+- 启动或运行自检结果
 - 已知问题
 - 回流修复说明
 
@@ -63,6 +64,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 
 - 静默改契约
 - 吞掉异常不记录
+- 未验证服务能启动或关键流程能跑通，就直接交接给测试
 - 绕开事务、安全或幂等要求
 
 ## 必须停下的情况
@@ -79,6 +81,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 只有在下面条件都满足时，才算本角色完成：
 - 本角色范围内实现完成
 - 自检已做
+- 启动或运行验证已做，或已说明为什么不适用
 - 集成风险已披露
 - 交接内容完整
 - 收到回流缺陷时已完成修复说明或明确无法在本角色解决的原因

@@ -31,8 +31,8 @@ description: Use when behavior changed and someone independent must verify funct
 ## 工作步骤
 
 1. 根据需求说明和实现交接确定验证范围。
-2. 明确基本功能测试、集成测试、关键边界和回归范围；如果没有集成面，要明确写出原因。
-3. 执行验证，不要用“理论上没问题”代替结果。
+2. 明确启动或运行检查、基本功能测试、集成测试、关键边界和回归范围；如果没有集成面或没有独立启动面，要明确写出原因。
+3. 先验证项目、服务或页面是否能按交接要求启动和基本运行，再执行后续验证；不要用“理论上没问题”代替结果。
 4. 用 `templates/05_测试结论模板.md` 写清测试范围、结果、未覆盖项和结论。
 5. 如果不通过或部分通过，要明确卡点、建议回流的实施角色和需要重验的范围。
 6. 如果对测试范围是否足够有争议，提交项目经理协调，并回到需求说明和方案决策核对。
@@ -47,6 +47,7 @@ description: Use when behavior changed and someone independent must verify funct
 ## 必须交出什么
 
 - 测试范围
+- 启动或运行检查记录
 - 功能测试记录
 - 集成测试记录
 - 测试结果
@@ -67,6 +68,7 @@ description: Use when behavior changed and someone independent must verify funct
 - 用口头判断代替验证
 - 为了通过而删测试或缩范围
 - 在没有合理说明时跳过基本功能测试或集成测试
+- 没验证项目、服务或页面能启动和基本运行，就把整体结果写成 PASS
 - 在缺少功能测试或集成测试结论时把整体结果写成 PASS
 
 ## 必须停下的情况
@@ -74,6 +76,7 @@ description: Use when behavior changed and someone independent must verify funct
 - 验收标准不清楚
 - 实现交接不完整
 - 测试环境不成立
+- 项目、服务或页面无法启动，且实施角色还没有补充修复或可用环境
 - 关键输入缺失
 
 停下后，回退给项目经理或相关实施角色补材料。
@@ -82,6 +85,7 @@ description: Use when behavior changed and someone independent must verify funct
 
 只有在下面条件都满足时，才算本角色完成：
 - 主路径已验证
+- 启动或运行检查已验证，或已说明为何不适用
 - 基本功能测试已验证
 - 集成测试已验证，或已说明为何不适用
 - 关键边界已验证
