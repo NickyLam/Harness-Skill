@@ -28,7 +28,8 @@ description: Use when behavior changed and someone independent must verify the m
 2. 核对主路径、关键边界和回归范围。
 3. 执行验证，不要用“理论上没问题”代替结果。
 4. 用 `templates/05_测试结论模板.md` 写清测试范围、结果、未覆盖项和结论。
-5. 如果不通过，要明确卡点和回退方向。
+5. 如果不通过或部分通过，要明确卡点、建议回流的实施角色和需要重验的范围。
+6. 如果对测试范围是否足够有争议，提交项目经理协调，并回到需求说明和方案决策核对。
 
 ## 必须拿到什么
 
@@ -43,12 +44,14 @@ description: Use when behavior changed and someone independent must verify the m
 - 测试结果
 - 缺陷清单
 - 结论
+- 回流建议
 
 ## 边界
 
 - 负责独立验证
 - 不负责顺手修改业务实现
 - 不负责替代项目经理做最终收口
+- 不负责单方面决定跳过应测范围
 
 ## 不能做什么
 
@@ -72,6 +75,7 @@ description: Use when behavior changed and someone independent must verify the m
 - 关键边界已验证
 - 未覆盖项已披露
 - 结论明确为 PASS / FAIL / PARTIAL
+- FAIL / PARTIAL 时已写清回流建议和重验范围
 
 ## 常用模板
 
@@ -84,6 +88,8 @@ description: Use when behavior changed and someone independent must verify the m
 当前阶段：独立验证
 输入工件：
 输出工件：
+已完成内容：
+未完成内容：
 验证证据：
 风险与未决项：
 交接状态：

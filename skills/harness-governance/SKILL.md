@@ -82,13 +82,14 @@ description: Use when governing AI-assisted software engineering work across rol
 ### 轻量模式
 
 至少需要：
-- 任务入口负责人
-- 实施角色
-- 验证角色
+- 需求分析师或项目经理，二选一负责入口和分级
+- 一个实施角色
+- 行为发生变化时，需要测试工程师负责验证
 
 说明：
-- 如果只是文档、文案或纯说明性改动，验证角色可以和实施角色合并
-- 如果行为发生变化，验证角色最好独立
+- 如果只是文档、文案或纯说明性改动，入口角色可以和实施角色合并
+- 如果行为没有变化，实施角色可以自证并直接交回项目经理或入口角色收口
+- 如果行为发生变化，测试工程师最好独立
 - 只有碰到安全或数据库内容，才额外拉入安全或数据库角色
 
 ### 标准模式
@@ -132,7 +133,9 @@ description: Use when governing AI-assisted software engineering work across rol
 - 需求说明：`templates/01_需求说明模板.md`
 - 任务拆解：`templates/02_任务拆解模板.md`
 - 方案决策：`templates/03_方案决策模板.md`
+- 实现准备：`templates/10_实现准备模板.md`
 - 实现交接：`templates/04_实现交接模板.md`
+- 联调结论：`templates/11_联调结论模板.md`
 - 测试结论：`templates/05_测试结论模板.md`
 - 安全审查：`templates/06_安全审查模板.md`
 - 数据库审核：`templates/07_数据库审核模板.md`
@@ -188,7 +191,15 @@ description: Use when governing AI-assisted software engineering work across rol
 - 影响面是什么
 - 回退思路是什么
 
-### 阶段 4：实现与自检
+### 阶段 4：实现准备
+
+必须写清楚：
+- 这次要改什么
+- 这次不改什么
+- 联调前提和联调方式
+- 测试重点和环境要求
+
+### 阶段 5：实现与自检
 
 实施角色必须交出：
 - 实际改动说明
@@ -196,7 +207,15 @@ description: Use when governing AI-assisted software engineering work across rol
 - 已知问题
 - 需要下游继续核对的点
 
-### 阶段 5：独立验证
+### 阶段 6：集成与联调
+
+相关实施角色至少要说明：
+- 联调了哪些主流程
+- 哪些联调项通过
+- 哪些问题还阻塞
+- 需要回流给谁修复
+
+### 阶段 7：独立验证
 
 验证角色至少要说明：
 - 验了什么
@@ -205,7 +224,7 @@ description: Use when governing AI-assisted software engineering work across rol
 - 哪些没覆盖
 - 结论是通过、部分通过还是不通过
 
-### 阶段 6：安全与数据库审核
+### 阶段 8：安全与数据库审核
 
 命中相关内容时不能跳过。
 
@@ -214,7 +233,7 @@ description: Use when governing AI-assisted software engineering work across rol
 - 必改项和建议项分开写清楚
 - 放行条件明确
 
-### 阶段 7：收口
+### 阶段 9：收口
 
 只有在下面条件都满足时，才能说任务可以收口：
 - 必要工件齐了
@@ -284,10 +303,11 @@ description: Use when governing AI-assisted software engineering work across rol
 
 ```md
 当前角色：
-任务模式：
 当前阶段：
 输入工件：
 输出工件：
+已完成内容：
+未完成内容：
 验证证据：
 风险与未决项：
 交接状态：

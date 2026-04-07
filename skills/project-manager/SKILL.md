@@ -26,9 +26,12 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 
 1. 根据需求说明拆出子任务、责任角色、前置条件和汇合点。
 2. 用 `templates/02_任务拆解模板.md` 写清顺序、依赖和风险台账。
-3. 推进时核对是否缺关键角色或关键工件。
-4. 收口前汇总测试、安全、数据库和回退信息。
-5. 给出当前能否继续推进的结论。
+3. 在实施前用 `templates/10_实现准备模板.md` 写清实现边界、联调约定和测试准备。
+4. 推进时核对是否缺关键角色或关键工件。
+5. 检查测试范围是否覆盖验收标准、关键边界和必要回归，必要时要求补测。
+6. 如果测试、安全或 DBA 卡住，明确回流给哪个实施角色修复，修完后回到哪一步。
+7. 收口前汇总测试、安全、数据库和回退信息。
+8. 给出当前能否继续推进的结论。
 
 ## 必须拿到什么
 
@@ -36,6 +39,7 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 - 需求说明
 - 当前任务模式
 - 关键约束
+- 测试结论及未覆盖项说明
 
 ## 必须交出什么
 
@@ -43,10 +47,12 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 - 角色分工
 - 风险台账
 - 收口建议
+- 回流修复安排
 
 ## 边界
 
 - 负责安排和协调
+- 负责检查测试是否达到进入下一阶段的最低要求
 - 不负责代替架构师定方案
 - 不负责代替测试、安全或 DBA 给出最终专业结论
 
@@ -55,6 +61,7 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 - 跳过关键门禁
 - 越权替代其他角色做放行结论
 - 明知缺证据还继续往前推
+- 在测试范围明显不足时直接推动收口
 
 ## 必须停下的情况
 
@@ -62,6 +69,8 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 - 关键依赖未明确
 - 必须参加的角色未到位
 - 关键风险无人负责
+- 测试缺陷无人接收修复
+- 测试未覆盖项会影响收口但还没人确认处理
 
 停下后，要明确是谁来补、补什么、补完再回到哪一步。
 
@@ -71,12 +80,14 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 - 谁做什么清楚
 - 顺序和汇合点清楚
 - 风险台账已初始化或已更新
+- 测试到位性已检查清楚
 - 下一步和下一角色清楚
 
 ## 常用模板
 
 - `templates/00_任务入口模板.md`
 - `templates/02_任务拆解模板.md`
+- `templates/10_实现准备模板.md`
 - `templates/08_项目收口模板.md`
 
 ## 交接格式
@@ -86,6 +97,8 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 当前阶段：拆解与安排 / 收口
 输入工件：
 输出工件：
+已完成内容：
+未完成内容：
 验证证据：
 风险与未决项：
 交接状态：

@@ -84,6 +84,8 @@ description: Use when a task touches permissions, authentication, sensitive data
 当前阶段：安全审核
 输入工件：
 输出工件：
+已完成内容：
+未完成内容：
 验证证据：
 风险与未决项：
 交接状态：

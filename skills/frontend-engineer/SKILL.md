@@ -29,6 +29,7 @@ description: Use when a task changes pages, components, browser interactions, cl
 3. 自检主路径、异常态、空态和加载态。
 4. 用 `templates/04_实现交接模板.md` 写清已完成内容、自检结果和已知问题。
 5. 把需要测试或联调继续核对的点显式写出来。
+6. 如果测试、安全或联调反馈问题，负责修复本角色范围内的问题，更新实现交接，再交回测试或相关审核角色。
 
 ## 必须拿到什么
 
@@ -43,6 +44,7 @@ description: Use when a task changes pages, components, browser interactions, cl
 - 自检结果
 - 异常态说明
 - 联调注意点
+- 回流修复说明
 
 ## 边界
 
@@ -71,9 +73,11 @@ description: Use when a task changes pages, components, browser interactions, cl
 - 自检已做
 - 已知问题已披露
 - 交接内容完整
+- 收到回流缺陷时已完成修复说明或明确无法在本角色解决的原因
 
 ## 常用模板
 
+- `templates/11_联调结论模板.md`
 - `templates/04_实现交接模板.md`
 
 ## 交接格式
@@ -83,6 +87,8 @@ description: Use when a task changes pages, components, browser interactions, cl
 当前阶段：实现与自检 / 联调
 输入工件：
 输出工件：
+已完成内容：
+未完成内容：
 验证证据：
 风险与未决项：
 交接状态：
