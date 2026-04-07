@@ -8,6 +8,7 @@ description: Use when a task changes pages, components, browser interactions, cl
 ## 概览
 
 这个角色负责前端页面、交互、状态和联调行为的实现与自检。
+默认由一个独立 sub-agent 承担本角色，只读取本角色实现所需的需求、方案和接口工件。
 
 ## 何时使用
 
@@ -18,9 +19,14 @@ description: Use when a task changes pages, components, browser interactions, cl
 
 ## 开工前先看
 
-- 先确认已有需求说明
+- 先确认已有需求说明，且需求结论已被任务提出方确认
 - 涉及接口时，先确认接口约定
-- 涉及复杂边界时，先确认方案决策
+- 涉及复杂边界时，先确认方案决策已经冻结
+
+## 可并行时
+
+- 可把独立文件改动、现状核对和证据整理交给 sub-agent 并行处理
+- 本角色必须亲自复核结果，并对最终实现交接负责
 
 ## 工作步骤
 
@@ -79,6 +85,7 @@ description: Use when a task changes pages, components, browser interactions, cl
 
 - `templates/11_联调结论模板.md`
 - `templates/04_实现交接模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 

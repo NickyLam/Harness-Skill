@@ -8,6 +8,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 ## 概览
 
 这个角色负责数据库改动的可执行性、风险和回退判断。
+默认由一个独立 sub-agent 承担本角色，只读取需求、方案、脚本和数据影响材料。
 
 ## 何时使用
 
@@ -22,6 +23,11 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 - 先确认已有需求说明和方案决策
 - 先拿到变更脚本和数据影响说明
 - 如果连执行条件和回退方向都说不清，不要直接给放行意见
+
+## 可并行时
+
+- 可把脚本检查、影响面初查和执行条件整理交给 sub-agent 并行处理
+- 最终数据库审核结论、执行条件和交接必须由本角色直接完成
 
 ## 工作步骤
 
@@ -77,6 +83,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 
 - `templates/07_数据库审核模板.md`
 - `templates/09_高风险触发模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 

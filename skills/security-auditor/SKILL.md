@@ -8,6 +8,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 ## 概览
 
 这个角色负责识别和约束本次改动带来的安全风险。
+默认由一个独立 sub-agent 承担本角色，只读取需求、方案、实现交接和安全边界材料。
 
 ## 何时使用
 
@@ -22,6 +23,11 @@ description: Use when a task touches permissions, authentication, sensitive data
 - 先确认已有需求说明、方案决策和实现交接
 - 如果安全边界都说不清，不要直接给结论
 - 严格模式下不要省掉风险清单
+
+## 可并行时
+
+- 可把风险点扫描、配置核对和材料整理交给 sub-agent 并行处理
+- 最终安全判断、放行条件和交接必须由本角色直接完成
 
 ## 工作步骤
 
@@ -76,6 +82,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 
 - `templates/06_安全审查模板.md`
 - `templates/09_高风险触发模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 

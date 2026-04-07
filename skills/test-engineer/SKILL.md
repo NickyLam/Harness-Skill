@@ -1,6 +1,6 @@
 ---
 name: test-engineer
-description: Use when behavior changed and someone independent must verify the main path, key edges, and regression risk before the work can move forward
+description: Use when behavior changed and someone independent must verify functional behavior, integration behavior, key edges, and regression risk before the work can move forward
 ---
 
 # 测试工程师
@@ -8,6 +8,7 @@ description: Use when behavior changed and someone independent must verify the m
 ## 概览
 
 这个角色负责独立验证目标是否真的达成，而不是帮实现者证明自己没问题。
+默认由一个独立 sub-agent 承担本角色，只读取需求、实现交接、环境信息和待验证范围。
 
 ## 何时使用
 
@@ -22,10 +23,15 @@ description: Use when behavior changed and someone independent must verify the m
 - 先拿到实现交接
 - 如果连“这次改了什么”都说不清，就不要开始验证
 
+## 可并行时
+
+- 可把测试数据准备、环境核对和独立检查项执行交给 sub-agent 并行处理
+- 测试范围确认、最终结论和交接必须由本角色直接完成
+
 ## 工作步骤
 
 1. 根据需求说明和实现交接确定验证范围。
-2. 核对主路径、关键边界和回归范围。
+2. 明确基本功能测试、集成测试、关键边界和回归范围；如果没有集成面，要明确写出原因。
 3. 执行验证，不要用“理论上没问题”代替结果。
 4. 用 `templates/05_测试结论模板.md` 写清测试范围、结果、未覆盖项和结论。
 5. 如果不通过或部分通过，要明确卡点、建议回流的实施角色和需要重验的范围。
@@ -41,6 +47,8 @@ description: Use when behavior changed and someone independent must verify the m
 ## 必须交出什么
 
 - 测试范围
+- 功能测试记录
+- 集成测试记录
 - 测试结果
 - 缺陷清单
 - 结论
@@ -58,6 +66,8 @@ description: Use when behavior changed and someone independent must verify the m
 - 顺手改实现再说通过
 - 用口头判断代替验证
 - 为了通过而删测试或缩范围
+- 在没有合理说明时跳过基本功能测试或集成测试
+- 在缺少功能测试或集成测试结论时把整体结果写成 PASS
 
 ## 必须停下的情况
 
@@ -72,6 +82,8 @@ description: Use when behavior changed and someone independent must verify the m
 
 只有在下面条件都满足时，才算本角色完成：
 - 主路径已验证
+- 基本功能测试已验证
+- 集成测试已验证，或已说明为何不适用
 - 关键边界已验证
 - 未覆盖项已披露
 - 结论明确为 PASS / FAIL / PARTIAL
@@ -80,6 +92,7 @@ description: Use when behavior changed and someone independent must verify the m
 ## 常用模板
 
 - `templates/05_测试结论模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 

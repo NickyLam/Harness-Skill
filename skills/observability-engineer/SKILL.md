@@ -8,6 +8,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 ## 概览
 
 这个角色负责确保上线后的关键行为看得见、告得出、出问题时能尽快处理。
+默认由一个独立 sub-agent 承担本角色，只读取方案、实现交接、发布计划和关键风险点。
 
 ## 何时使用
 
@@ -76,6 +77,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 
 - `templates/08_项目收口模板.md`
 - `templates/09_高风险触发模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 

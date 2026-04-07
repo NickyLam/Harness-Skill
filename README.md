@@ -50,9 +50,45 @@
   - 快速执行版规则
   - 适合做总控检查清单
 
+- `docs/05_项目产物落盘规范_v1.md`
+  - 项目产物目录建议
+  - 说明哪些内容属于 Skill 包，哪些内容应该落在目标项目里
+
 - `templates/`
   - 固定模板
   - 用来把每一步的交接写成统一格式
+
+## 规则与项目产物的边界
+
+- 这个仓库里的 `skills/`、`docs/`、`templates/` 属于 Skill 包自身，是规则资产，不是目标项目产物。
+- 实际项目里不应该把这套规则文档整体复制进工程目录。
+- 实际项目只应该落本次任务产生的业务工件、交接记录和收口材料。
+
+## 项目内产物目录建议
+
+建议在目标项目里统一使用 `project-docs/`：
+
+```text
+project-docs/
+  00_intake/
+  01_requirements/
+  02_planning/
+  03_solution/
+  04_implementation/
+  05_validation/
+  06_handoffs/
+  07_closure/
+```
+
+目录建议：
+- `00_intake`：任务入口、高风险触发单
+- `01_requirements`：需求说明、需求确认记录
+- `02_planning`：任务拆解、实现准备
+- `03_solution`：方案决策、方案确认记录
+- `04_implementation`：实现交接、联调结论
+- `05_validation`：测试结论、安全审查、数据库审核
+- `06_handoffs`：每个角色阶段结束后的通用交接记录
+- `07_closure`：项目收口、发布说明、运行观察说明
 
 ## 三种任务模式
 
@@ -89,22 +125,66 @@
 ## 建议使用顺序
 
 1. 先填写 `templates/00_任务入口模板.md`
-2. 判断任务属于轻量、标准还是严格模式
+2. 先澄清需求内容、主要场景和验收标准，再判断任务属于轻量、标准还是严格模式
 3. 如果命中高风险，先填写 `templates/09_高风险触发模板.md`
 4. 使用 `skills/harness-governance/SKILL.md` 决定需要哪些角色和哪些门禁
-5. 按任务推进过程填写对应模板
-6. 收口前核对证据、风险、回退方案和交接状态
+5. 需求说明经任务提出方确认后，再进入拆解、方案、实现准备和实现
+6. 按任务推进过程填写对应模板
+7. 收口前核对证据、风险、回退方案和交接状态
+
+## 最小完整角色工作流图
+
+```mermaid
+flowchart TD
+    A["任务入口与分级<br/>需求分析师 / 项目经理<br/>输出：任务入口单"]
+    B["需求澄清<br/>需求分析师<br/>输出：需求说明"]
+    C["任务拆解<br/>项目经理<br/>输出：任务拆解"]
+    D["方案确认 / 决定<br/>架构师<br/>输出：方案决策"]
+    E["实现准备<br/>项目经理 + 实施角色 + 测试工程师<br/>输出：实现准备"]
+    F["实现与自检<br/>前端 / 后端 / 需要时 DBA<br/>输出：实现交接"]
+    G["联调<br/>相关实施角色<br/>输出：联调结论"]
+    H{"联调是否通过？"}
+    I["测试<br/>测试工程师<br/>输出：测试结论"]
+    J{"测试结论"}
+    P{"是否允许条件收口？"}
+    R["失败回流<br/>项目经理判定回流顺序<br/>实施角色修复并重新提交实现交接"]
+    K["收口<br/>项目经理<br/>输出：项目收口"]
+
+    A --> B --> C --> D --> E --> F --> G --> H
+    H -->|PASS| I
+    H -->|FAIL / PARTIAL| R
+    I --> J
+    J -->|PASS| K
+    J -->|FAIL| R
+    J -->|PARTIAL| P
+    P -->|是| K
+    P -->|否| R
+    R --> F
+```
+
+## 阶段门禁与失败回流
+
+- 需求分析师先把需求内容、主要场景和验收标准讲清，技术栈讨论只能作为约束补充，不能替代需求确认。
+- 需求说明未确认前，不进入正式拆解、方案冻结或实现。
+- 架构师必须给出备选方案和边界说明；存在实质取舍时，要先拿到任务提出方确认。
+- 测试工程师至少要覆盖基本功能测试、集成测试、关键边界和必要回归；不适用项必须写理由。
+- 项目经理负责检查测试覆盖是否满足验收标准、功能测试和集成测试要求，不满足就补测或阻塞。
+- 能拆成独立子任务时，责任角色应优先使用 sub-agent 并行处理；最终判断和交接仍由当前责任角色负责。
+- 命中安全或数据库内容时，在“测试”与“收口”之间插入对应审核支线，不改变主线结构。
+- 默认执行方式是一角色一 sub-agent；主控负责分派和收敛，不要求每个角色反复读取整套上下文。
 
 ## 怎么使用
 
 最小用法：
 
 1. 先从 `skills/harness-governance/SKILL.md` 开始，判断这次任务是轻量、标准还是严格模式。
-2. 按模式决定角色：
+2. 在进入拆解和方案前，先由需求分析师把需求内容、主要场景和验收标准澄清，并让任务提出方确认当前需求说明。
+3. 按模式决定角色：
    - 轻量模式：需求分析师或项目经理负责入口；一个实施角色负责改动；行为有变化时由测试工程师验证。
    - 标准模式：通常使用需求分析师、项目经理、实施角色、测试工程师；命中安全或数据库时加入安全审计工程师或 DBA。
    - 严格模式：在标准模式基础上，通常还要显式加入架构师，并补齐高风险触发单。
-3. 按阶段填写模板：
+4. 架构阶段有实质性方案取舍时，先让任务提出方确认方案，再进入实现准备。
+5. 按阶段填写模板：
    - 任务入口：`templates/00_任务入口模板.md`
    - 需求澄清：`templates/01_需求说明模板.md`
    - 拆解安排：`templates/02_任务拆解模板.md`
@@ -116,11 +196,15 @@
    - 安全审核：`templates/06_安全审查模板.md`
    - 数据库审核：`templates/07_数据库审核模板.md`
    - 收口：`templates/08_项目收口模板.md`
-4. 每次交接都要写清楚当前角色、当前阶段、输入输出、已完成内容、未完成内容、验证证据、风险与未决项、交接状态、下一步。
-5. 如果测试、安全或 DBA 卡住，不要直接往后推：
+   - 通用交接：`templates/12_通用交接模板.md`
+6. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
+7. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
+8. 默认执行方式是一角色一 sub-agent：每个角色只读取本角色必要输入工件，由主控收敛结果和门禁判断。
+9. 如果测试、安全或 DBA 卡住，不要直接往后推：
    - 项目经理负责决定回流给哪个实施角色
    - 实施角色修复后重新提交实现交接
    - 测试工程师或相关审核角色重新验证
+10. 测试至少要覆盖基本功能测试、集成测试、关键边界和必要回归；如果没有集成面，必须在测试结论里写清原因。
 
 如果只是第一次试运行，建议先用一个标准模式的小功能或普通缺陷修复走完整链路。
 
@@ -138,6 +222,7 @@
 - `templates/07_数据库审核模板.md`
 - `templates/08_项目收口模板.md`
 - `templates/09_高风险触发模板.md`
+- `templates/12_通用交接模板.md`
 - `templates/角色Skill模板.md`
 
 ## 已拆分的角色 Skill
@@ -224,9 +309,45 @@ It is not tied to any specific platform. The goal is to express the rules in a w
   - Fast execution rules
   - Suitable as a governance checklist
 
+- `docs/05_项目产物落盘规范_v1.md`
+  - Project output layout guidance
+  - Explains what belongs to the skill bundle versus the target project
+
 - `templates/`
   - Standardized templates
   - Used to keep each handoff and artifact in a consistent format
+
+## Boundary Between Package Rules and Project Outputs
+
+- The `skills/`, `docs/`, and `templates/` directories in this repository belong to the skill bundle itself.
+- A target project should not copy this full rule set into its own engineering directory.
+- A target project should only store the actual business artifacts, handoff records, and closure materials produced for that project.
+
+## Recommended Project Output Layout
+
+Inside the target project, use a dedicated `project-docs/` root:
+
+```text
+project-docs/
+  00_intake/
+  01_requirements/
+  02_planning/
+  03_solution/
+  04_implementation/
+  05_validation/
+  06_handoffs/
+  07_closure/
+```
+
+Suggested mapping:
+- `00_intake`: task intake and high-risk trigger records
+- `01_requirements`: requirements handoff and requirement confirmation records
+- `02_planning`: task breakdown and implementation preparation
+- `03_solution`: solution decisions and requester confirmation records
+- `04_implementation`: implementation handoffs and integration results
+- `05_validation`: test results, security reviews, and database reviews
+- `06_handoffs`: generic handoff records for every role
+- `07_closure`: project closure, release notes, and runtime observation notes
 
 ## Three Task Modes
 
@@ -260,6 +381,47 @@ If any of the following is true, the task must enter strict mode:
 
 If uncertain, choose the stricter mode rather than the looser one.
 
+## Minimal End-to-End Role Workflow
+
+```mermaid
+flowchart TD
+    A["Task Intake and Classification<br/>Requirements Analyst / Project Manager<br/>Output: Task Intake"]
+    B["Requirement Clarification<br/>Requirements Analyst<br/>Output: Requirements Handoff"]
+    C["Task Breakdown<br/>Project Manager<br/>Output: Task Breakdown"]
+    D["Solution Confirmation / Decision<br/>Architect<br/>Output: Solution Decision"]
+    E["Implementation Preparation<br/>PM + Implementation Roles + Test Engineer<br/>Output: Implementation Prep"]
+    F["Implementation and Self-check<br/>Frontend / Backend / DBA when needed<br/>Output: Implementation Handoff"]
+    G["Integration<br/>Implementation Roles<br/>Output: Integration Result"]
+    H{"Integration Passes?"}
+    I["Testing<br/>Test Engineer<br/>Output: Test Result"]
+    J{"Test Result"}
+    P{"Allow Conditional Closure?"}
+    R["Rework Loop<br/>PM assigns rework order<br/>Implementation roles fix and resubmit implementation handoff"]
+    K["Closure<br/>Project Manager<br/>Output: Project Closure"]
+
+    A --> B --> C --> D --> E --> F --> G --> H
+    H -->|PASS| I
+    H -->|FAIL / PARTIAL| R
+    I --> J
+    J -->|PASS| K
+    J -->|FAIL| R
+    J -->|PARTIAL| P
+    P -->|Yes| K
+    P -->|No| R
+    R --> F
+```
+
+## Stage Gates and Failure Loop
+
+- The requirements analyst must clarify the real requirement content, main scenarios, and acceptance criteria before technical stack discussion drives the work.
+- No confirmed requirement handoff means no formal breakdown, no frozen solution, and no implementation start.
+- The architect must provide options and boundary definitions. If the choice has meaningful trade-offs, the requester must confirm the selected solution.
+- The test engineer must cover basic functional testing, integration testing, key edges, and necessary regression. If integration does not apply, that reason must be written down.
+- The project manager checks whether test coverage satisfies acceptance criteria plus functional and integration coverage. If not, the work is blocked or sent back for more testing.
+- When work can be split into independent bounded subtasks, the responsible role should prefer sub-agents for parallel execution. Final judgment and handoff stay with the responsible role.
+- If security or database review is required, insert that review branch between testing and closure without changing the main flow.
+- The default execution model is one role per sub-agent. Governance assigns and converges results, instead of forcing every role to reread the full shared context.
+
 ## Recommended Usage Order
 
 1. Start with `templates/00_任务入口模板.md`
@@ -274,11 +436,13 @@ If uncertain, choose the stricter mode rather than the looser one.
 Minimum workflow:
 
 1. Start from `skills/harness-governance/SKILL.md` and determine whether the task is lightweight, standard, or strict.
-2. Select roles based on the mode:
+2. Before breakdown or solution work starts, the requirements analyst clarifies the requirement content, main scenarios, and acceptance criteria, then gets requester confirmation on the current requirements handoff.
+3. Select roles based on the mode:
    - Lightweight: either the requirements analyst or the project manager handles intake; one implementation role performs the change; if behavior changes, the test engineer validates it.
    - Standard: usually requirements analyst, project manager, implementation role, and test engineer; add the security auditor or DBA when security or database scope is involved.
    - Strict: based on standard mode, usually add the architect explicitly and complete the high-risk trigger document.
-3. Fill templates stage by stage:
+4. If the solution stage includes a meaningful trade-off, get requester confirmation before moving into implementation preparation.
+5. Fill templates stage by stage:
    - Task intake: `templates/00_任务入口模板.md`
    - Requirements clarification: `templates/01_需求说明模板.md`
    - Task breakdown: `templates/02_任务拆解模板.md`
@@ -290,11 +454,15 @@ Minimum workflow:
    - Security review: `templates/06_安全审查模板.md`
    - Database review: `templates/07_数据库审核模板.md`
    - Closure: `templates/08_项目收口模板.md`
-4. Every handoff should include current role, current stage, input artifacts, output artifacts, completed items, unfinished items, verification evidence, risks and open items, handoff status, and next step.
-5. If testing, security review, or database review blocks the flow:
+   - Generic handoff: `templates/12_通用交接模板.md`
+6. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
+7. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
+8. The default execution model is one role per sub-agent: each role reads only the artifacts it needs, and governance converges the outputs and gate decisions.
+9. If testing, security review, or database review blocks the flow:
    - The project manager decides which implementation role receives the rework
    - The implementation role fixes the issue and resubmits the implementation handoff
    - The test engineer or relevant review role validates again
+10. Testing should cover basic functional checks, integration checks, key edges, and necessary regression. If there is no integration surface, the test result must explicitly say why.
 
 If you are trying the package for the first time, start with a small standard-mode feature or a normal bug fix and run the full workflow end to end.
 
@@ -312,6 +480,7 @@ If you are trying the package for the first time, start with a small standard-mo
 - `templates/07_数据库审核模板.md`
 - `templates/08_项目收口模板.md`
 - `templates/09_高风险触发模板.md`
+- `templates/12_通用交接模板.md`
 - `templates/角色Skill模板.md`
 
 ## Included Role Skills

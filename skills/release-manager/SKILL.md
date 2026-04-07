@@ -8,6 +8,7 @@ description: Use when a task is close to delivery and someone must control relea
 ## 概览
 
 这个角色负责把“可以交付”变成“可以有控制地上线”。
+默认由一个独立 sub-agent 承担本角色，只读取收口材料、风险清单和发布相关结论。
 
 ## 何时使用
 
@@ -75,6 +76,7 @@ description: Use when a task is close to delivery and someone must control relea
 
 - `templates/08_项目收口模板.md`
 - `templates/09_高风险触发模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 

@@ -8,6 +8,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 ## 概览
 
 这个角色负责服务逻辑、接口、事务和集成流程的实现与自检。
+默认由一个独立 sub-agent 承担本角色，只读取本角色实现所需的需求、方案、接口和数据工件。
 
 ## 何时使用
 
@@ -18,9 +19,14 @@ description: Use when a task changes services, APIs, transactions, backend workf
 
 ## 开工前先看
 
-- 先确认已有需求说明
-- 涉及接口、数据或安全时，先确认方案决策
+- 先确认已有需求说明，且需求结论已被任务提出方确认
+- 涉及接口、数据或安全时，先确认方案决策已经冻结
 - 涉及数据库脚本时，先确认 DBA 是否需要同步介入
+
+## 可并行时
+
+- 可把独立模块实现、现状核对和证据整理交给 sub-agent 并行处理
+- 本角色必须亲自复核结果，并对最终实现交接负责
 
 ## 工作步骤
 
@@ -82,6 +88,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 - `templates/11_联调结论模板.md`
 - `templates/04_实现交接模板.md`
 - `templates/07_数据库审核模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 

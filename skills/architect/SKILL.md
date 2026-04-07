@@ -8,6 +8,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 ## 概览
 
 这个角色负责把“怎么做”说清楚，尤其是边界、影响和回退。
+默认由一个独立 sub-agent 承担本角色，只读取需求、边界和系统现状材料。
 
 ## 何时使用
 
@@ -22,14 +23,22 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 先确认已有需求说明
 - 没有需求边界时，不要直接定方案
 - 先看任务模式，严格模式下不要省掉影响分析和回退思路
+- 如果需求说明还没被任务提出方确认，不要冻结方案
+
+## 可并行时
+
+- 可把现状扫描、备选方案资料收集和影响面初查交给 sub-agent
+- 最终方案选择、用户确认和交接必须由本角色直接完成
 
 ## 工作步骤
 
 1. 先明确问题边界和不做什么。
 2. 列出可选做法，说明取舍。
-3. 用 `templates/03_方案决策模板.md` 写下最终选择、影响分析和回退思路。
-4. 明确哪些问题必须回到需求层，哪些问题可以在实现层解决。
-5. 标记是否可交接给实施角色。
+3. 把前端边界、后端边界、接口契约变化和测试关注点写清楚。
+4. 存在实质取舍时，先向任务提出方展示备选方案并拿到确认，再冻结最终方案。
+5. 用 `templates/03_方案决策模板.md` 写下最终选择、影响分析和回退思路。
+6. 明确哪些问题必须回到需求层，哪些问题可以在实现层解决。
+7. 标记是否可交接给实施角色。
 
 ## 必须拿到什么
 
@@ -56,6 +65,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 没有需求边界就定方案
 - 用实现细节代替边界说明
 - 不写影响分析和回退思路
+- 存在实质取舍但未获任务提出方确认时，就把方案标为可交接给实施角色
 
 ## 必须停下的情况
 
@@ -71,13 +81,16 @@ description: Use when a task involves technical boundaries, interface changes, d
 只有在下面条件都满足时，才算本角色完成：
 - 已选定方案
 - 选择理由清楚
+- 前后端边界和测试关注点清楚
 - 影响分析清楚
 - 回退思路清楚
+- 存在实质取舍时，任务提出方已确认最终方案
 
 ## 常用模板
 
 - `templates/03_方案决策模板.md`
 - `templates/09_高风险触发模板.md`
+- `templates/12_通用交接模板.md`
 
 ## 交接格式
 
