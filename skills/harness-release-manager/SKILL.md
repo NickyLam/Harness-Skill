@@ -1,5 +1,5 @@
 ---
-name: release-manager
+name: harness-release-manager
 description: Use when a task is close to delivery and someone must control release order, rollout pace, release conditions, and rollback triggers
 ---
 

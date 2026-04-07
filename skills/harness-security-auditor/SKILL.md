@@ -1,5 +1,5 @@
 ---
-name: security-auditor
+name: harness-security-auditor
 description: Use when a task touches permissions, authentication, sensitive data, external input and output, or security configuration and needs an independent security check
 ---
 

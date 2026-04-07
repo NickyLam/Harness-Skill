@@ -1,5 +1,5 @@
 ---
-name: backend-engineer
+name: harness-backend-engineer
 description: Use when a task changes services, APIs, transactions, backend workflows, configuration, or upstream and downstream integrations
 ---
 

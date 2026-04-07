@@ -1,5 +1,5 @@
 ---
-name: test-engineer
+name: harness-test-engineer
 description: Use when behavior changed and someone independent must verify functional behavior, integration behavior, key edges, and regression risk before the work can move forward
 ---
 

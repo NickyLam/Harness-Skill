@@ -114,14 +114,14 @@ description: Use when AI-assisted software engineering work crosses roles, stage
 - 涉及上线、发布、监控时，建议加入发布经理和运维/可观测性工程师
 
 角色 Skill 路径：
-- `skills/requirements-analyst/SKILL.md`
-- `skills/project-manager/SKILL.md`
-- `skills/architect/SKILL.md`
-- `skills/frontend-engineer/SKILL.md`
-- `skills/backend-engineer/SKILL.md`
-- `skills/test-engineer/SKILL.md`
-- `skills/security-auditor/SKILL.md`
-- `skills/dba/SKILL.md`
+- `skills/harness-requirements-analyst/SKILL.md`
+- `skills/harness-project-manager/SKILL.md`
+- `skills/harness-architect/SKILL.md`
+- `skills/harness-frontend-engineer/SKILL.md`
+- `skills/harness-backend-engineer/SKILL.md`
+- `skills/harness-test-engineer/SKILL.md`
+- `skills/harness-security-auditor/SKILL.md`
+- `skills/harness-dba/SKILL.md`
 
 ## 第四步：补齐必需工件
 
@@ -148,7 +148,7 @@ description: Use when AI-assisted software engineering work crosses roles, stage
 
 阶段最低要求：
 - 阶段 0 任务入口：目标、主要场景、范围内、范围外、验收标准、约束、未知问题、任务模式写清
-- 阶段 1 需求澄清：背景、目标、范围、验收标准、未知问题写清；关键未知问题已与任务提出方沟通；并由任务提出方确认需求结论
+- 阶段 1 需求澄清：背景、目标、范围、验收标准、未知问题写清；关键未知问题已与任务提出方沟通；并由任务提出方确认需求结论；未确认前不得交接给下一角色
 - 阶段 2 拆解安排：只在需求确认后进行，角色分工、依赖、风险、汇合点写清
 - 阶段 3 方案决定：备选方案优劣、推荐理由、架构体系图、前后端边界、接口契约、测试关注点、回退思路写清；存在实质取舍时先拿到用户确认
 - 阶段 4 实现准备：改什么、不改什么、联调前提、测试重点、前置确认状态写清
@@ -197,6 +197,7 @@ PARTIAL 时：
 - 需求边界冲突
 - 设计和目标冲突
 - 关键未知问题还没跟任务提出方沟通清楚
+- 需求说明还没有得到任务提出方确认，但已经准备进入下一角色
 - 测试没有通过
 - 安全问题未处理
 - 数据库风险未处理

@@ -227,16 +227,16 @@ flowchart TD
 
 ## 已拆分的角色 Skill
 
-- `skills/requirements-analyst/SKILL.md`
-- `skills/project-manager/SKILL.md`
-- `skills/architect/SKILL.md`
-- `skills/frontend-engineer/SKILL.md`
-- `skills/backend-engineer/SKILL.md`
-- `skills/test-engineer/SKILL.md`
-- `skills/security-auditor/SKILL.md`
-- `skills/dba/SKILL.md`
-- `skills/release-manager/SKILL.md`
-- `skills/observability-engineer/SKILL.md`
+- `skills/harness-requirements-analyst/SKILL.md`
+- `skills/harness-project-manager/SKILL.md`
+- `skills/harness-architect/SKILL.md`
+- `skills/harness-frontend-engineer/SKILL.md`
+- `skills/harness-backend-engineer/SKILL.md`
+- `skills/harness-test-engineer/SKILL.md`
+- `skills/harness-security-auditor/SKILL.md`
+- `skills/harness-dba/SKILL.md`
+- `skills/harness-release-manager/SKILL.md`
+- `skills/harness-observability-engineer/SKILL.md`
 
 ## 这套规则保证什么
 
@@ -485,16 +485,16 @@ If you are trying the package for the first time, start with a small standard-mo
 
 ## Included Role Skills
 
-- `skills/requirements-analyst/SKILL.md`
-- `skills/project-manager/SKILL.md`
-- `skills/architect/SKILL.md`
-- `skills/frontend-engineer/SKILL.md`
-- `skills/backend-engineer/SKILL.md`
-- `skills/test-engineer/SKILL.md`
-- `skills/security-auditor/SKILL.md`
-- `skills/dba/SKILL.md`
-- `skills/release-manager/SKILL.md`
-- `skills/observability-engineer/SKILL.md`
+- `skills/harness-requirements-analyst/SKILL.md`
+- `skills/harness-project-manager/SKILL.md`
+- `skills/harness-architect/SKILL.md`
+- `skills/harness-frontend-engineer/SKILL.md`
+- `skills/harness-backend-engineer/SKILL.md`
+- `skills/harness-test-engineer/SKILL.md`
+- `skills/harness-security-auditor/SKILL.md`
+- `skills/harness-dba/SKILL.md`
+- `skills/harness-release-manager/SKILL.md`
+- `skills/harness-observability-engineer/SKILL.md`
 
 ## What This Package Guarantees
 

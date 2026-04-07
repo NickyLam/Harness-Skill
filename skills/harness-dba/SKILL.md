@@ -1,5 +1,5 @@
 ---
-name: dba
+name: harness-dba
 description: Use when a task changes SQL, schema, fields, indexes, migration plans, performance characteristics, locks, or rollback feasibility and needs database review
 ---
 

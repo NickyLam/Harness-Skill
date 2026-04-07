@@ -1,5 +1,5 @@
 ---
-name: frontend-engineer
+name: harness-frontend-engineer
 description: Use when a task changes pages, components, browser interactions, client state, or frontend integration behavior
 ---
 

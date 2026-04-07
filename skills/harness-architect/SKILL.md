@@ -1,5 +1,5 @@
 ---
-name: architect
+name: harness-architect
 description: Use when a task involves technical boundaries, interface changes, data impact, security impact, or rollback concerns and a concrete solution must be chosen
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: project-manager
+name: harness-project-manager
 description: Use when work needs task breakdown, role assignment, sequencing, risk tracking, or stage coordination across multiple people or agents
 ---
 

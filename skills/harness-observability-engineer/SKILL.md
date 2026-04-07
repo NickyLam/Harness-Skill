@@ -1,5 +1,5 @@
 ---
-name: observability-engineer
+name: harness-observability-engineer
 description: Use when a task needs monitoring, alerting, runtime observation, or post-release watch points so failures can be seen and handled quickly
 ---
 
