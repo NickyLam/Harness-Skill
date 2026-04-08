@@ -7,7 +7,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 
 ## 概览
 
-这个角色负责把“怎么做”说清楚，尤其是边界、影响和回退。
+这个角色负责把方案怎么设计、怎么落地说清楚，尤其是边界、影响和回退。
 默认由一个独立 sub-agent 承担本角色，只读取需求、边界和系统现状材料。
 
 ## 何时使用
@@ -31,16 +31,16 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 平台支持 sub-agent 时，先主动尝试发起本角色 sub-agent
 - 可把现状扫描、备选方案资料收集和影响面初查交给 sub-agent
 - 如果因为模型可用性或平台瞬时错误失败，重试最多 5 次；5 次仍失败再降级为主控串行执行，并记录失败原因
-- 最终方案选择、用户确认和交接必须由本角色直接完成
+- 方案设计、推荐方案说明、用户确认请求和交接必须由本角色直接完成
 
 ## 工作步骤
 
 1. 先明确问题边界和不做什么。
 2. 列出可选做法，说明每个方案的优点、缺点、风险和适用前提。
-3. 给出推荐方案，但不要把推荐方案当成已生效决定。
+3. 给出推荐方案，但不要把推荐方案当成已生效决定；最终选择由任务提出方负责。
 4. 把前端边界、后端边界、接口契约变化、测试关注点和架构体系图写清楚。
-5. 向任务提出方展示备选方案和推荐理由，并显式请求确认；拿到确认后再冻结最终方案。
-6. 用 `templates/03_方案决策模板.md` 写下方案比较、最终选择、影响分析和回退思路。
+5. 向任务提出方展示备选方案和推荐理由，并显式请求确认；拿到确认后再冻结已确认方案。
+6. 用 `templates/03_方案决策模板.md` 写下方案比较、推荐方案、任务提出方确认结果、影响分析和回退思路。
 7. 明确哪些问题必须回到需求层，哪些问题可以在实现层解决。
 8. 标记是否可交接给实施角色。
 
@@ -53,8 +53,9 @@ description: Use when a task involves technical boundaries, interface changes, d
 
 ## 必须交出什么
 
-- 方案决策
+- 方案设计
 - 方案比较说明
+- 推荐方案说明
 - 架构体系图
 - 影响分析
 - 回退思路
@@ -62,9 +63,10 @@ description: Use when a task involves technical boundaries, interface changes, d
 
 ## 边界
 
-- 负责定方案和边界
+- 负责设计方案、定义边界并给出推荐
 - 不负责替代实施角色完成编码
 - 不负责替代测试角色给出最终通过结论
+- 不负责替代任务提出方做最终选择
 
 ## 不能做什么
 
@@ -87,9 +89,9 @@ description: Use when a task involves technical boundaries, interface changes, d
 ## 完成规则
 
 只有在下面条件都满足时，才算本角色完成：
-- 已选定方案
+- 推荐方案已形成
 - 各备选方案优劣和推荐理由清楚
-- 选择理由清楚
+- 推荐理由清楚
 - 架构体系图清楚
 - 前后端边界和测试关注点清楚
 - 影响分析清楚
@@ -106,7 +108,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 
 ```md
 当前角色：架构师
-当前阶段：方案决定
+当前阶段：方案设计
 输入工件：
 输出工件：
 已完成内容：

@@ -98,7 +98,7 @@ project-docs/
 - `00_intake`：任务入口、高风险触发单
 - `01_requirements`：需求说明、需求确认记录
 - `02_planning`：任务拆解、实现准备
-- `03_solution`：方案决策、方案确认记录
+- `03_solution`：方案设计、方案确认记录
 - `04_implementation`：实现交接、联调结论
 - `05_validation`：测试结论、安全审查、数据库审核
 - `06_handoffs`：每个角色阶段结束后的通用交接记录
@@ -156,7 +156,7 @@ flowchart TD
     A["任务入口与分级<br/>需求分析师 / 项目经理<br/>输出：任务入口单"]
     B["需求澄清<br/>需求分析师<br/>输出：需求说明"]
     C["任务拆解<br/>项目经理<br/>输出：任务拆解"]
-    D["方案确认 / 决定<br/>架构师<br/>输出：方案决策"]
+    D["方案设计 / 用户确认<br/>架构师<br/>输出：方案设计"]
     E["实现准备<br/>项目经理 + 实施角色 + 测试工程师<br/>输出：实现准备"]
     F["实现与自检<br/>前端 / 后端 / 需要时 DBA<br/>输出：实现交接"]
     G["联调<br/>相关实施角色<br/>输出：联调结论"]
@@ -182,9 +182,12 @@ flowchart TD
 ## 阶段门禁与失败回流
 
 - 需求分析师先把需求内容、主要场景和验收标准讲清，技术栈讨论只能作为约束补充，不能替代需求确认。
+- 需求分析师做澄清时，优先逐个关键问题确认，不要一次抛出一串待确认问题。
 - 涉及页面、交互或视觉变化时，需求分析师先完成 UI 原型调研或参考案例收口；没有独立设计角色时，由前端工程师负责出原图或可实现原型，并先拿到确认。
 - 需求说明未确认前，不进入正式拆解、方案冻结或实现。
-- 架构师必须给出备选方案和边界说明，并在方案形成后显式向任务提出方请求确认；没有明确确认记录前，不能进入实现准备或实现。
+- 架构师负责方案设计、方案比较和推荐方案制定；最终选择由任务提出方确认。没有明确确认记录前，不能进入实现准备或实现。
+- 项目经理必须要求发生变更的角色严格遵守 OpenSpec；其他角色可以灵活使用适合的 superpower 系列技能辅助执行，但不能替代本角色判断和交接。
+- 前后端实现交接完成后，只要存在任何改动，就必须进入测试工程师；不能出现“开发做完了但测试工程师没有工作”的空档。
 - 测试工程师至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；不适用项必须写理由。
 - 项目经理负责检查测试覆盖是否满足验收标准、启动或运行验证、功能测试和集成测试要求，不满足就补测或阻塞。
 - 任何角色检查不通过时，默认回流给上一个产出该工件的责任角色返工；项目经理只协调顺序和重验入口。
@@ -200,17 +203,18 @@ flowchart TD
 1. 先从 `skills/harness-governance/SKILL.md` 开始，判断这次任务是轻量、标准还是严格模式。
 2. 初始化项目时，先检查平台是否支持 `sub-agent`，并在项目根目录创建 `AGENTS.md`；建议直接使用 `templates/13_AGENTS模板.md`。
 3. 在进入拆解和方案前，先由需求分析师把需求内容、主要场景和验收标准澄清；关键未知问题必须继续跟任务提出方沟通，并让任务提出方确认当前需求说明。
-4. 涉及页面、交互或视觉变化时，先补 UI 原型调研或参考案例；当前项目没有独立设计角色时，由前端工程师负责出原图或可实现原型，并先拿到任务提出方确认。
-5. 按模式决定角色：
-   - 轻量模式：需求分析师或项目经理负责入口；一个实施角色负责改动；行为有变化时由测试工程师验证。
+4. 需求澄清时优先一次只问一个关键问题，拿到回答后再进入下一条，避免一轮抛出一串问题。
+5. 涉及页面、交互或视觉变化时，先补 UI 原型调研或参考案例；当前项目没有独立设计角色时，由前端工程师负责出原图或可实现原型，并先拿到任务提出方确认。
+6. 按模式决定角色：
+   - 轻量模式：需求分析师或项目经理负责入口；一个实施角色负责改动；测试工程师负责验证。
    - 标准模式：通常使用需求分析师、项目经理、实施角色、测试工程师；命中安全或数据库时加入安全审计工程师或 DBA。
    - 严格模式：在标准模式基础上，通常还要显式加入架构师，并补齐高风险触发单。
-6. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；方案形成后必须显式向任务提出方请求确认，拿到明确确认后再进入实现准备。
-7. 按阶段填写模板：
+7. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；架构师负责设计和推荐，方案形成后必须显式向任务提出方请求确认，拿到明确确认后再进入实现准备。
+8. 按阶段填写模板：
    - 任务入口：`templates/00_任务入口模板.md`
    - 需求澄清：`templates/01_需求说明模板.md`
    - 拆解安排：`templates/02_任务拆解模板.md`
-   - 方案决定：`templates/03_方案决策模板.md`
+   - 方案设计：`templates/03_方案决策模板.md`
    - 实现准备：`templates/10_实现准备模板.md`
    - 实现与自检：`templates/04_实现交接模板.md`
    - 联调：`templates/11_联调结论模板.md`
@@ -220,15 +224,17 @@ flowchart TD
    - 收口：`templates/08_项目收口模板.md`
    - 通用交接：`templates/12_通用交接模板.md`
    - 项目初始化：`templates/13_AGENTS模板.md`
-8. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
-9. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
-10. 先检查平台是否支持 sub-agent：支持时，激活角色先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
-11. 如果测试、安全或 DBA 卡住，不要直接往后推：
+9. 项目经理要要求发生变更的角色严格遵守 OpenSpec；其他角色可灵活使用适合的 superpower 系列技能辅助执行，但不能替代本角色判断、确认和交接。
+10. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
+11. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
+12. 先检查平台是否支持 sub-agent：支持时，激活角色先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
+13. 如果测试、安全或 DBA 卡住，不要直接往后推：
    - 默认回流给上一个产出该工件的责任角色返工
    - 项目经理负责决定回流顺序、责任边界和重验入口
    - 返工角色修复后重新提交对应阶段主工件和通用交接
    - 测试工程师或相关审核角色重新验证
-12. 测试至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；如果没有集成面或没有独立启动面，必须在测试结论里写清原因。
+14. 前序实现交接只要表明本轮存在任何改动，就必须把工作正式交给测试工程师。
+15. 测试至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；如果没有集成面或没有独立启动面，必须在测试结论里写清原因。
 
 如果只是第一次试运行，建议先用一个标准模式的小功能或普通缺陷修复走完整链路。
 
@@ -456,6 +462,7 @@ flowchart TD
 - For tasks that change pages, interactions, or visuals, requirement work must first capture UI prototype research or reference cases. If there is no dedicated design role, the frontend engineer owns the source mock or implementable prototype and gets requester confirmation before implementation.
 - No confirmed requirement handoff means no formal breakdown, no frozen solution, and no implementation start.
 - The architect must provide options and boundary definitions, then explicitly request requester confirmation. Without a clear confirmation record, the work must not enter implementation preparation or implementation.
+- The project manager must require any role making a change to follow OpenSpec strictly. Other roles may use suitable superpower-series skills as execution aids, but not as a substitute for their own judgment or handoff.
 - The test engineer must cover startup or runability checks, basic functional testing, integration testing, key edges, and necessary regression. If startup or integration does not apply, that reason must be written down.
 - The project manager checks whether test coverage satisfies acceptance criteria plus startup or runability verification, functional coverage, and integration coverage. If not, the work is blocked or sent back for more testing.
 - When any role fails a check, rework defaults to the previous role that produced the artifact. The project manager coordinates order and revalidation entry points, but does not take over the rework itself.
@@ -487,7 +494,7 @@ Minimum workflow:
 3. Before breakdown or solution work starts, the requirements analyst clarifies the requirement content, main scenarios, and acceptance criteria. Critical unknowns must be discussed with the requester before the requirements handoff can move forward.
 4. For tasks that change pages, interactions, or visuals, add UI prototype research or reference collection first. If the project has no dedicated design role, the frontend engineer owns the source mock or implementable prototype and gets requester confirmation before implementation.
 5. Select roles based on the mode:
-   - Lightweight: either the requirements analyst or the project manager handles intake; one implementation role performs the change; if behavior changes, the test engineer validates it.
+   - Lightweight: either the requirements analyst or the project manager handles intake; one implementation role performs the change; the test engineer validates it.
    - Standard: usually requirements analyst, project manager, implementation role, and test engineer; add the security auditor or DBA when security or database scope is involved.
    - Strict: based on standard mode, usually add the architect explicitly and complete the high-risk trigger document.
 6. In the solution stage, provide multiple viable options, explain each option's pros and cons, add an architecture diagram, and explicitly request requester confirmation. Do not move into implementation preparation until that confirmation is recorded.
@@ -495,7 +502,7 @@ Minimum workflow:
    - Task intake: `templates/00_任务入口模板.md`
    - Requirements clarification: `templates/01_需求说明模板.md`
    - Task breakdown: `templates/02_任务拆解模板.md`
-   - Solution decision: `templates/03_方案决策模板.md`
+   - Solution design: `templates/03_方案决策模板.md`
    - Implementation prep: `templates/10_实现准备模板.md`
    - Implementation and self-check: `templates/04_实现交接模板.md`
    - Integration: `templates/11_联调结论模板.md`
@@ -505,15 +512,17 @@ Minimum workflow:
    - Closure: `templates/08_项目收口模板.md`
    - Generic handoff: `templates/12_通用交接模板.md`
    - Project initialization: `templates/13_AGENTS模板.md`
-8. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
-9. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
-10. First check whether the platform supports sub-agents: if yes, each activated role must first attempt to launch its role sub-agent; if launch fails because of model availability or transient platform errors, retry up to 5 times before falling back; if the platform does not support sub-agents, let governance simulate roles serially while keeping role boundaries and handoffs intact.
-11. If testing, security review, or database review blocks the flow:
+8. The project manager must require any role making a change to follow OpenSpec strictly. Other roles may use suitable superpower-series skills as execution aids, but not as a substitute for judgment, confirmation, or handoff.
+9. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
+10. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
+11. First check whether the platform supports sub-agents: if yes, each activated role must first attempt to launch its role sub-agent; if launch fails because of model availability or transient platform errors, retry up to 5 times before falling back; if the platform does not support sub-agents, let governance simulate roles serially while keeping role boundaries and handoffs intact.
+12. If testing, security review, or database review blocks the flow:
    - Rework defaults to the previous role that produced the artifact
    - The project manager decides the order, ownership boundary, and revalidation entry point
    - The rework owner resubmits the stage artifact plus a generic handoff record
    - The test engineer or relevant review role validates again
-12. Testing should cover startup or runability checks, basic functional checks, integration checks, key edges, and necessary regression. If there is no startup surface or no integration surface, the test result must explicitly say why.
+13. Any implementation handoff that reflects a change must be handed to the test engineer.
+14. Testing should cover startup or runability checks, basic functional checks, integration checks, key edges, and necessary regression. If there is no startup surface or no integration surface, the test result must explicitly say why.
 
 If you are trying the package for the first time, start with a small standard-mode feature or a normal bug fix and run the full workflow end to end.
 

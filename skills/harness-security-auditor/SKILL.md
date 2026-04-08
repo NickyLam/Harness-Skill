@@ -20,7 +20,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 
 ## 开工前先看
 
-- 先确认已有需求说明、方案决策和实现交接
+- 先确认已有需求说明、方案设计和实现交接
 - 如果安全边界都说不清，不要直接给结论
 - 严格模式下不要省掉风险清单
 
@@ -40,7 +40,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 ## 必须拿到什么
 
 - 需求说明
-- 方案决策
+- 方案设计
 - 实现交接
 - 安全边界说明
 

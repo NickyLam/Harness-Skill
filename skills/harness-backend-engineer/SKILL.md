@@ -20,7 +20,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 ## 开工前先看
 
 - 先确认已有需求说明，且需求结论已被任务提出方确认
-- 涉及接口、数据或安全时，先确认方案决策已经冻结
+- 涉及接口、数据或安全时，先确认方案设计已经冻结
 - 涉及数据库脚本时，先确认 DBA 是否需要同步介入
 
 ## 可并行时
@@ -42,7 +42,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 ## 必须拿到什么
 
 - 需求说明
-- 方案决策
+- 方案设计
 - 接口要求
 - 数据要求
 - 约束条件

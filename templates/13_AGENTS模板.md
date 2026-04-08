@@ -11,6 +11,7 @@ This file defines project-level operating rules for AI agents working in this re
 
 - Requirements must be confirmed by the requester before handoff to the next role.
 - Architecture options must include trade-offs and be confirmed by the requester before implementation preparation.
+- The project manager must require any role making a change to follow OpenSpec strictly.
 - If the platform supports sub-agents, run one role per sub-agent by default.
 - If the platform supports sub-agents, each activated role must first attempt to launch its role sub-agent.
 - If launch fails because of model availability or transient platform errors, retry up to 5 times before falling back.
@@ -32,6 +33,7 @@ This file defines project-level operating rules for AI agents working in this re
 ## Role Execution
 
 - Governance decides required roles and gates.
+- Roles other than the project manager may use suitable superpower-series skills flexibly as execution aids.
 - Each role reads only the artifacts it needs.
 - Final confirmation, test conclusion, security conclusion, database conclusion, and closure decision cannot be delegated away from the responsible role.
 

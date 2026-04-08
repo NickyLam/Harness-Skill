@@ -19,7 +19,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 
 ## 开工前先看
 
-- 先确认已有方案决策和实现交接
+- 先确认已有方案设计和实现交接
 - 先确认这次改动最怕出什么问题
 - 如果关键观察点都说不清，不要直接写监控要求
 
@@ -33,7 +33,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 
 ## 必须拿到什么
 
-- 方案决策
+- 方案设计
 - 实现交接
 - 发布计划
 - 关键风险点

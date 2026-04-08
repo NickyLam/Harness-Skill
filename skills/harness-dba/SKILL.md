@@ -20,7 +20,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 
 ## 开工前先看
 
-- 先确认已有需求说明和方案决策
+- 先确认已有需求说明和方案设计
 - 先拿到变更脚本和数据影响说明
 - 如果连执行条件和回退方向都说不清，不要直接给放行意见
 
@@ -40,7 +40,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 ## 必须拿到什么
 
 - 需求说明
-- 方案决策
+- 方案设计
 - 变更脚本
 - 数据影响说明
 
