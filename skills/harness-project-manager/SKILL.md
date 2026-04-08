@@ -26,7 +26,9 @@ description: Use when work needs task breakdown, role assignment, sequencing, ri
 
 ## 可并行时
 
+- 平台支持 sub-agent 时，先主动尝试发起本角色 sub-agent
 - 可把状态收集、依赖盘点和材料核对交给 sub-agent 并行处理
+- 如果因为模型可用性或平台瞬时错误失败，重试最多 5 次；5 次仍失败再降级为主控串行执行，并记录失败原因
 - 顺序决策、阶段门禁、回流安排和收口结论必须由本角色直接给出
 
 ## 工作步骤

@@ -24,10 +24,13 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 没有需求边界时，不要直接定方案
 - 先看任务模式，严格模式下不要省掉影响分析和回退思路
 - 如果需求说明还没被任务提出方确认，不要冻结方案
+- 方案输出后必须显式向任务提出方请求确认；没有确认记录时，不要标记可交接
 
 ## 可并行时
 
+- 平台支持 sub-agent 时，先主动尝试发起本角色 sub-agent
 - 可把现状扫描、备选方案资料收集和影响面初查交给 sub-agent
+- 如果因为模型可用性或平台瞬时错误失败，重试最多 5 次；5 次仍失败再降级为主控串行执行，并记录失败原因
 - 最终方案选择、用户确认和交接必须由本角色直接完成
 
 ## 工作步骤
@@ -36,7 +39,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 2. 列出可选做法，说明每个方案的优点、缺点、风险和适用前提。
 3. 给出推荐方案，但不要把推荐方案当成已生效决定。
 4. 把前端边界、后端边界、接口契约变化、测试关注点和架构体系图写清楚。
-5. 向任务提出方展示备选方案和推荐理由，拿到确认后再冻结最终方案。
+5. 向任务提出方展示备选方案和推荐理由，并显式请求确认；拿到确认后再冻结最终方案。
 6. 用 `templates/03_方案决策模板.md` 写下方案比较、最终选择、影响分析和回退思路。
 7. 明确哪些问题必须回到需求层，哪些问题可以在实现层解决。
 8. 标记是否可交接给实施角色。
@@ -68,7 +71,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 没有需求边界就定方案
 - 用实现细节代替边界说明
 - 不写影响分析和回退思路
-- 存在实质取舍但未获任务提出方确认时，就把方案标为可交接给实施角色
+- 没有任务提出方明确确认记录，就把方案标为可交接给实施角色
 - 跳过方案优劣比较，直接自己拍板最终方案
 
 ## 必须停下的情况
@@ -77,6 +80,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 关键边界不明确
 - 回退方向说不清楚
 - 影响范围无法判断
+- 方案已经形成，但任务提出方还没有给出明确确认
 
 停下后，回退给需求分析师或项目经理重新收口。
 
@@ -90,7 +94,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 前后端边界和测试关注点清楚
 - 影响分析清楚
 - 回退思路清楚
-- 存在实质取舍时，任务提出方已确认最终方案
+- 任务提出方已明确确认最终方案
 
 ## 常用模板
 

@@ -27,7 +27,9 @@ description: Use when a task changes pages, components, browser interactions, cl
 
 ## 可并行时
 
+- 平台支持 sub-agent 时，先主动尝试发起本角色 sub-agent
 - 可把独立文件改动、现状核对和证据整理交给 sub-agent 并行处理
+- 如果因为模型可用性或平台瞬时错误失败，重试最多 5 次；5 次仍失败再降级为主控串行执行，并记录失败原因
 - 本角色必须亲自复核结果，并对最终实现交接负责
 
 ## 工作步骤

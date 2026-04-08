@@ -27,7 +27,9 @@ description: Use when a task's goal, scope, acceptance criteria, or constraints 
 
 ## 可并行时
 
+- 平台支持 sub-agent 时，先主动尝试发起本角色 sub-agent
 - 可把背景资料搜集、现状梳理和现有约束整理交给 sub-agent
+- 如果因为模型可用性或平台瞬时错误失败，重试最多 5 次；5 次仍失败再降级为主控串行执行，并记录失败原因
 - 需求澄清、范围确认和最终交接必须由本角色直接完成
 
 ## 工作步骤

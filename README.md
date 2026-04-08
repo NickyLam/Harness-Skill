@@ -184,11 +184,12 @@ flowchart TD
 - 需求分析师先把需求内容、主要场景和验收标准讲清，技术栈讨论只能作为约束补充，不能替代需求确认。
 - 涉及页面、交互或视觉变化时，需求分析师先完成 UI 原型调研或参考案例收口；没有独立设计角色时，由前端工程师负责出原图或可实现原型，并先拿到确认。
 - 需求说明未确认前，不进入正式拆解、方案冻结或实现。
-- 架构师必须给出备选方案和边界说明；存在实质取舍时，要先拿到任务提出方确认。
+- 架构师必须给出备选方案和边界说明，并在方案形成后显式向任务提出方请求确认；没有明确确认记录前，不能进入实现准备或实现。
 - 测试工程师至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；不适用项必须写理由。
 - 项目经理负责检查测试覆盖是否满足验收标准、启动或运行验证、功能测试和集成测试要求，不满足就补测或阻塞。
 - 任何角色检查不通过时，默认回流给上一个产出该工件的责任角色返工；项目经理只协调顺序和重验入口。
 - 能拆成独立子任务时，责任角色应优先使用 sub-agent 并行处理；最终判断和交接仍由当前责任角色负责。
+- 平台支持 sub-agent 时，激活角色必须先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级。
 - 命中安全或数据库内容时，在“测试”与“收口”之间插入对应审核支线，不改变主线结构。
 - 先检查平台是否支持 sub-agent；支持时按“一角色一 sub-agent”执行，不支持时才由主控串行模拟角色。
 
@@ -204,7 +205,7 @@ flowchart TD
    - 轻量模式：需求分析师或项目经理负责入口；一个实施角色负责改动；行为有变化时由测试工程师验证。
    - 标准模式：通常使用需求分析师、项目经理、实施角色、测试工程师；命中安全或数据库时加入安全审计工程师或 DBA。
    - 严格模式：在标准模式基础上，通常还要显式加入架构师，并补齐高风险触发单。
-6. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；有实质性方案取舍时，先让任务提出方确认方案，再进入实现准备。
+6. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；方案形成后必须显式向任务提出方请求确认，拿到明确确认后再进入实现准备。
 7. 按阶段填写模板：
    - 任务入口：`templates/00_任务入口模板.md`
    - 需求澄清：`templates/01_需求说明模板.md`
@@ -221,7 +222,7 @@ flowchart TD
    - 项目初始化：`templates/13_AGENTS模板.md`
 8. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
 9. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
-10. 先检查平台是否支持 sub-agent：支持时按一角色一 sub-agent 执行；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
+10. 先检查平台是否支持 sub-agent：支持时，激活角色先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
 11. 如果测试、安全或 DBA 卡住，不要直接往后推：
    - 默认回流给上一个产出该工件的责任角色返工
    - 项目经理负责决定回流顺序、责任边界和重验入口
@@ -454,11 +455,12 @@ flowchart TD
 - The requirements analyst must clarify the real requirement content, main scenarios, and acceptance criteria before technical stack discussion drives the work.
 - For tasks that change pages, interactions, or visuals, requirement work must first capture UI prototype research or reference cases. If there is no dedicated design role, the frontend engineer owns the source mock or implementable prototype and gets requester confirmation before implementation.
 - No confirmed requirement handoff means no formal breakdown, no frozen solution, and no implementation start.
-- The architect must provide options and boundary definitions. If the choice has meaningful trade-offs, the requester must confirm the selected solution.
+- The architect must provide options and boundary definitions, then explicitly request requester confirmation. Without a clear confirmation record, the work must not enter implementation preparation or implementation.
 - The test engineer must cover startup or runability checks, basic functional testing, integration testing, key edges, and necessary regression. If startup or integration does not apply, that reason must be written down.
 - The project manager checks whether test coverage satisfies acceptance criteria plus startup or runability verification, functional coverage, and integration coverage. If not, the work is blocked or sent back for more testing.
 - When any role fails a check, rework defaults to the previous role that produced the artifact. The project manager coordinates order and revalidation entry points, but does not take over the rework itself.
 - When work can be split into independent bounded subtasks, the responsible role should prefer sub-agents for parallel execution. Final judgment and handoff stay with the responsible role.
+- If the platform supports sub-agents, each activated role must first attempt to launch its role sub-agent. If launch fails because of model availability or transient platform errors, retry up to 5 times before falling back.
 - If security or database review is required, insert that review branch between testing and closure without changing the main flow.
 - First check whether the platform supports sub-agents. If it does, run with one role per sub-agent. Only fall back to serial role simulation when the platform does not support it.
 
@@ -488,7 +490,7 @@ Minimum workflow:
    - Lightweight: either the requirements analyst or the project manager handles intake; one implementation role performs the change; if behavior changes, the test engineer validates it.
    - Standard: usually requirements analyst, project manager, implementation role, and test engineer; add the security auditor or DBA when security or database scope is involved.
    - Strict: based on standard mode, usually add the architect explicitly and complete the high-risk trigger document.
-6. In the solution stage, provide multiple viable options, explain each option's pros and cons, add an architecture diagram, and get requester confirmation before moving into implementation preparation when a meaningful trade-off exists.
+6. In the solution stage, provide multiple viable options, explain each option's pros and cons, add an architecture diagram, and explicitly request requester confirmation. Do not move into implementation preparation until that confirmation is recorded.
 7. Fill templates stage by stage:
    - Task intake: `templates/00_任务入口模板.md`
    - Requirements clarification: `templates/01_需求说明模板.md`
@@ -505,7 +507,7 @@ Minimum workflow:
    - Project initialization: `templates/13_AGENTS模板.md`
 8. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
 9. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
-10. First check whether the platform supports sub-agents: if yes, run one role per sub-agent; if not, let governance simulate roles serially while keeping role boundaries and handoffs intact.
+10. First check whether the platform supports sub-agents: if yes, each activated role must first attempt to launch its role sub-agent; if launch fails because of model availability or transient platform errors, retry up to 5 times before falling back; if the platform does not support sub-agents, let governance simulate roles serially while keeping role boundaries and handoffs intact.
 11. If testing, security review, or database review blocks the flow:
    - Rework defaults to the previous role that produced the artifact
    - The project manager decides the order, ownership boundary, and revalidation entry point
