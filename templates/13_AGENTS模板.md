@@ -12,6 +12,7 @@ This file defines project-level operating rules for AI agents working in this re
 - Requirements must be confirmed by the requester before handoff to the next role.
 - Architecture options must include trade-offs and be confirmed by the requester before implementation preparation.
 - The project manager must require any role making a change to follow OpenSpec strictly.
+- Bug fixing or rework must return to the matching role skill instead of being handled by governance or an unrelated role.
 - If the platform supports sub-agents, run one role per sub-agent by default.
 - If the platform supports sub-agents, each activated role must first attempt to launch its role sub-agent.
 - If launch fails because of model availability or transient platform errors, retry up to 5 times before falling back.
@@ -19,8 +20,15 @@ This file defines project-level operating rules for AI agents working in this re
 
 ## Project Outputs
 
-- Store project artifacts under `project-docs/`.
-- Use these directories:
+- Initialize OpenSpec at the project root:
+  - `openspec/config.yaml`
+  - `openspec/changes/`
+  - `openspec/changes/archive/`
+  - `openspec/specs/`
+- Use `openspec/changes/<change>/proposal.md`, `design.md`, and `tasks.md` for change-level planning and governance.
+- Use `openspec/specs/<capability>/spec.md` for long-lived capability rules.
+- Store execution evidence under `project-docs/`.
+- Use these `project-docs/` directories:
   - `project-docs/00_intake/`
   - `project-docs/01_requirements/`
   - `project-docs/02_planning/`
@@ -46,5 +54,6 @@ This file defines project-level operating rules for AI agents working in this re
 
 - Stop if requirements are not confirmed.
 - Stop if architecture choice is not confirmed.
+- Stop if `openspec/` has not been initialized according to project rules.
 - Stop if required evidence or handoff artifacts are missing.
 ```

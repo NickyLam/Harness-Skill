@@ -41,6 +41,7 @@ description: Use when a task changes pages, components, browser interactions, cl
 5. 用 `templates/04_实现交接模板.md` 写清已完成内容、自检结果、UI 效果确认结果和已知问题。
 6. 把需要测试或联调继续核对的点显式写出来。
 7. 如果测试、安全或联调反馈问题，负责修复本角色范围内的问题，更新实现交接，再交回测试或相关审核角色。
+8. 测试或项目经理已把缺陷明确回流给本角色时，必须由本角色 Skill 负责修复，不能由总控、测试工程师或其他无关角色代修。
 
 ## 必须拿到什么
 
@@ -65,6 +66,7 @@ description: Use when a task changes pages, components, browser interactions, cl
 - 当前项目没有独立 UI/设计角色时，负责把已确认的 UI 需求落成可实现原图或原型
 - 不负责私自改变接口语义
 - 不负责代替测试角色给最终通过结论
+- 不负责代替后端角色修复后端责任缺陷
 
 ## 不能做什么
 
@@ -73,6 +75,7 @@ description: Use when a task changes pages, components, browser interactions, cl
 - 涉及 UI 变化时，未确认原型方向就直接实现
 - 页面效果和已确认原型明显偏离却不披露
 - 私自改接口语义
+- 缺陷已明确回流给本角色，却不通过本角色 Skill 处理修复
 
 ## 必须停下的情况
 

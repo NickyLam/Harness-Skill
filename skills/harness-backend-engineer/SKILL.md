@@ -38,6 +38,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 4. 用 `templates/04_实现交接模板.md` 写清已完成内容、自检结果、启动或运行验证结果和已知问题。
 5. 把需要测试、安全或 DBA 继续核对的点写清楚。
 6. 如果测试、安全、DBA 或联调反馈问题，负责修复本角色范围内的问题，更新实现交接，再交回测试或相关审核角色。
+7. 测试或项目经理已把缺陷明确回流给本角色时，必须由本角色 Skill 负责修复，不能由总控、测试工程师或其他无关角色代修。
 
 ## 必须拿到什么
 
@@ -61,6 +62,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 - 负责后端实现和后端自检
 - 不负责代替 DBA 审核数据库风险
 - 不负责代替安全角色给安全通过结论
+- 不负责代替前端角色修复前端责任缺陷
 
 ## 不能做什么
 
@@ -68,6 +70,7 @@ description: Use when a task changes services, APIs, transactions, backend workf
 - 吞掉异常不记录
 - 未验证服务能启动或关键流程能跑通，就直接交接给测试
 - 绕开事务、安全或幂等要求
+- 缺陷已明确回流给本角色，却不通过本角色 Skill 处理修复
 
 ## 必须停下的情况
 

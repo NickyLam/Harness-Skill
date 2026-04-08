@@ -75,12 +75,29 @@
 
 ```text
 AGENTS.md
+openspec/
 project-docs/
 ```
 
 其中，`AGENTS.md` 建议基于 `templates/13_AGENTS模板.md` 生成。
 
-`project-docs/` 建议使用下面的结构：
+`openspec/` 建议先按 OpenSpec 规范初始化：
+
+```text
+openspec/
+  config.yaml
+  changes/
+    archive/
+  specs/
+```
+
+目录建议：
+- `openspec/changes/<change>/proposal.md`：本次变更的范围、目标和风险
+- `openspec/changes/<change>/design.md`：本次变更的方案设计和权衡
+- `openspec/changes/<change>/tasks.md`：本次变更的任务拆解和执行清单
+- `openspec/specs/<capability>/spec.md`：长期有效的能力规格和约束
+
+`project-docs/` 继续承接执行证据，建议使用下面的结构：
 
 ```text
 project-docs/
@@ -140,14 +157,15 @@ project-docs/
 
 1. 先检查当前平台是否支持 `sub-agent`
 2. 在目标项目根目录创建 `AGENTS.md`
-3. 创建 `project-docs/`
-4. 再填写 `templates/00_任务入口模板.md`
-5. 先澄清需求内容、主要场景和验收标准，再判断任务属于轻量、标准还是严格模式
-6. 如果命中高风险，先填写 `templates/09_高风险触发模板.md`
-7. 使用 `skills/harness-governance/SKILL.md` 决定需要哪些角色和哪些门禁
-8. 需求说明经任务提出方确认后，再进入拆解、方案、实现准备和实现
-9. 按任务推进过程填写对应模板
-10. 收口前核对证据、风险、回退方案和交接状态
+3. 按 OpenSpec 规范创建 `openspec/`
+4. 创建 `project-docs/`
+5. 再填写 `templates/00_任务入口模板.md`
+6. 先澄清需求内容、主要场景和验收标准，再判断任务属于轻量、标准还是严格模式
+7. 如果命中高风险，先填写 `templates/09_高风险触发模板.md`
+8. 使用 `skills/harness-governance/SKILL.md` 决定需要哪些角色和哪些门禁
+9. 需求说明经任务提出方确认后，再进入拆解、方案、实现准备和实现
+10. 同步把变更范围、方案和任务拆解沉淀到 `openspec/changes/<change>/`
+11. 收口前核对证据、风险、回退方案和交接状态
 
 ## 最小完整角色工作流图
 
@@ -186,10 +204,14 @@ flowchart TD
 - 涉及页面、交互或视觉变化时，需求分析师先完成 UI 原型调研或参考案例收口；没有独立设计角色时，由前端工程师负责出原图或可实现原型，并先拿到确认。
 - 需求说明未确认前，不进入正式拆解、方案冻结或实现。
 - 架构师负责方案设计、方案比较和推荐方案制定；最终选择由任务提出方确认。没有明确确认记录前，不能进入实现准备或实现。
+- 如果用户反馈的是功能优化或新增功能，架构师还必须先评估更适合新增独立模块，还是扩展现有模块，再给出推荐方案。
 - 项目经理必须要求发生变更的角色严格遵守 OpenSpec；其他角色可以灵活使用适合的 superpower 系列技能辅助执行，但不能替代本角色判断和交接。
 - 前后端实现交接完成后，只要存在任何改动，就必须进入测试工程师；不能出现“开发做完了但测试工程师没有工作”的空档。
-- 测试工程师至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；不适用项必须写理由。
-- 项目经理负责检查测试覆盖是否满足验收标准、启动或运行验证、功能测试和集成测试要求，不满足就补测或阻塞。
+- 测试工程师要先输出测试案例，再按测试案例执行；功能测试是必做项，集成测试和非功能测试要按需求内容判断是否执行，不适用项必须写理由。
+- 项目经理负责检查测试案例是否先于执行输出，以及测试覆盖是否满足验收标准、启动或运行验证、功能测试和按需集成/非功能测试要求，不满足就补测或阻塞。
+- 测试不通过时，测试工程师必须给出缺陷清单并明确回流给前端、后端或前后端共同修复；修复完成后再交接回测试工程师重测。
+- 项目经理必须确认测试案例和缺陷清单都已闭环后，才能交付用户。
+- 使用这套 skill 做问题修复时，必须重新进入对应角色 skill 处理问题；前端问题进前端角色，后端问题进后端角色，不能由总控、测试工程师或无关角色直接代修。
 - 任何角色检查不通过时，默认回流给上一个产出该工件的责任角色返工；项目经理只协调顺序和重验入口。
 - 能拆成独立子任务时，责任角色应优先使用 sub-agent 并行处理；最终判断和交接仍由当前责任角色负责。
 - 平台支持 sub-agent 时，激活角色必须先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级。
@@ -209,7 +231,7 @@ flowchart TD
    - 轻量模式：需求分析师或项目经理负责入口；一个实施角色负责改动；测试工程师负责验证。
    - 标准模式：通常使用需求分析师、项目经理、实施角色、测试工程师；命中安全或数据库时加入安全审计工程师或 DBA。
    - 严格模式：在标准模式基础上，通常还要显式加入架构师，并补齐高风险触发单。
-7. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；架构师负责设计和推荐，方案形成后必须显式向任务提出方请求确认，拿到明确确认后再进入实现准备。
+7. 架构阶段要给出多个可行方案、说明各方案优劣和推荐理由，并补架构体系图；如果是功能优化或新增功能，还要先说明更适合新增独立模块还是扩展现有模块；架构师负责设计和推荐，方案形成后必须显式向任务提出方请求确认，拿到明确确认后再进入实现准备。
 8. 按阶段填写模板：
    - 任务入口：`templates/00_任务入口模板.md`
    - 需求澄清：`templates/01_需求说明模板.md`
@@ -226,15 +248,18 @@ flowchart TD
    - 项目初始化：`templates/13_AGENTS模板.md`
 9. 项目经理要要求发生变更的角色严格遵守 OpenSpec；其他角色可灵活使用适合的 superpower 系列技能辅助执行，但不能替代本角色判断、确认和交接。
 10. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
-11. 所有业务工件和交接记录都建议落到目标项目的 `project-docs/` 目录，而不是把 Skill 包规则文档复制进项目。
+11. 变更提案和规格沉淀到 `openspec/`；执行证据和交接记录落到 `project-docs/`，不要把 Skill 包规则文档复制进项目。
 12. 先检查平台是否支持 sub-agent：支持时，激活角色先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
 13. 如果测试、安全或 DBA 卡住，不要直接往后推：
-   - 默认回流给上一个产出该工件的责任角色返工
+   - 测试不通过时，测试工程师先给出缺陷清单，并明确回流给对应前端或后端角色修复
+   - 问题修复必须重新进入对应角色 skill；平台支持 sub-agent 时，应由对应角色 sub-agent 执行修复
    - 项目经理负责决定回流顺序、责任边界和重验入口
    - 返工角色修复后重新提交对应阶段主工件和通用交接
    - 测试工程师或相关审核角色重新验证
 14. 前序实现交接只要表明本轮存在任何改动，就必须把工作正式交给测试工程师。
-15. 测试至少要覆盖启动或运行检查、基本功能测试、集成测试、关键边界和必要回归；如果没有集成面或没有独立启动面，必须在测试结论里写清原因。
+15. 测试工程师要先输出测试案例，再按测试案例执行。
+16. 功能测试是必做项；集成测试和非功能测试要按需求内容、改动范围和风险判断是否执行。如果没有集成面、没有独立启动面或当前需求不要求非功能验证，必须在测试结论里写清原因。
+17. 项目经理只有在测试案例和缺陷清单都闭环后，才可以给出可交付用户的结论。
 
 如果只是第一次试运行，建议先用一个标准模式的小功能或普通缺陷修复走完整链路。
 
@@ -365,12 +390,29 @@ Inside the target project root, create at least:
 
 ```text
 AGENTS.md
+openspec/
 project-docs/
 ```
 
 Generate `AGENTS.md` from `templates/13_AGENTS模板.md`.
 
-Then use this `project-docs/` layout:
+Initialize `openspec/` according to OpenSpec:
+
+```text
+openspec/
+  config.yaml
+  changes/
+    archive/
+  specs/
+```
+
+Suggested mapping:
+- `openspec/changes/<change>/proposal.md`: change scope, goals, and risks
+- `openspec/changes/<change>/design.md`: solution design and trade-offs
+- `openspec/changes/<change>/tasks.md`: task breakdown and execution checklist
+- `openspec/specs/<capability>/spec.md`: long-lived capability rules and constraints
+
+Then keep execution evidence in this `project-docs/` layout:
 
 ```text
 project-docs/
@@ -463,8 +505,11 @@ flowchart TD
 - No confirmed requirement handoff means no formal breakdown, no frozen solution, and no implementation start.
 - The architect must provide options and boundary definitions, then explicitly request requester confirmation. Without a clear confirmation record, the work must not enter implementation preparation or implementation.
 - The project manager must require any role making a change to follow OpenSpec strictly. Other roles may use suitable superpower-series skills as execution aids, but not as a substitute for their own judgment or handoff.
-- The test engineer must cover startup or runability checks, basic functional testing, integration testing, key edges, and necessary regression. If startup or integration does not apply, that reason must be written down.
-- The project manager checks whether test coverage satisfies acceptance criteria plus startup or runability verification, functional coverage, and integration coverage. If not, the work is blocked or sent back for more testing.
+- The test engineer must write test cases before execution. Functional testing is mandatory; integration testing and non-functional testing are executed only when the requirement content, change scope, or risk makes them necessary. Any non-applicable item must be explained.
+- The project manager checks whether test cases were written before execution and whether coverage satisfies acceptance criteria plus startup or runability verification, mandatory functional coverage, and requirement-driven integration or non-functional coverage. If not, the work is blocked or sent back for more testing.
+- If testing fails, the test engineer must produce a defect list, send it back to the relevant frontend or backend implementation role for repair, and then retest after a new implementation handoff is submitted.
+- The project manager must confirm that both the test cases and the defect list are fully closed before the work can be delivered to the requester.
+- When this bundle is used for bug fixing, the repair must re-enter the matching role skill. Frontend defects go to the frontend role, backend defects go to the backend role, and governance or unrelated roles must not repair them directly.
 - When any role fails a check, rework defaults to the previous role that produced the artifact. The project manager coordinates order and revalidation entry points, but does not take over the rework itself.
 - When work can be split into independent bounded subtasks, the responsible role should prefer sub-agents for parallel execution. Final judgment and handoff stay with the responsible role.
 - If the platform supports sub-agents, each activated role must first attempt to launch its role sub-agent. If launch fails because of model availability or transient platform errors, retry up to 5 times before falling back.
@@ -475,22 +520,23 @@ flowchart TD
 
 1. Check whether the current platform supports `sub-agent`
 2. Create `AGENTS.md` in the target project root
-3. Create `project-docs/`
-4. Start with `templates/00_任务入口模板.md`
-5. Clarify requirement content, main scenarios, and acceptance criteria before freezing stack or solution
-6. For tasks with page, interaction, or visual changes, confirm the UI prototype direction or reference cases first
-7. Decide whether the task is lightweight, standard, or strict
-8. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
-9. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
-10. Fill the corresponding templates as the task progresses
-11. Before closure, verify evidence, risks, rollback plan, and handoff status
+3. Initialize `openspec/`
+4. Create `project-docs/`
+5. Start with `templates/00_任务入口模板.md`
+6. Clarify requirement content, main scenarios, and acceptance criteria before freezing stack or solution
+7. For tasks with page, interaction, or visual changes, confirm the UI prototype direction or reference cases first
+8. Decide whether the task is lightweight, standard, or strict
+9. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
+10. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
+11. Capture change scope, design, and tasks under `openspec/changes/<change>/`
+12. Before closure, verify evidence, risks, rollback plan, and handoff status
 
 ## How To Use
 
 Minimum workflow:
 
 1. Start from `skills/harness-governance/SKILL.md` and determine whether the task is lightweight, standard, or strict.
-2. During project initialization, check whether the platform supports `sub-agent`, then create `AGENTS.md` in the target project root. The recommended starting point is `templates/13_AGENTS模板.md`.
+2. During project initialization, check whether the platform supports `sub-agent`, then create `AGENTS.md`, initialize `openspec/`, and create `project-docs/` in the target project root. The recommended starting point is `templates/13_AGENTS模板.md`.
 3. Before breakdown or solution work starts, the requirements analyst clarifies the requirement content, main scenarios, and acceptance criteria. Critical unknowns must be discussed with the requester before the requirements handoff can move forward.
 4. For tasks that change pages, interactions, or visuals, add UI prototype research or reference collection first. If the project has no dedicated design role, the frontend engineer owns the source mock or implementable prototype and gets requester confirmation before implementation.
 5. Select roles based on the mode:
@@ -514,15 +560,18 @@ Minimum workflow:
    - Project initialization: `templates/13_AGENTS模板.md`
 8. The project manager must require any role making a change to follow OpenSpec strictly. Other roles may use suitable superpower-series skills as execution aids, but not as a substitute for judgment, confirmation, or handoff.
 9. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
-10. Store project artifacts and handoff records in the target project's `project-docs/` layout instead of copying the bundle's rule documents into the project.
+10. Store change planning and stable specs under `openspec/`, and store execution evidence and handoff records under `project-docs/`, instead of copying the bundle's rule documents into the project.
 11. First check whether the platform supports sub-agents: if yes, each activated role must first attempt to launch its role sub-agent; if launch fails because of model availability or transient platform errors, retry up to 5 times before falling back; if the platform does not support sub-agents, let governance simulate roles serially while keeping role boundaries and handoffs intact.
 12. If testing, security review, or database review blocks the flow:
-   - Rework defaults to the previous role that produced the artifact
+   - If testing fails, the test engineer first produces a defect list and identifies the relevant frontend or backend repair owner
+   - The repair must re-enter the matching role skill; if the platform supports sub-agents, the matching role sub-agent should perform the repair
    - The project manager decides the order, ownership boundary, and revalidation entry point
    - The rework owner resubmits the stage artifact plus a generic handoff record
    - The test engineer or relevant review role validates again
 13. Any implementation handoff that reflects a change must be handed to the test engineer.
-14. Testing should cover startup or runability checks, basic functional checks, integration checks, key edges, and necessary regression. If there is no startup surface or no integration surface, the test result must explicitly say why.
+14. The test engineer must write test cases before executing validation.
+15. Functional testing is mandatory. Integration testing and non-functional testing must be executed only when required by the requirement content, change scope, or risk. If there is no startup surface, no integration surface, or no requirement-driven non-functional need, the test result must explicitly say why.
+16. The project manager may mark the work deliverable only after both the test cases and the defect list are fully closed.
 
 If you are trying the package for the first time, start with a small standard-mode feature or a normal bug fix and run the full workflow end to end.
 

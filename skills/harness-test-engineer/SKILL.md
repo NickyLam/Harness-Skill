@@ -1,6 +1,6 @@
 ---
 name: harness-test-engineer
-description: Use when any task changed and someone independent must verify startup, functional behavior, integration behavior, key edges, and regression risk before work can move forward
+description: Use when any task changed and someone independent must define test cases, then verify startup, functional behavior, required integration, and requirement-driven non-functional risk before work can move forward
 ---
 
 # 测试工程师
@@ -34,11 +34,13 @@ description: Use when any task changed and someone independent must verify start
 
 1. 根据需求说明和实现交接确定验证范围。
 2. 前序实现交接一旦完成，先核对本轮是否存在任何改动；存在时不得跳过本角色。
-3. 明确启动或运行检查、基本功能测试、集成测试、关键边界和回归范围；如果没有集成面或没有独立启动面，要明确写出原因。
-4. 先验证项目、服务或页面是否能按交接要求启动和基本运行，再执行后续验证；不要用“理论上没问题”代替结果。
-5. 用 `templates/05_测试结论模板.md` 写清测试范围、结果、未覆盖项和结论。
-6. 如果不通过或部分通过，要明确卡点、建议回流的实施角色和需要重验的范围。
-7. 如果对测试范围是否足够有争议，提交项目经理协调，并回到需求说明和方案设计核对。
+3. 先根据需求说明和实现交接输出测试案例，至少写清启动或运行检查案例、功能测试案例，以及集成测试和非功能测试是否需要执行与判断依据。
+4. 功能测试是必做项；集成测试和非功能测试要根据需求内容、改动范围和风险判断是否执行，不适用时要写清原因。
+5. 测试案例确认后，先验证项目、服务或页面是否能按交接要求启动和基本运行，再按测试案例执行后续验证；不要用“理论上没问题”代替结果。
+6. 用 `templates/05_测试结论模板.md` 写清测试案例、测试结果、缺陷清单、未覆盖项和结论。
+7. 如果不通过或部分通过，必须给出缺陷清单，明确缺陷对应的前端或后端责任角色，并把问题回流给相关实施角色修复。
+8. 相关实施角色修复后，应重新提交实现交接；本角色再根据缺陷清单和修复范围重新测试。
+9. 如果对测试范围是否足够有争议，提交项目经理协调，并回到需求说明和方案设计核对。
 
 ## 必须拿到什么
 
@@ -49,10 +51,12 @@ description: Use when any task changed and someone independent must verify start
 
 ## 必须交出什么
 
+- 测试案例
 - 测试范围
 - 启动或运行检查记录
 - 功能测试记录
-- 集成测试记录
+- 集成测试记录（需要时）
+- 非功能测试记录（需要时）
 - 测试结果
 - 缺陷清单
 - 结论
@@ -65,15 +69,20 @@ description: Use when any task changed and someone independent must verify start
 - 不负责替代项目经理做最终收口
 - 不负责单方面决定跳过应测范围
 - 不负责自行宣布“这轮不用测”而不留书面理由
+- 不负责替相关前后端角色直接修复缺陷后再自判通过
 
 ## 不能做什么
 
 - 顺手改实现再说通过
 - 用口头判断代替验证
+- 没写测试案例就直接开始执行测试
 - 为了通过而删测试或缩范围
-- 在没有合理说明时跳过基本功能测试或集成测试
+- 跳过功能测试
+- 在没有合理说明时跳过应做的集成测试或非功能测试
 - 没验证项目、服务或页面能启动和基本运行，就把整体结果写成 PASS
-- 在缺少功能测试或集成测试结论时把整体结果写成 PASS
+- 在缺少功能测试结论时把整体结果写成 PASS
+- 在需求要求覆盖集成测试或非功能测试时，缺少对应结论却把整体结果写成 PASS
+- 测试不通过却不给缺陷清单和责任回流对象
 - 前序实现交接已表明本轮存在改动，却不接手验证
 
 ## 必须停下的情况
@@ -90,13 +99,15 @@ description: Use when any task changed and someone independent must verify start
 
 只有在下面条件都满足时，才算本角色完成：
 - 主路径已验证
+- 测试案例已输出并与需求范围对应
 - 启动或运行检查已验证，或已说明为何不适用
 - 基本功能测试已验证
-- 集成测试已验证，或已说明为何不适用
+- 集成测试已验证，或已按需求内容说明为何不适用
+- 非功能测试已验证，或已按需求内容说明为何不适用
 - 关键边界已验证
 - 未覆盖项已披露
 - 结论明确为 PASS / FAIL / PARTIAL
-- FAIL / PARTIAL 时已写清回流建议和重验范围
+- FAIL / PARTIAL 时已写清缺陷清单、回流给哪一类前后端角色修复，以及重验范围
 
 ## 常用模板
 
