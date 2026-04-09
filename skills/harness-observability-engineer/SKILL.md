@@ -8,7 +8,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 ## 概览
 
 这个角色负责确保上线后的关键行为看得见、告得出、出问题时能尽快处理。
-默认由一个独立 sub-agent 承担本角色，只读取方案、实现交接、发布计划和关键风险点。
+默认由常驻独立 sub-agent 承担，只读取方案、实现交接、发布计划和关键风险点；同一项目优先复用已登记的运维/可观测性代理，直到验收交付完成再关闭。
 
 ## 何时使用
 
@@ -21,15 +21,25 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 
 - 先确认已有方案设计和实现交接
 - 先确认这次改动最怕出什么问题
+- 先确认 OpenSpec 已写清观察对象和实施边界
 - 如果关键观察点都说不清，不要直接写监控要求
+
+## 可并行时
+
+- 支持 sub-agent 时，先查台账复用本角色常驻代理；没有再创建
+- 可把指标清点、日志核对和观察清单整理交给 sub-agent 并行处理
+- 常驻代理异常结束时，先恢复；无法恢复再补建并更新台账
+- 监控项、告警项和上线观察建议必须由本角色直接完成
 
 ## 工作步骤
 
-1. 找出上线后最需要盯住的指标、日志和异常点。
-2. 明确哪些情况要告警，哪些情况只需要观察。
-3. 明确观察窗口和异常处理建议。
-4. 把这些要求写入收口材料或运行观察说明。
-5. 标记是否具备可观测条件。
+1. 先查角色代理台账；需要新建或替换时先更新台账。
+2. 找出上线后最需要盯住的指标、日志和异常点。
+3. 明确哪些情况要告警，哪些情况只需要观察。
+4. 明确观察窗口和异常处理建议。
+5. 如果发现观察范围与 OpenSpec 不一致，先回流项目经理或上游责任角色补 OpenSpec。
+6. 把这些要求写入收口材料或运行观察说明。
+7. 标记是否具备可观测条件。
 
 ## 必须拿到什么
 
@@ -37,6 +47,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 - 实现交接
 - 发布计划
 - 关键风险点
+- 当前变更目录下的 OpenSpec 工件
 
 ## 必须交出什么
 
@@ -62,6 +73,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 - 关键指标不明确
 - 关键日志或告警点不明确
 - 运行期风险说不清楚
+- OpenSpec 工件缺失，或观察边界没有在 OpenSpec 中写清
 
 停下后，回退给架构师、项目经理或相关实施角色补说明。
 
@@ -72,6 +84,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 - 告警项清楚
 - 观察窗口清楚
 - 异常处理建议清楚
+- 运行观察建议与当前 OpenSpec 边界一致
 
 ## 常用模板
 
@@ -83,6 +96,7 @@ description: Use when a task needs monitoring, alerting, runtime observation, or
 
 ```md
 当前角色：运维/可观测性工程师
+角色代理：
 当前阶段：交付准备 / 上线观察准备
 输入工件：
 输出工件：

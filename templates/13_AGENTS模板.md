@@ -12,11 +12,17 @@ This file defines project-level operating rules for AI agents working in this re
 - Requirements must be confirmed by the requester before handoff to the next role.
 - Architecture options must include trade-offs and be confirmed by the requester before implementation preparation.
 - The project manager must require any role making a change to follow OpenSpec strictly.
+- OpenSpec is a hard gate, not a suggestion. Missing or stale required OpenSpec artifacts block progression.
 - Bug fixing or rework must return to the matching role skill instead of being handled by governance or an unrelated role.
 - If the platform supports sub-agents, run one role per sub-agent by default.
 - If the platform supports sub-agents, each activated role must first attempt to launch its role sub-agent.
+- If the platform supports sub-agents, keep one resident sub-agent per role for the lifetime of the project by default.
+- Before creating a new role agent, check the role-agent registry and resume or reuse the existing resident agent first.
 - If launch fails because of model availability or transient platform errors, retry up to 5 times before falling back.
+- If a resident role agent ends unexpectedly, try to recover it first. Only create a replacement agent when recovery is not possible, and record the replacement.
 - Every stage must produce a handoff record.
+- Maintain `project-docs/02_planning/role-agent-registry.md` and update it on agent creation, reuse, replacement, and closure.
+- Maintain `project-docs/02_planning/openspec-audit.md` and update it before each stage handoff.
 
 ## Project Outputs
 
@@ -43,6 +49,7 @@ This file defines project-level operating rules for AI agents working in this re
 - Governance decides required roles and gates.
 - Roles other than the project manager may use suitable superpower-series skills flexibly as execution aids.
 - Each role reads only the artifacts it needs.
+- Role agents stay resident until acceptance, closure, and delivery are complete unless a documented replacement is required.
 - Final confirmation, test conclusion, security conclusion, database conclusion, and closure decision cannot be delegated away from the responsible role.
 
 ## Validation

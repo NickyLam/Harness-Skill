@@ -8,7 +8,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 ## 概览
 
 这个角色负责把方案怎么设计、怎么落地说清楚，尤其是边界、影响、回退，以及新增模块还是扩展现有模块更合适。
-默认由一个独立 sub-agent 承担本角色，只读取需求、边界和系统现状材料。
+默认由常驻独立 sub-agent 承担，只读取需求、边界和系统现状材料；同一项目优先复用已登记的架构师代理，直到验收交付完成再关闭。
 
 ## 何时使用
 
@@ -21,6 +21,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 ## 开工前先看
 
 - 先确认已有需求说明
+- 先确认 `proposal.md` 已存在且当前需求结论已经回写
 - 没有需求边界时，不要直接定方案
 - 先看任务模式，严格模式下不要省掉影响分析和回退思路
 - 如果需求说明还没被任务提出方确认，不要冻结方案
@@ -28,22 +29,25 @@ description: Use when a task involves technical boundaries, interface changes, d
 
 ## 可并行时
 
-- 平台支持 sub-agent 时，先主动尝试发起本角色 sub-agent
+- 支持 sub-agent 时，先查台账复用本角色常驻代理；没有再创建
 - 可把现状扫描、备选方案资料收集和影响面初查交给 sub-agent
+- 常驻代理异常结束时，先恢复；无法恢复再补建并更新台账
 - 如果因为模型可用性或平台瞬时错误失败，重试最多 5 次；5 次仍失败再降级为主控串行执行，并记录失败原因
 - 方案设计、推荐方案说明、用户确认请求和交接必须由本角色直接完成
 
 ## 工作步骤
 
-1. 先明确问题边界和不做什么。
-2. 如果是功能优化或新增功能，先评估应完全新增一个功能模块，还是在现有功能模块基础上扩展。
-3. 列出可选做法，说明每个方案的优点、缺点、风险和适用前提。
-4. 给出推荐方案，但不要把推荐方案当成已生效决定；最终选择由任务提出方负责。
-5. 把前端边界、后端边界、接口契约变化、测试关注点和架构体系图写清楚。
-6. 向任务提出方展示备选方案和推荐理由，并显式请求确认；拿到确认后再冻结已确认方案。
-7. 用 `templates/03_方案决策模板.md` 写下方案比较、推荐方案、任务提出方确认结果、影响分析和回退思路。
-8. 明确哪些问题必须回到需求层，哪些问题可以在实现层解决。
-9. 标记是否可交接给实施角色。
+1. 先查角色代理台账；需要新建或替换时先更新台账。
+2. 先明确问题边界和不做什么。
+3. 如果是功能优化或新增功能，先评估应完全新增一个功能模块，还是在现有功能模块基础上扩展。
+4. 列出可选做法，说明每个方案的优点、缺点、风险和适用前提。
+5. 给出推荐方案，但不要把推荐方案当成已生效决定；最终选择由任务提出方负责。
+6. 把前端边界、后端边界、接口契约变化、测试关注点和架构体系图写清楚。
+7. 向任务提出方展示备选方案和推荐理由，并显式请求确认；拿到确认后再冻结已确认方案。
+8. 用 `templates/03_方案决策模板.md` 写下方案比较、推荐方案、任务提出方确认结果、影响分析和回退思路。
+9. 把当前确认方案回写到 `openspec/changes/<change>/design.md`。
+10. 明确哪些问题必须回到需求层，哪些问题可以在实现层解决。
+11. 标记是否可交接给实施角色。
 
 ## 必须拿到什么
 
@@ -51,6 +55,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 关键约束
 - 当前系统信息
 - 涉及的接口、数据或安全背景
+- 当前变更目录下的 `proposal.md`
 
 ## 必须交出什么
 
@@ -62,6 +67,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 影响分析
 - 回退思路
 - 未决项
+- 已回写的 `design.md`
 
 ## 边界
 
@@ -84,6 +90,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 关键边界不明确
 - 回退方向说不清楚
 - 影响范围无法判断
+- `design.md` 缺失或没有更新到当前确认方案
 - 方案已经形成，但任务提出方还没有给出明确确认
 
 停下后，回退给需求分析师或项目经理重新收口。
@@ -100,6 +107,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 - 影响分析清楚
 - 回退思路清楚
 - 任务提出方已明确确认最终方案
+- `design.md` 已更新到当前确认方案
 
 ## 常用模板
 
@@ -111,6 +119,7 @@ description: Use when a task involves technical boundaries, interface changes, d
 
 ```md
 当前角色：架构师
+角色代理：
 当前阶段：方案设计
 输入工件：
 输出工件：

@@ -8,7 +8,7 @@ description: Use when a task is close to delivery and someone must control relea
 ## 概览
 
 这个角色负责把“可以交付”变成“可以有控制地上线”。
-默认由一个独立 sub-agent 承担本角色，只读取收口材料、风险清单和发布相关结论。
+默认由常驻独立 sub-agent 承担，只读取收口材料、风险清单和发布相关结论；同一项目优先复用已登记的发布经理代理，直到验收交付完成再关闭。
 
 ## 何时使用
 
@@ -21,15 +21,25 @@ description: Use when a task is close to delivery and someone must control relea
 
 - 先确认已有项目收口材料
 - 先确认测试、安全和数据库结论已经到位
+- 先确认 OpenSpec 审计已闭环
 - 如果关键结论缺失，不要直接排发布步骤
+
+## 可并行时
+
+- 支持 sub-agent 时，先查台账复用本角色常驻代理；没有再创建
+- 可把发布窗口核对、检查项整理和材料归档交给 sub-agent 并行处理
+- 常驻代理异常结束时，先恢复；无法恢复再补建并更新台账
+- 发布步骤、放量策略和交付前放行建议必须由本角色直接完成
 
 ## 工作步骤
 
-1. 核对收口状态、风险和回退准备。
-2. 明确发布顺序、窗口和放量节奏。
-3. 明确什么情况下继续、暂停或回退。
-4. 将发布要求写入收口材料或单独发布说明。
-5. 标记是否具备进入发布的条件。
+1. 先查角色代理台账；需要新建或替换时先更新台账。
+2. 核对收口状态、风险和回退准备。
+3. 明确发布顺序、窗口和放量节奏。
+4. 明确什么情况下继续、暂停或回退。
+5. 将发布要求写入收口材料或单独发布说明。
+6. 核对 OpenSpec 审计结论是否允许进入交付准备。
+7. 标记是否具备进入发布的条件。
 
 ## 必须拿到什么
 
@@ -37,6 +47,7 @@ description: Use when a task is close to delivery and someone must control relea
 - 风险清单
 - 回退准备
 - 相关角色结论
+- OpenSpec 审计记录
 
 ## 必须交出什么
 
@@ -62,6 +73,7 @@ description: Use when a task is close to delivery and someone must control relea
 - 收口材料不完整
 - 关键风险无人负责
 - 回退触发条件不明确
+- OpenSpec 审计未闭环
 
 停下后，回退给项目经理补齐收口信息。
 
@@ -71,6 +83,7 @@ description: Use when a task is close to delivery and someone must control relea
 - 发布步骤清楚
 - 放量策略清楚
 - 回退触发条件清楚
+- OpenSpec 审计已闭环
 
 ## 常用模板
 
@@ -82,6 +95,7 @@ description: Use when a task is close to delivery and someone must control relea
 
 ```md
 当前角色：发布经理
+角色代理：
 当前阶段：交付准备
 输入工件：
 输出工件：

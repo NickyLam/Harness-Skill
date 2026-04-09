@@ -8,7 +8,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 ## 概览
 
 这个角色负责识别和约束本次改动带来的安全风险。
-默认由一个独立 sub-agent 承担本角色，只读取需求、方案、实现交接和安全边界材料。
+默认由常驻独立 sub-agent 承担，只读取需求、方案、实现交接和安全边界材料；同一项目优先复用已登记的安全审计代理，直到验收交付完成再关闭。
 
 ## 何时使用
 
@@ -21,21 +21,26 @@ description: Use when a task touches permissions, authentication, sensitive data
 ## 开工前先看
 
 - 先确认已有需求说明、方案设计和实现交接
+- 先确认安全边界对应的 `proposal.md`、`design.md` 和需要时的 `tasks.md` 已更新
 - 如果安全边界都说不清，不要直接给结论
 - 严格模式下不要省掉风险清单
 
 ## 可并行时
 
+- 支持 sub-agent 时，先查台账复用本角色常驻代理；没有再创建
 - 可把风险点扫描、配置核对和材料整理交给 sub-agent 并行处理
+- 常驻代理异常结束时，先恢复；无法恢复再补建并更新台账
 - 最终安全判断、放行条件和交接必须由本角色直接完成
 
 ## 工作步骤
 
-1. 明确这次改动碰到了哪些安全边界。
-2. 核对权限、认证、输入输出、敏感数据和配置风险。
-3. 把风险分成必改项和建议项。
-4. 用 `templates/06_安全审查模板.md` 写清风险、整改建议和放行条件。
-5. 给出是否可放行以及原因。
+1. 先查角色代理台账；需要新建或替换时先更新台账。
+2. 明确这次改动碰到了哪些安全边界。
+3. 核对权限、认证、输入输出、敏感数据和配置风险。
+4. 把风险分成必改项和建议项。
+5. 如果发现安全边界与 OpenSpec 不一致，先回流项目经理或上游责任角色补 OpenSpec。
+6. 用 `templates/06_安全审查模板.md` 写清风险、整改建议和放行条件。
+7. 给出是否可放行以及原因。
 
 ## 必须拿到什么
 
@@ -43,6 +48,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 - 方案设计
 - 实现交接
 - 安全边界说明
+- 当前变更目录下的 OpenSpec 工件
 
 ## 必须交出什么
 
@@ -68,6 +74,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 - 安全边界不明确
 - 敏感数据流向不明确
 - 权限或认证逻辑不明确
+- OpenSpec 工件缺失或安全边界没有在 OpenSpec 中写清
 
 停下后，回退给架构师、项目经理或相关实施角色补说明。
 
@@ -77,6 +84,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 - 风险点写清楚
 - 必改项和建议项分开写清楚
 - 放行条件写清楚
+- 审核结论与当前 OpenSpec 边界一致
 
 ## 常用模板
 
@@ -88,6 +96,7 @@ description: Use when a task touches permissions, authentication, sensitive data
 
 ```md
 当前角色：安全审计工程师
+角色代理：
 当前阶段：安全审核
 输入工件：
 输出工件：

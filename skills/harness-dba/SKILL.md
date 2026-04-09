@@ -8,7 +8,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 ## 概览
 
 这个角色负责数据库改动的可执行性、风险和回退判断。
-默认由一个独立 sub-agent 承担本角色，只读取需求、方案、脚本和数据影响材料。
+默认由常驻独立 sub-agent 承担，只读取需求、方案、脚本和数据影响材料；同一项目优先复用已登记的 DBA 代理，直到验收交付完成再关闭。
 
 ## 何时使用
 
@@ -22,20 +22,25 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 
 - 先确认已有需求说明和方案设计
 - 先拿到变更脚本和数据影响说明
+- 先确认数据库范围对应的 `design.md` 和需要时的 `tasks.md` 已更新
 - 如果连执行条件和回退方向都说不清，不要直接给放行意见
 
 ## 可并行时
 
+- 支持 sub-agent 时，先查台账复用本角色常驻代理；没有再创建
 - 可把脚本检查、影响面初查和执行条件整理交给 sub-agent 并行处理
+- 常驻代理异常结束时，先恢复；无法恢复再补建并更新台账
 - 最终数据库审核结论、执行条件和交接必须由本角色直接完成
 
 ## 工作步骤
 
-1. 核对变更范围和执行条件。
-2. 检查结构变更、数据变更、索引、性能和锁风险。
-3. 检查回退方案是否可行。
-4. 用 `templates/07_数据库审核模板.md` 写清审核意见、风险和执行条件。
-5. 给出是否建议执行以及原因。
+1. 先查角色代理台账；需要新建或替换时先更新台账。
+2. 核对变更范围和执行条件。
+3. 检查结构变更、数据变更、索引、性能和锁风险。
+4. 检查回退方案是否可行。
+5. 如果发现数据库边界与 OpenSpec 不一致，先回流项目经理或上游责任角色补 OpenSpec。
+6. 用 `templates/07_数据库审核模板.md` 写清审核意见、风险和执行条件。
+7. 给出是否建议执行以及原因。
 
 ## 必须拿到什么
 
@@ -43,6 +48,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 - 方案设计
 - 变更脚本
 - 数据影响说明
+- 当前变更目录下的 OpenSpec 工件
 
 ## 必须交出什么
 
@@ -69,6 +75,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 - 数据影响说不清楚
 - 执行条件不明确
 - 回退方向不明确
+- OpenSpec 工件缺失或数据库边界没有在 OpenSpec 中写清
 
 停下后，回退给后端角色、架构师或项目经理补材料。
 
@@ -78,6 +85,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 - 可执行性说明清楚
 - 风险说明清楚
 - 回退可行性说明清楚
+- 审核结论与当前 OpenSpec 边界一致
 
 ## 常用模板
 
@@ -89,6 +97,7 @@ description: Use when a task changes SQL, schema, fields, indexes, migration pla
 
 ```md
 当前角色：DBA
+角色代理：
 当前阶段：数据库审核
 输入工件：
 输出工件：

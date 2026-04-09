@@ -115,6 +115,8 @@ project-docs/
 - `00_intake`：任务入口、高风险触发单
 - `01_requirements`：需求说明、需求确认记录
 - `02_planning`：任务拆解、实现准备
+- `02_planning/role-agent-registry.md`：角色常驻代理台账，记录每个角色的 agent 标识、状态、最近工件和关闭条件
+- `02_planning/openspec-audit.md`：OpenSpec 审计记录，记录当前阶段必需工件、更新状态和一致性检查结果
 - `03_solution`：方案设计、方案确认记录
 - `04_implementation`：实现交接、联调结论
 - `05_validation`：测试结论、安全审查、数据库审核
@@ -163,9 +165,11 @@ project-docs/
 6. 先澄清需求内容、主要场景和验收标准，再判断任务属于轻量、标准还是严格模式
 7. 如果命中高风险，先填写 `templates/09_高风险触发模板.md`
 8. 使用 `skills/harness-governance/SKILL.md` 决定需要哪些角色和哪些门禁
-9. 需求说明经任务提出方确认后，再进入拆解、方案、实现准备和实现
-10. 同步把变更范围、方案和任务拆解沉淀到 `openspec/changes/<change>/`
-11. 收口前核对证据、风险、回退方案和交接状态
+9. 平台支持 `sub-agent` 时，在目标项目的 `project-docs/02_planning/role-agent-registry.md` 建立角色代理台账；同一项目内同一角色默认只保留一个常驻 sub-agent
+10. 需求说明经任务提出方确认后，再进入拆解、方案、实现准备和实现；阶段推进前先检查当前阶段所需的 OpenSpec 工件是否存在并已更新
+11. 同步把变更范围、方案和任务拆解沉淀到 `openspec/changes/<change>/`，不能只在 `project-docs/` 里留执行记录
+12. 项目经理每次放行前都更新 `project-docs/02_planning/openspec-audit.md`
+13. 收口前核对证据、风险、回退方案、交接状态、角色代理台账和 OpenSpec 审计闭环情况
 
 ## 最小完整角色工作流图
 
@@ -214,7 +218,7 @@ flowchart TD
 - 使用这套 skill 做问题修复时，必须重新进入对应角色 skill 处理问题；前端问题进前端角色，后端问题进后端角色，不能由总控、测试工程师或无关角色直接代修。
 - 任何角色检查不通过时，默认回流给上一个产出该工件的责任角色返工；项目经理只协调顺序和重验入口。
 - 能拆成独立子任务时，责任角色应优先使用 sub-agent 并行处理；最终判断和交接仍由当前责任角色负责。
-- 平台支持 sub-agent 时，激活角色必须先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级。
+- 平台支持 sub-agent 时，总控必须在角色进入阶段、功能迭代实施启动、缺陷回流和重测回流时先调起或恢复对应角色常驻代理；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级。
 - 命中安全或数据库内容时，在“测试”与“收口”之间插入对应审核支线，不改变主线结构。
 - 先检查平台是否支持 sub-agent；支持时按“一角色一 sub-agent”执行，不支持时才由主控串行模拟角色。
 
@@ -249,10 +253,10 @@ flowchart TD
 9. 项目经理要要求发生变更的角色严格遵守 OpenSpec；其他角色可灵活使用适合的 superpower 系列技能辅助执行，但不能替代本角色判断、确认和交接。
 10. 每个角色阶段结束时，都要在项目内补一份通用交接记录，并写清主工件和落盘路径，不只是在前后端和测试之间交接。
 11. 变更提案和规格沉淀到 `openspec/`；执行证据和交接记录落到 `project-docs/`，不要把 Skill 包规则文档复制进项目。
-12. 先检查平台是否支持 sub-agent：支持时，激活角色先主动尝试发起本角色 sub-agent；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
+12. 先检查平台是否支持 sub-agent：支持时，总控先按角色调起或恢复对应常驻代理，再进入对应角色职责；如果因为模型可用性或平台瞬时错误失败，先重试 5 次，再允许降级；不支持时，才由主控串行模拟角色，但仍按角色边界读取工件和输出交接。
 13. 如果测试、安全或 DBA 卡住，不要直接往后推：
    - 测试不通过时，测试工程师先给出缺陷清单，并明确回流给对应前端或后端角色修复
-   - 问题修复必须重新进入对应角色 skill；平台支持 sub-agent 时，应由对应角色 sub-agent 执行修复
+   - 问题修复必须重新进入对应角色 skill；平台支持 sub-agent 时，总控先调起对应角色 sub-agent，再由其执行修复
    - 项目经理负责决定回流顺序、责任边界和重验入口
    - 返工角色修复后重新提交对应阶段主工件和通用交接
    - 测试工程师或相关审核角色重新验证
@@ -279,6 +283,8 @@ flowchart TD
 - `templates/09_高风险触发模板.md`
 - `templates/12_通用交接模板.md`
 - `templates/13_AGENTS模板.md`
+- `templates/14_角色代理台账模板.md`
+- `templates/15_OpenSpec审计模板.md`
 - `templates/角色Skill模板.md`
 
 ## 已拆分的角色 Skill
@@ -300,6 +306,8 @@ flowchart TD
 - 不默认让一个智能体包办全部角色
 - 不让高风险动作静默进入执行
 - 不让关键交接只靠口头描述
+- 不让角色 sub-agent 只存在于一次会话里而不被项目级追踪
+- 不让 OpenSpec 只被口头要求而不作为硬门禁执行
 - 不让验证失败后继续硬推
 - 不让没有证据的“完成声明”通过
 
@@ -395,6 +403,7 @@ project-docs/
 ```
 
 Generate `AGENTS.md` from `templates/13_AGENTS模板.md`.
+If the platform supports sub-agents, also maintain `project-docs/02_planning/role-agent-registry.md` as the resident role-agent registry.
 
 Initialize `openspec/` according to OpenSpec:
 
@@ -430,6 +439,8 @@ Suggested mapping:
 - `00_intake`: task intake and high-risk trigger records
 - `01_requirements`: requirements handoff and requirement confirmation records
 - `02_planning`: task breakdown and implementation preparation
+- `02_planning/role-agent-registry.md`: resident role-agent registry with agent ids, state, latest artifact, replacement history, and close conditions
+- `02_planning/openspec-audit.md`: OpenSpec audit record with required artifacts, freshness, and consistency checks
 - `03_solution`: solution decisions and requester confirmation records
 - `04_implementation`: implementation handoffs and integration results
 - `05_validation`: test results, security reviews, and database reviews
@@ -505,6 +516,7 @@ flowchart TD
 - No confirmed requirement handoff means no formal breakdown, no frozen solution, and no implementation start.
 - The architect must provide options and boundary definitions, then explicitly request requester confirmation. Without a clear confirmation record, the work must not enter implementation preparation or implementation.
 - The project manager must require any role making a change to follow OpenSpec strictly. Other roles may use suitable superpower-series skills as execution aids, but not as a substitute for their own judgment or handoff.
+- OpenSpec is a hard gate. Missing, stale, or inconsistent required OpenSpec artifacts block stage progression.
 - The test engineer must write test cases before execution. Functional testing is mandatory; integration testing and non-functional testing are executed only when the requirement content, change scope, or risk makes them necessary. Any non-applicable item must be explained.
 - The project manager checks whether test cases were written before execution and whether coverage satisfies acceptance criteria plus startup or runability verification, mandatory functional coverage, and requirement-driven integration or non-functional coverage. If not, the work is blocked or sent back for more testing.
 - If testing fails, the test engineer must produce a defect list, send it back to the relevant frontend or backend implementation role for repair, and then retest after a new implementation handoff is submitted.
@@ -512,9 +524,11 @@ flowchart TD
 - When this bundle is used for bug fixing, the repair must re-enter the matching role skill. Frontend defects go to the frontend role, backend defects go to the backend role, and governance or unrelated roles must not repair them directly.
 - When any role fails a check, rework defaults to the previous role that produced the artifact. The project manager coordinates order and revalidation entry points, but does not take over the rework itself.
 - When work can be split into independent bounded subtasks, the responsible role should prefer sub-agents for parallel execution. Final judgment and handoff stay with the responsible role.
-- If the platform supports sub-agents, each activated role must first attempt to launch its role sub-agent. If launch fails because of model availability or transient platform errors, retry up to 5 times before falling back.
+- If the platform supports sub-agents, governance must launch or restore the matching resident role sub-agent before role entry, feature-implementation start, bug-fix re-entry, and retest re-entry.
+- Resident role sub-agents should remain available through rework, retest, acceptance, closure, and delivery. If a resident agent ends unexpectedly, try recovery first and only create a replacement when recovery is not possible.
+- If launch fails because of model availability or transient platform errors, retry up to 5 times before falling back.
 - If security or database review is required, insert that review branch between testing and closure without changing the main flow.
-- First check whether the platform supports sub-agents. If it does, run with one role per sub-agent. Only fall back to serial role simulation when the platform does not support it.
+- First check whether the platform supports sub-agents. If it does, governance must launch or restore one resident sub-agent per active role before that role executes. Only fall back to serial role simulation when the platform does not support it.
 
 ## Recommended Usage Order
 
@@ -528,15 +542,17 @@ flowchart TD
 8. Decide whether the task is lightweight, standard, or strict
 9. If the task is high-risk, fill `templates/09_高风险触发模板.md` first
 10. Use `skills/harness-governance/SKILL.md` to decide required roles and gates
-11. Capture change scope, design, and tasks under `openspec/changes/<change>/`
-12. Before closure, verify evidence, risks, rollback plan, and handoff status
+11. If the platform supports `sub-agent`, create and maintain `project-docs/02_planning/role-agent-registry.md`; by default keep one resident sub-agent per role per project and let governance launch or restore it before role execution
+12. Capture change scope, design, and tasks under `openspec/changes/<change>/`, and treat those files as hard stage gates
+13. Update `project-docs/02_planning/openspec-audit.md` before each stage handoff
+14. Before closure, verify evidence, risks, rollback plan, handoff status, role-agent registry closure status, and OpenSpec audit closure status
 
 ## How To Use
 
 Minimum workflow:
 
 1. Start from `skills/harness-governance/SKILL.md` and determine whether the task is lightweight, standard, or strict.
-2. During project initialization, check whether the platform supports `sub-agent`, then create `AGENTS.md`, initialize `openspec/`, and create `project-docs/` in the target project root. The recommended starting point is `templates/13_AGENTS模板.md`.
+2. During project initialization, check whether the platform supports `sub-agent`, then create `AGENTS.md`, initialize `openspec/`, create `project-docs/`, and add `project-docs/02_planning/role-agent-registry.md` plus `project-docs/02_planning/openspec-audit.md` in the target project root. The recommended starting point is `templates/13_AGENTS模板.md`.
 3. Before breakdown or solution work starts, the requirements analyst clarifies the requirement content, main scenarios, and acceptance criteria. Critical unknowns must be discussed with the requester before the requirements handoff can move forward.
 4. For tasks that change pages, interactions, or visuals, add UI prototype research or reference collection first. If the project has no dedicated design role, the frontend engineer owns the source mock or implementable prototype and gets requester confirmation before implementation.
 5. Select roles based on the mode:
@@ -554,6 +570,8 @@ Minimum workflow:
    - Integration: `templates/11_联调结论模板.md`
    - Independent verification: `templates/05_测试结论模板.md`
    - Security review: `templates/06_安全审查模板.md`
+   - Role-agent registry: `templates/14_角色代理台账模板.md`
+   - OpenSpec audit: `templates/15_OpenSpec审计模板.md`
    - Database review: `templates/07_数据库审核模板.md`
    - Closure: `templates/08_项目收口模板.md`
    - Generic handoff: `templates/12_通用交接模板.md`
@@ -561,10 +579,10 @@ Minimum workflow:
 8. The project manager must require any role making a change to follow OpenSpec strictly. Other roles may use suitable superpower-series skills as execution aids, but not as a substitute for judgment, confirmation, or handoff.
 9. Every role must produce a handoff record at the end of its stage, including the main artifact and its storage path, not only implementation roles handing off to testing.
 10. Store change planning and stable specs under `openspec/`, and store execution evidence and handoff records under `project-docs/`, instead of copying the bundle's rule documents into the project.
-11. First check whether the platform supports sub-agents: if yes, each activated role must first attempt to launch its role sub-agent; if launch fails because of model availability or transient platform errors, retry up to 5 times before falling back; if the platform does not support sub-agents, let governance simulate roles serially while keeping role boundaries and handoffs intact.
+11. First check whether the platform supports sub-agents: if yes, governance must first launch or restore the matching resident role sub-agent before that role executes; if launch fails because of model availability or transient platform errors, retry up to 5 times before falling back; if the platform does not support sub-agents, let governance simulate roles serially while keeping role boundaries and handoffs intact.
 12. If testing, security review, or database review blocks the flow:
    - If testing fails, the test engineer first produces a defect list and identifies the relevant frontend or backend repair owner
-   - The repair must re-enter the matching role skill; if the platform supports sub-agents, the matching role sub-agent should perform the repair
+   - The repair must re-enter the matching role skill; if the platform supports sub-agents, governance should first launch or restore the matching role sub-agent and let it perform the repair
    - The project manager decides the order, ownership boundary, and revalidation entry point
    - The rework owner resubmits the stage artifact plus a generic handoff record
    - The test engineer or relevant review role validates again
