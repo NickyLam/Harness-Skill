@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harness Engineering Skill v3.0 — 多智能体研发协作引擎</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #08080c;
+            --surface: #0f0f16;
+            --surface-2: #16161f;
+            --surface-3: #1c1c28;
+            --border: #252535;
+            --border-light: #303045;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --text-muted: #55556a;
+            --blue: #3b82f6;
+            --blue-dim: #1d4ed8;
+            --cyan: #06b6d4;
+            --violet: #8b5cf6;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --gradient-1: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
+            --gradient-2: linear-gradient(135deg, #8b5cf6, #f43f5e);
+            --gradient-3: linear-gradient(135deg, #06b6d4, #10b981);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .canvas {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 48px;
+        }
+
+        /* ═══════════════════════════════════════
+           HERO — Monumental Typography
+           ═══════════════════════════════════════ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            padding: 120px 0 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -200px; right: -200px; bottom: 0;
+            background:
+                radial-gradient(ellipse 600px 400px at 25% 40%, rgba(59,130,246,0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 500px 350px at 75% 60%, rgba(139,92,246,0.05) 0%, transparent 70%),
+                radial-gradient(ellipse 400px 300px at 50% 80%, rgba(6,182,212,0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-label::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--cyan);
+            border-radius: 50%;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(6,182,212,0.6); }
+            50% { opacity: 0.4; box-shadow: 0 0 2px rgba(6,182,212,0.2); }
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(48px, 8vw, 120px);
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -3px;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title .line {
+            display: block;
+        }
+
+        .hero-title .gradient {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title .outline {
+            -webkit-text-stroke: 1.5px var(--border-light);
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 17px;
+            color: var(--text-dim);
+            max-width: 680px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 48px;
+        }
+
+        .hero-metrics {
+            display: flex;
+            gap: 64px;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+        }
+
+        .metric {
+            position: relative;
+        }
+
+        .metric-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .metric::after {
+            content: '';
+            position: absolute;
+            right: -32px;
+            top: 8px;
+            bottom: 8px;
+            width: 1px;
+            background: var(--border);
+        }
+
+        .metric:last-child::after { display: none; }
+
+        /* ═══════════════════════════════════════
+           SECTION DIVIDER
+           ═══════════════════════════════════════ */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+            margin: 0 -48px;
+        }
+
+        /* ═══════════════════════════════════════
+           PHILOSOPHY
+           ═══════════════════════════════════════ */
+        .section {
+            padding: 120px 0;
+        }
+
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--violet);
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(32px, 4vw, 56px);
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: var(--text-dim);
+            max-width: 520px;
+            line-height: 1.7;
+        }
+
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 64px;
+        }
+
+        .architecture-layer {
+            background: var(--surface);
+            padding: 32px 24px;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        .architecture-layer:hover {
+            background: var(--surface-2);
+        }
+
+        .layer-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .layer-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .layer-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .layer-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .layer-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding: 4px 10px;
+            background: var(--surface-2);
+            border-radius: 4px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        /* ═══════════════════════════════════════
+           PIPELINE
+           ═══════════════════════════════════════ */
+        .pipeline-track {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            margin-top: 64px;
+            position: relative;
+        }
+
+        .pipeline-track::before {
+            content: '';
+            position: absolute;
+            top: 44px;
+            left: 28px;
+            right: 28px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue), var(--violet), var(--cyan), var(--emerald), var(--amber), var(--rose), var(--blue));
+            opacity: 0.3;
+        }
+
+        .stage {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stage-node {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin: 0 auto 16px;
+            border: 1.5px solid var(--border-light);
+            background: var(--surface);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .stage:hover .stage-node {
+            transform: translateY(-4px);
+            border-color: var(--blue);
+            box-shadow: 0 8px 32px rgba(59,130,246,0.15);
+        }
+
+        .stage-cmd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .stage-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .stage-gate {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--emerald);
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        /* ═══════════════════════════════════════
+           ROLES
+           ═══════════════════════════════════════ */
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 64px;
+        }
+
+        .role-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 28px;
+            transition: all 0.3s ease;
+        }
+
+        .role-card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
+        }
+
+        .role-icon {
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .role-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .role-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+
+        .role-stage {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--violet);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* ═══════════════════════════════════════
+           CAPSULES
+           ═══════════════════════════════════════ */
+        .capsules-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 64px;
+        }
+
+        .capsule {
+            background: var(--surface);
+            padding: 28px 24px;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+
+        .capsule:hover {
+            background: var(--surface-2);
+        }
+
+        .capsule-icon {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .capsule-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .capsule-desc {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .capsule-stage {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .capsule-mandatory {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+        }
+
+        .capsule-optional {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        /* ═══════════════════════════════════════
+           FEATURES
+           ═══════════════════════════════════════ */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 64px;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        .feature-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        /* ═══════════════════════════════════════
+           QUICK START
+           ═══════════════════════════════════════ */
+        .code-canvas {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 64px;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .code-dot:nth-child(1) { background: #ef4444; }
+        .code-dot:nth-child(2) { background: #f59e0b; }
+        .code-dot:nth-child(3) { background: #22c55e; }
+
+        .code-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 12px;
+        }
+
+        .code-body {
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 2;
+        }
+
+        .code-body .cmd { color: var(--cyan); }
+        .code-body .flag { color: var(--violet); }
+        .code-body .comment { color: var(--text-muted); }
+        .code-body .stage-name { color: var(--blue); }
+
+        /* ═══════════════════════════════════════
+           RULES
+           ═══════════════════════════════════════ */
+        .rules-list {
+            display: grid;
+            gap: 16px;
+            margin-top: 64px;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 20px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .rule-item:hover {
+            border-color: var(--border-light);
+            background: var(--surface-2);
+        }
+
+        .rule-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--blue);
+            min-width: 40px;
+        }
+
+        .rule-text {
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* ═══════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════ */
+        .footer {
+            text-align: center;
+            padding: 120px 0 80px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+        }
+
+        .footer-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .footer-desc {
+            font-size: 15px;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+        }
+
+        .footer-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 36px;
+            background: var(--gradient-1);
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(59,130,246,0.25);
+        }
+
+        .footer-meta {
+            margin-top: 64px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .architecture-grid { grid-template-columns: repeat(3, 1fr); }
+            .capsules-grid { grid-template-columns: repeat(3, 1fr); }
+            .roles-grid { grid-template-columns: repeat(2, 1fr); }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .canvas { padding: 0 24px; }
+            .hero-metrics { gap: 32px; flex-wrap: wrap; }
+            .metric::after { display: none; }
+            .architecture-grid { grid-template-columns: 1fr; }
+            .capsules-grid { grid-template-columns: repeat(2, 1fr); }
+            .roles-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .pipeline-track {
+                flex-direction: column;
+                gap: 24px;
+            }
+            .pipeline-track::before { display: none; }
+            .stage { text-align: left; display: flex; align-items: center; gap: 16px; }
+            .stage-node { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas">
+
+        <!-- ═══ HERO ═══ -->
+        <section class="hero">
+            <div class="hero-label">v3.0.0 · 架构重构版 · 多智能体研发协作引擎</div>
+            <h1 class="hero-title">
+                <span class="line gradient">HARNESS</span>
+                <span class="line">ENGINEERING</span>
+                <span class="line outline">SKILL</span>
+            </h1>
+            <p class="hero-desc">
+                融合 GSD + GSTACKS + Superpowers 三大研发流程优势，构建统一的全生命周期 AI 研发引擎。
+                支持 7 阶段流水线、波次并行执行、7 层门禁防护、以及 6 个 AI 角色的协同工作。
+            </p>
+            <div class="hero-metrics">
+                <div class="metric">
+                    <div class="metric-value">7</div>
+                    <div class="metric-label">阶段流水线</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">19+</div>
+                    <div class="metric-label">能力胶囊</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">6</div>
+                    <div class="metric-label">AI 角色</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">4</div>
+                    <div class="metric-label">技术栈支持</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ ARCHITECTURE ═══ -->
+        <section class="section">
+            <div class="section-label">01 · Architecture</div>
+            <h2 class="section-title">五层架构设计</h2>
+            <p class="section-subtitle">从基础设施到进化与度量，每一层都有明确的职责划分</p>
+            <div class="architecture-grid">
+                <div class="architecture-layer">
+                    <div class="layer-id">L5</div>
+                    <div class="layer-name">进化与度量</div>
+                    <div class="layer-sub">Evolution Loop + Metrics</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">评估 → 分析 → 改进</span>
+                        <span class="layer-tag">基准任务</span>
+                    </div>
+                </div>
+                <div class="architecture-layer">
+                    <div class="layer-id">L4</div>
+                    <div class="layer-name">门控与保障</div>
+                    <div class="layer-sub">7-Gate Defense Depth</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">L1/L2/L3 三级严格度</span>
+                        <span class="layer-tag">自动化验证</span>
+                    </div>
+                </div>
+                <div class="architecture-layer">
+                    <div class="layer-id">L3</div>
+                    <div class="layer-name">编排与执行</div>
+                    <div class="layer-sub">7-Stage Pipeline + Wave</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">流水线执行器</span>
+                        <span class="layer-tag">波次并行</span>
+                    </div>
+                </div>
+                <div class="architecture-layer">
+                    <div class="layer-id">L2</div>
+                    <div class="layer-name">方法论能力库</div>
+                    <div class="layer-sub">19+ Skills Capsules</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">按阶段分组</span>
+                        <span class="layer-tag">可插拔设计</span>
+                    </div>
+                </div>
+                <div class="architecture-layer">
+                    <div class="layer-id">L1</div>
+                    <div class="layer-name">基础设施</div>
+                    <div class="layer-sub">Templates + Engine</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">项目模板</span>
+                        <span class="layer-tag">统一注册表</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ PIPELINE ═══ -->
+        <section class="section">
+            <div class="section-label">02 · Pipeline</div>
+            <h2 class="section-title">7 阶段增量流水线</h2>
+            <p class="section-subtitle">每个阶段都有对应的门禁检查，确保质量可控</p>
+            <div class="pipeline-track">
+                <div class="stage">
+                    <div class="stage-node">📝</div>
+                    <div class="stage-cmd">/harness spec</div>
+                    <div class="stage-role">产品定义</div>
+                    <div class="stage-gate">SPEC GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">📐</div>
+                    <div class="stage-cmd">/harness plan</div>
+                    <div class="stage-role">架构规划</div>
+                    <div class="stage-gate">PLAN GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">🔨</div>
+                    <div class="stage-cmd">/harness build</div>
+                    <div class="stage-role">构建实现</div>
+                    <div class="stage-gate">BUILD GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">🧪</div>
+                    <div class="stage-cmd">/harness test</div>
+                    <div class="stage-role">验证测试</div>
+                    <div class="stage-gate">TEST GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">👀</div>
+                    <div class="stage-cmd">/harness review</div>
+                    <div class="stage-role">代码审查</div>
+                    <div class="stage-gate">REVIEW GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">✨</div>
+                    <div class="stage-cmd">/harness simplify</div>
+                    <div class="stage-role">代码简化</div>
+                    <div class="stage-gate">SIMPLIFY GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">🚀</div>
+                    <div class="stage-cmd">/harness ship</div>
+                    <div class="stage-role">发布上线</div>
+                    <div class="stage-gate">SHIP GATE</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ ROLES ═══ -->
+        <section class="section">
+            <div class="section-label">03 · Roles</div>
+            <h2 class="section-title">6 个 AI 角色</h2>
+            <p class="section-subtitle">每个角色在对应的阶段发挥专业能力</p>
+            <div class="roles-grid">
+                <div class="role-card">
+                    <div class="role-icon">👑</div>
+                    <div class="role-name">Product Owner</div>
+                    <div class="role-desc">负责需求澄清、方案设计、设计文档生成，确保产品方向正确</div>
+                    <div class="role-stage">spec 阶段</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">🏗️</div>
+                    <div class="role-name">Architect</div>
+                    <div class="role-desc">负责任务拆分、依赖分析、波次编排，确保架构合理可行</div>
+                    <div class="role-stage">plan 阶段</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">💻</div>
+                    <div class="role-name">Implementer</div>
+                    <div class="role-desc">负责 TDD 编码、波次并行执行、子代理隔离，确保代码质量</div>
+                    <div class="role-stage">build 阶段</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">🧪</div>
+                    <div class="role-name">Tester</div>
+                    <div class="role-desc">负责测试执行、覆盖率检查、边界验证，确保功能完整可靠</div>
+                    <div class="role-stage">test 阶段</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">🔍</div>
+                    <div class="role-name">Reviewer</div>
+                    <div class="role-desc">负责 Staff 工程师级 6 维度审查、复杂度分析，确保代码优秀</div>
+                    <div class="role-stage">review + simplify</div>
+                </div>
+                <div class="role-card">
+                    <div class="role-icon">📦</div>
+                    <div class="role-name">Shipper</div>
+                    <div class="role-desc">负责版本管理、Git 操作、构建发布，确保顺利上线</div>
+                    <div class="role-stage">ship 阶段</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ CAPSULES ═══ -->
+        <section class="section">
+            <div class="section-label">04 · Capsules</div>
+            <h2 class="section-title">19+ 能力胶囊</h2>
+            <p class="section-subtitle">按阶段组织的可插拔能力模块，绿色标记为强制胶囊</p>
+            <div class="capsules-grid">
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">💡</div>
+                    <div class="capsule-name">Brainstorming</div>
+                    <div class="capsule-desc">反向采访 + 方案设计</div>
+                    <div class="capsule-stage">spec</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">📋</div>
+                    <div class="capsule-name">Spec Generator</div>
+                    <div class="capsule-desc">模板填充生成设计文档</div>
+                    <div class="capsule-stage">spec</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🕐</div>
+                    <div class="capsule-name">Office Hours</div>
+                    <div class="capsule-desc">六问挑战深度思考</div>
+                    <div class="capsule-stage">spec</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🔎</div>
+                    <div class="capsule-name">Deep Requirements</div>
+                    <div class="capsule-desc">企业级深度需求分析</div>
+                    <div class="capsule-stage">spec</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">✍️</div>
+                    <div class="capsule-name">Writing Plans</div>
+                    <div class="capsule-desc">任务拆解 + 波次规划</div>
+                    <div class="capsule-stage">plan</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🔴🟢</div>
+                    <div class="capsule-name">TDD</div>
+                    <div class="capsule-desc">红绿重构开发模式</div>
+                    <div class="capsule-stage">build</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🤖</div>
+                    <div class="capsule-name">Subagent-Driven Dev</div>
+                    <div class="capsule-desc">角色隔离的子代理开发</div>
+                    <div class="capsule-stage">build</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🐛</div>
+                    <div class="capsule-name">Systematic Debugging</div>
+                    <div class="capsule-desc">四阶段调查法</div>
+                    <div class="capsule-stage">build/test</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">✅</div>
+                    <div class="capsule-name">Verification</div>
+                    <div class="capsule-desc">证据收集与验证</div>
+                    <div class="capsule-stage">test/ship</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🎯</div>
+                    <div class="capsule-name">Test Generator</div>
+                    <div class="capsule-desc">自动化测试生成</div>
+                    <div class="capsule-stage">test</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🌐</div>
+                    <div class="capsule-name">E2E QA</div>
+                    <div class="capsule-desc">浏览器自动化验证</div>
+                    <div class="capsule-stage">test/ship</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🧪</div>
+                    <div class="capsule-name">Performance Testing</div>
+                    <div class="capsule-desc">性能测试与优化</div>
+                    <div class="capsule-stage">test</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🔬</div>
+                    <div class="capsule-name">Staff Review</div>
+                    <div class="capsule-desc">六维度代码审查</div>
+                    <div class="capsule-stage">review</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">✂️</div>
+                    <div class="capsule-name">Code Simplification</div>
+                    <div class="capsule-desc">复杂度分析与简化</div>
+                    <div class="capsule-stage">simplify</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🚢</div>
+                    <div class="capsule-name">Ship Pipeline</div>
+                    <div class="capsule-desc">门禁发布流程</div>
+                    <div class="capsule-stage">ship</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🚀</div>
+                    <div class="capsule-name">CI/CD Pipeline</div>
+                    <div class="capsule-desc">持续集成与部署</div>
+                    <div class="capsule-stage">ship</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">📦</div>
+                    <div class="capsule-name">Containerization</div>
+                    <div class="capsule-desc">容器化部署</div>
+                    <div class="capsule-stage">ship</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🎨</div>
+                    <div class="capsule-name">API Design</div>
+                    <div class="capsule-desc">RESTful API 设计</div>
+                    <div class="capsule-stage">build</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🔒</div>
+                    <div class="capsule-name">Security Audit</div>
+                    <div class="capsule-desc">安全审计与检查</div>
+                    <div class="capsule-stage">test</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ FEATURES ═══ -->
+        <section class="section">
+            <div class="section-label">05 · v3.0 Features</div>
+            <h2 class="section-title">v3.0 核心变革</h2>
+            <p class="section-subtitle">架构重构带来的全新能力提升</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🗂️</div>
+                    <div class="feature-title">文件结构统一</div>
+                    <div class="feature-desc">消除三重冗余，建立 Single Source of Truth，所有技能按阶段分组到 core/skills/</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <div class="feature-title">运行时引擎</div>
+                    <div class="feature-desc">Gate 检查、Skill 加载、流水线编排从文档约束变为可执行代码（core/engine/）</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔌</div>
+                    <div class="feature-title">技术栈抽象</div>
+                    <div class="feature-desc">解除 React+TS 绑定，支持 Python/Java/Go 多技术栈（core/profiles/）</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <div class="feature-title">Evolution Loop 落地</div>
+                    <div class="feature-desc">基准任务集 + 四步进化循环可实际运行，持续优化系统能力</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <div class="feature-title">注册表统一</div>
+                    <div class="feature-desc">5 个分散配置文件合并为 registry.yaml + pipeline.yaml，管理更简洁</div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <div class="feature-title">三级严格度</div>
+                    <div class="feature-desc">L1（轻量）/ L2（标准）/ L3（严格）三级门禁，适配不同项目需求</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ QUICK START ═══ -->
+        <section class="section">
+            <div class="section-label">06 · Quick Start</div>
+            <h2 class="section-title">快速开始</h2>
+            <p class="section-subtitle">一行命令启动，轻松上手全流程</p>
+            <div class="code-canvas">
+                <div class="code-header">
+                    <div class="code-dot"></div>
+                    <div class="code-dot"></div>
+                    <div class="code-dot"></div>
+                    <div class="code-title">terminal · harness</div>
+                </div>
+                <div class="code-body">
+                    <span class="comment"># 初始化项目</span><br>
+                    <span class="cmd">/harness init</span> <span class="flag">--template</span> web-react <span class="flag">--strictness</span> L2<br><br>
+                    <span class="comment"># 执行流水线</span><br>
+                    <span class="cmd">/harness <span class="stage-name">spec</span></span>     <span class="comment"># 产品定义</span><br>
+                    <span class="cmd">/harness <span class="stage-name">plan</span></span>     <span class="comment"># 架构规划</span><br>
+                    <span class="cmd">/harness <span class="stage-name">build</span></span>    <span class="comment"># 构建实现</span><br>
+                    <span class="cmd">/harness <span class="stage-name">test</span></span>     <span class="comment"># 验证测试</span><br>
+                    <span class="cmd">/harness <span class="stage-name">review</span></span>   <span class="comment"># 代码审查</span><br>
+                    <span class="cmd">/harness <span class="stage-name">simplify</span></span> <span class="comment"># 代码简化</span><br>
+                    <span class="cmd">/harness <span class="stage-name">ship</span></span>     <span class="comment"># 发布上线</span><br><br>
+                    <span class="comment"># v3.0 新增运行时命令</span><br>
+                    <span class="cmd">harness gate check</span> spec_gate <span class="flag">--enforce</span><br>
+                    <span class="cmd">harness skill validate</span><br>
+                    <span class="cmd">harness schema validate</span><br>
+                    <span class="cmd">harness evolve run</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ RULES ═══ -->
+        <section class="section">
+            <div class="section-label">07 · Rules</div>
+            <h2 class="section-title">核心铁律</h2>
+            <p class="section-subtitle">严格遵守这些规则，确保研发质量</p>
+            <div class="rules-list">
+                <div class="rule-item">
+                    <div class="rule-number">01</div>
+                    <div class="rule-text">没有证据不算完成 —— 所有交付都需要有对应的验证证据</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">02</div>
+                    <div class="rule-text">找不到根因不修 —— 修复问题前必须找到真正的根本原因</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">03</div>
+                    <div class="rule-text">审查者只看不改 —— Reviewer 角色只提供审查意见，不直接修改代码</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">04</div>
+                    <div class="rule-text">先写测试再写实现 —— 严格遵循 TDD 红绿重构开发流程</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">05</div>
+                    <div class="rule-text">一次只做一块 —— 单波次变更 ≤ 100 行，单任务 ≤ 5 分钟</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">06</div>
+                    <div class="rule-text">所有关键节点必须等待用户确认 —— 遵循 MCP 协议 v2.0</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">07</div>
+                    <div class="rule-text">E2E 测试优先使用 Obscura 引擎 —— 确保端到端验证的可靠性</div>
+                </div>
+                <div class="rule-item">
+                    <div class="rule-number">08</div>
+                    <div class="rule-text">所有 Gate 可自动化执行 —— v3.0 新增，不再仅靠文档约束</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ FOOTER ═══ -->
+        <footer class="footer">
+            <h2 class="footer-title">开始你的 Harness 之旅</h2>
+            <p class="footer-desc">让多智能体协作，提升你的研发效率</p>
+            <a href="#" class="footer-cta">
+                🚀 启动 Harness
+            </a>
+            <div class="footer-meta">
+                HARNESS ENGINEERING SKILL v3.0.0 · Built with ♥ for AI Engineers
+            </div>
+        </footer>
+
+    </div>
+</body>
+</html>

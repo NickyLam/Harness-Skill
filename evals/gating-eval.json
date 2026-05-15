@@ -1,0 +1,25 @@
+{
+  "skill_name": "gating",
+  "evals": [
+    {"query": "帮我检查一下代码质量，看能不能进入下一阶段", "should_trigger": true},
+    {"query": "跑一下 quality gate，确认构建是否通过", "should_trigger": true},
+    {"query": "我需要 stage verification，检查所有门禁", "should_trigger": true},
+    {"query": "合并前要做哪些检查？pre-merge check", "should_trigger": true},
+    {"query": "帮我验证一下这个阶段的产出质量", "should_trigger": true},
+    {"query": "7-gate 检查，看看能不能发布", "should_trigger": true},
+    {"query": "pipeline check 失败了，帮我看看哪里不过", "should_trigger": true},
+    {"query": "我要设置质量门禁，L2 严格度", "should_trigger": true},
+    {"query": "检查一下 spec gate 和 build gate 是否通过", "should_trigger": true},
+    {"query": "代码审查通过了，帮我做最后的 gating check", "should_trigger": true},
+    {"query": "帮我写个新功能", "should_trigger": false},
+    {"query": "这个 bug 怎么修？", "should_trigger": false},
+    {"query": "帮我设计数据库表结构", "should_trigger": false},
+    {"query": "写个 API 接口", "should_trigger": false},
+    {"query": "帮我配置 webpack", "should_trigger": false},
+    {"query": "这个组件怎么实现？", "should_trigger": false},
+    {"query": "帮我写测试用例", "should_trigger": false},
+    {"query": "怎么部署到服务器？", "should_trigger": false},
+    {"query": "帮我生成类型定义", "should_trigger": false},
+    {"query": "这个算法怎么优化？", "should_trigger": false}
+  ]
+}

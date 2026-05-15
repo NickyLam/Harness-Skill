@@ -1,0 +1,8 @@
+interface:
+  display_name: "Harness Engineering"
+  short_description: "SDD/TDD workflow gates for software delivery"
+  brand_color: "#2563EB"
+  default_prompt: "Use $harness-engineering-skill to run a feature through requirements, TDD implementation, verification, review, and release gates."
+
+policy:
+  allow_implicit_invocation: true

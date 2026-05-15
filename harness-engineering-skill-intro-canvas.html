@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harness Engineering Skill v3.1 - 多智能体研发协作引擎</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f1 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 20px 30px;
+        }
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2d3748;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .header .subtitle {
+            font-size: 18px;
+            color: #718096;
+            margin: 10px 0 0;
+            font-weight: 500;
+        }
+        .scene {
+            position: relative;
+            width: 100%;
+            max-width: 1100px;
+            height: 480px;
+            margin: 0 auto;
+            overflow: visible;
+        }
+        .node {
+            position: absolute;
+            width: 160px;
+            height: 58px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            color: white;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            border: 4px solid white;
+            z-index: 2;
+            cursor: pointer;
+            transition: transform 0.2s;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .node:hover {
+            transform: scale(1.12) rotate(-1deg);
+            z-index: 10;
+        }
+        .node .emoji {
+            font-size: 22px;
+            margin-right: 6px;
+        }
+        .scene svg.pipeline-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .layer-label {
+            position: absolute;
+            top: 8px;
+            text-align: center;
+            width: 100px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #cbd5e0;
+            letter-spacing: 1px;
+            z-index: 3;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            max-width: 1100px;
+            margin: 20px auto 40px;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 16px;
+            justify-content: center;
+        }
+        .legend h3 {
+            width: 100%;
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: #4a5568;
+            text-align: center;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: #718096;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #a0aec0;
+            font-weight: 600;
+            padding-bottom: 20px;
+        }
+        /* Row 1 - AI Roles */
+        .n1 { left: 20px; top: 42px; background: linear-gradient(135deg, #9f7aea, #805ad5); transform: rotate(-1deg); }
+        .n2 { left: 180px; top: 42px; background: linear-gradient(135deg, #4299e1, #3182ce); transform: rotate(1deg); }
+        .n3 { left: 340px; top: 42px; background: linear-gradient(135deg, #48bb78, #38a169); transform: rotate(-2deg); }
+        .n4 { left: 500px; top: 42px; background: linear-gradient(135deg, #ecc94b, #d69e2e); transform: rotate(1deg); }
+        .n5 { left: 660px; top: 42px; background: linear-gradient(135deg, #ed8936, #dd6b20); transform: rotate(-1deg); }
+        .n6 { left: 820px; top: 42px; background: linear-gradient(135deg, #fc8181, #e53e3e); transform: rotate(2deg); }
+        /* Row 2 - Pipeline Gates */
+        .n7 { left: 30px; top: 142px; background: linear-gradient(135deg, #a0aec0, #718096); transform: rotate(1deg); }
+        .n8 { left: 190px; top: 142px; background: linear-gradient(135deg, #a0aec0, #718096); transform: rotate(-1deg); }
+        .n9 { left: 350px; top: 142px; background: linear-gradient(135deg, #a0aec0, #718096); transform: rotate(2deg); }
+        .n10 { left: 510px; top: 142px; background: linear-gradient(135deg, #a0aec0, #718096); transform: rotate(-2deg); }
+        .n11 { left: 670px; top: 142px; background: linear-gradient(135deg, #a0aec0, #718096); transform: rotate(1deg); }
+        .n12 { left: 830px; top: 142px; background: linear-gradient(135deg, #a0aec0, #718096); transform: rotate(-1deg); }
+        /* Pulse animations */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.15; }
+            50% { transform: scale(1.5); opacity: 0.25; }
+        }
+        .pulse {
+            animation: pulse 2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚡ Harness Engineering Skill v3.1</h1>
+        <div class="subtitle">多智能体研发协作引擎 · 7-Stage Pipeline</div>
+    </div>
+
+    <div class="scene" id="scene">
+        <svg class="pipeline-lines" viewBox="0 0 1100 480" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#cbd5e0" />
+                </marker>
+            </defs>
+
+            <!-- Vertical arrows from roles to gates -->
+            <circle cx="100" cy="100" r="28" fill="#805ad5" opacity="0.2" class="pulse" />
+            <path d="M 100 100 L 100 132" stroke="#805ad5" stroke-width="3" stroke-dasharray="6 6" fill="none" marker-end="url(#arrowhead)" />
+
+            <circle cx="260" cy="100" r="28" fill="#3182ce" opacity="0.2" class="pulse" style="animation-delay: 0.2s;" />
+            <path d="M 260 100 L 260 132" stroke="#3182ce" stroke-width="3" stroke-dasharray="6 6" fill="none" marker-end="url(#arrowhead)" />
+
+            <circle cx="420" cy="100" r="28" fill="#38a169" opacity="0.2" class="pulse" style="animation-delay: 0.4s;" />
+            <path d="M 420 100 L 420 132" stroke="#38a169" stroke-width="3" stroke-dasharray="6 6" fill="none" marker-end="url(#arrowhead)" />
+
+            <circle cx="580" cy="100" r="28" fill="#d69e2e" opacity="0.2" class="pulse" style="animation-delay: 0.6s;" />
+            <path d="M 580 100 L 580 132" stroke="#d69e2e" stroke-width="3" stroke-dasharray="6 6" fill="none" marker-end="url(#arrowhead)" />
+
+            <circle cx="740" cy="100" r="28" fill="#dd6b20" opacity="0.2" class="pulse" style="animation-delay: 0.8s;" />
+            <path d="M 740 100 L 740 132" stroke="#dd6b20" stroke-width="3" stroke-dasharray="6 6" fill="none" marker-end="url(#arrowhead)" />
+
+            <circle cx="900" cy="100" r="28" fill="#e53e3e" opacity="0.2" class="pulse" style="animation-delay: 1s;" />
+            <path d="M 900 100 L 900 132" stroke="#e53e3e" stroke-width="3" stroke-dasharray="6 6" fill="none" marker-end="url(#arrowhead)" />
+
+            <!-- Horizontal connections between gates -->
+            <path d="M 100 132 C 100 160, 190 160, 190 132" stroke="#e2e8f0" stroke-width="2.5" fill="none" stroke-dasharray="5 5"/>
+            <path d="M 260 132 C 260 160, 350 160, 350 132" stroke="#e2e8f0" stroke-width="2.5" fill="none" stroke-dasharray="5 5"/>
+            <path d="M 420 132 C 420 160, 510 160, 510 132" stroke="#e2e8f0" stroke-width="2.5" fill="none" stroke-dasharray="5 5"/>
+            <path d="M 580 132 C 580 160, 670 160, 670 132" stroke="#e2e8f0" stroke-width="2.5" fill="none" stroke-dasharray="5 5"/>
+            <path d="M 740 132 C 740 160, 830 160, 830 132" stroke="#e2e8f0" stroke-width="2.5" fill="none" stroke-dasharray="5 5"/>
+        </svg>
+
+        <!-- Row 1: AI Roles -->
+        <div class="layer-label" style="left:50px;">L5 进化</div>
+        <div class="layer-label" style="left:210px;">L4 门控</div>
+        <div class="layer-label" style="left:370px;">L3 编排</div>
+        <div class="layer-label" style="left:530px;">L2 能力</div>
+        <div class="layer-label" style="left:690px;">L1 基础</div>
+
+        <div class="node n1"><span class="emoji">🧠</span>Product Owner</div>
+        <div class="node n2"><span class="emoji">🏛️</span>Architect</div>
+        <div class="node n3"><span class="emoji">⚙️</span>Implementer</div>
+        <div class="node n4"><span class="emoji">🔍</span>Tester</div>
+        <div class="node n5"><span class="emoji">👀</span>Reviewer</div>
+        <div class="node n6"><span class="emoji">🚢</span>Shipper</div>
+
+        <!-- Row 2: Pipeline Gates -->
+        <div class="node n7"><span class="emoji">📋</span>Spec Gate</div>
+        <div class="node n8"><span class="emoji">📐</span>Plan Gate</div>
+        <div class="node n9"><span class="emoji">🏗️</span>Build Gate</div>
+        <div class="node n10"><span class="emoji">✅</span>Test Gate</div>
+        <div class="node n11"><span class="emoji">🔎</span>Review Gate</div>
+        <div class="node n12"><span class="emoji">🚀</span>Ship Gate</div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <h3>📚 阶段说明</h3>
+        <div class="legend-item"><span class="legend-color" style="background:#9f7aea;"></span>spec - 需求定义</div>
+        <div class="legend-item"><span class="legend-color" style="background:#4299e1;"></span>plan - 架构规划</div>
+        <div class="legend-item"><span class="legend-color" style="background:#48bb78;"></span>build - 构建实现</div>
+        <div class="legend-item"><span class="legend-color" style="background:#ecc94b;"></span>test - 验证测试</div>
+        <div class="legend-item"><span class="legend-color" style="background:#ed8936;"></span>review - 代码审查</div>
+        <div class="legend-item"><span class="legend-color" style="background:#fc8181;"></span>ship - 发布上线</div>
+        <div class="legend-item"><span class="legend-color" style="background:#a0aec0;"></span>Gate - 质量门禁</div>
+    </div>
+
+    <div class="footer">© 2026 Harness Engineering Skill v3.1 | Generated by SenseNova</div>
+
+    <script>
+        document.querySelectorAll('.node').forEach(node => {
+            node.addEventListener('click', () => {
+                node.style.transform = 'scale(1.25) ' + (Math.random() * 4 - 2) + 'deg';
+                setTimeout(() => {
+                    const existing = node.className.replace(/rotate\([^\)]*\)/g, '').trim();
+                    const randomTilt = node.classList.contains('n1') ? '-1deg'
+                        : node.classList.contains('n2') ? '1deg'
+                        : node.classList.contains('n3') ? '-2deg'
+                        : node.classList.contains('n4') ? '1deg'
+                        : node.classList.contains('n5') ? '-1deg'
+                        : node.classList.contains('n6') ? '2deg'
+                        : node.classList.contains('n7') ? '1deg'
+                        : node.classList.contains('n8') ? '-1deg'
+                        : node.classList.contains('n9') ? '2deg'
+                        : node.classList.contains('n10') ? '-2deg'
+                        : node.classList.contains('n11') ? '1deg'
+                        : '-1deg';
+                    node.style.transform = 'scale(1.1) ' + randomTilt;
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

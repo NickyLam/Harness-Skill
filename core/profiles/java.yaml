@@ -1,0 +1,49 @@
+id: java
+name: "Java + Maven + JUnit5"
+version: "1.0.0"
+priority: 80
+
+build:
+  typecheck_command: "mvn compile"
+  build_command: "mvn package -DskipTests"
+  test_command: "mvn test"
+  test_coverage_command: "mvn jacoco:report"
+  lint_command: "mvn spotless:check || mvn checkstyle:check"
+  coverage_threshold: 75
+  strict_coverage_threshold: 85
+
+tdd:
+  test_template: |
+    import org.junit.jupiter.api.Test;
+    import static org.junit.jupiter.api.Assertions.*;
+
+    class {{ClassName}}Test {
+        @Test
+        void {{methodName}}() {
+            // RED: 先写失败测试
+            fail("Not yet implemented");
+        }
+    }
+
+template: null
+
+conventions:
+  test_dir: "src/test/java"
+  source_dir: "src/main/java"
+  test_suffix: "Test.java"
+  config_files:
+    - "pom.xml"
+
+e2e:
+  framework: "playwright"
+  dev_server_start: "mvn spring-boot:run"
+  dev_server_port: 8080
+
+gate_overrides:
+  build_gate:
+    security_scan: "mvn org.owasp:dependency-check-maven:check"
+  test_gate:
+    mutation_test: "mvn pitest:mutationCoverage"
+
+detection_files:
+  - "pom.xml"

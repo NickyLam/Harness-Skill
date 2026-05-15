@@ -1,0 +1,25 @@
+{
+  "skill_name": "tdd",
+  "evals": [
+    {"query": "帮我写个用户登录功能，要求先写测试再写实现", "should_trigger": true},
+    {"query": "我需要用 TDD 方式实现一个购物车组件", "should_trigger": true},
+    {"query": "red-green-refactor 流程怎么走？我要开发新功能", "should_trigger": true},
+    {"query": "先写测试再写代码，帮我实现一个 todo list", "should_trigger": true},
+    {"query": "我要遵循测试驱动开发，写一个支付接口", "should_trigger": true},
+    {"query": "写个功能，但必须先写单元测试验证行为", "should_trigger": true},
+    {"query": "怎么用 TDD 开发一个 React Hook？", "should_trigger": true},
+    {"query": "我需要 RED GREEN REFACTOR 循环来实现搜索功能", "should_trigger": true},
+    {"query": "帮我写测试用例，然后让测试通过", "should_trigger": true},
+    {"query": "test-driven development 实践，实现文件上传", "should_trigger": true},
+    {"query": "帮我优化一下这个函数的命名", "should_trigger": false},
+    {"query": "这个项目用什么技术栈比较好？", "should_trigger": false},
+    {"query": "帮我写个 README 文档", "should_trigger": false},
+    {"query": "如何配置 ESLint？", "should_trigger": false},
+    {"query": "帮我 review 这段代码", "should_trigger": false},
+    {"query": "部署到生产环境", "should_trigger": false},
+    {"query": "画一个系统架构图", "should_trigger": false},
+    {"query": "帮我 debug 这个报错", "should_trigger": false},
+    {"query": "写个 SQL 查询", "should_trigger": false},
+    {"query": "帮我格式化这段代码", "should_trigger": false}
+  ]
+}

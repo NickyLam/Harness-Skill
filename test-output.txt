@@ -1,0 +1,107 @@
+
+> merchant-management-system@0.1.0 test
+> vitest run --run
+
+
+ RUN  v2.1.9 /Users/linmaog/VSCodeProjects/LLM/opencode/Harness_Skill/projects/merchant-management-system
+
+ ✓ src/__tests__/utils/api.test.js (6 tests) 223ms
+stderr | src/__tests__/hooks/business-logic.test.js > Wave 2: Business Logic Hooks > useAuth Hook (T010) > should logout and clear localStorage
+Warning: An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at TestComponent (/Users/linmaog/VSCodeProjects/LLM/opencode/Harness_Skill/projects/merchant-management-system/node_modules/@testing-library/react/dist/pure.js:328:5)
+
+ ✓ src/__tests__/hooks/business-logic.test.js (11 tests) 691ms
+stderr | src/__tests__/hooks/business-logic.test.ts > Wave 2: Business Logic Hooks > useAuth Hook (T010) > should logout and clear localStorage
+Warning: An update to TestComponent inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at TestComponent (/Users/linmaog/VSCodeProjects/LLM/opencode/Harness_Skill/projects/merchant-management-system/node_modules/@testing-library/react/dist/pure.js:328:5)
+
+ ❯ src/__tests__/hooks/business-logic.test.ts (11 tests | 1 failed) 978ms
+   × Wave 2: Business Logic Hooks > useAuth Hook (T010) > should login and store token 50ms
+     → expected false to be true // Object.is equality
+ ✓ src/__tests__/mocks/factory.test.js (9 tests) 100ms
+ ✓ src/__tests__/utils/api.test.ts (6 tests) 27ms
+ ✓ src/__tests__/mocks/factory.test.ts (9 tests) 182ms
+ ✓ src/__tests__/types/types.test.js (4 tests) 15ms
+ ✓ src/__tests__/types/types.test.ts (4 tests) 48ms
+ ❯ src/__tests__/mocks/database.test.ts (6 tests | 6 skipped) 7ms
+ ✓ src/__tests__/mocks/database.test.js (6 tests) 25ms
+ ✓ src/__tests__/config/project-config.test.js (4 tests) 21ms
+ ❯ src/__tests__/config/project-config.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/__tests__/config/project-config.test.ts [ src/__tests__/config/project-config.test.ts ]
+Error: Failed to resolve import "./test-utils" from "src/__tests__/config/project-config.test.ts". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/linmaog/VSCodeProjects/LLM/opencode/Harness_Skill/projects/merchant-management-system/src/__tests__/config/project-config.test.ts:2:30
+  1  |  import { describe, it, expect } from "vitest";
+  2  |  import { requireConfig } from "./test-utils";
+     |                                 ^
+  3  |  describe("Project Configuration", () => {
+  4  |    it("should have valid TypeScript config", () => {
+ ❯ TransformPluginContext._formatError node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49258:41
+ ❯ TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49253:16
+ ❯ normalizeUrl node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64307:23
+ ❯ node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64439:39
+ ❯ TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:64366:7
+ ❯ PluginContainer.transform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:49099:18
+ ❯ loadAndTransform node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:51978:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/__tests__/mocks/database.test.ts > Mock Database Validation
+TypeError: requireFromRoot is not a function
+ ❯ src/__tests__/mocks/database.test.ts:8:10
+      6| 
+      7|   beforeAll(() => {
+      8|     db = requireFromRoot('db.json') as Record<string, unknown[]>;
+       |          ^
+      9|   });
+     10| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/__tests__/hooks/business-logic.test.ts > Wave 2: Business Logic Hooks > useAuth Hook (T010) > should login and store token
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/__tests__/hooks/business-logic.test.ts:203:46
+    201|       });
+    202| 
+    203|       expect(result.current.isAuthenticated).toBe(true);
+       |                                              ^
+    204|       expect(result.current.user).toEqual(mockUser);
+    205|       expect(result.current.token).toContain('mock-jwt-token');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+ Test Files  3 failed | 9 passed (12)
+      Tests  1 failed | 69 passed | 6 skipped (76)
+   Start at  18:11:25
+   Duration  33.49s (transform 295ms, setup 7.33s, collect 2.83s, tests 2.32s, environment 52.26s, prepare 9.45s)
+

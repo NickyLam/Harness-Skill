@@ -1,0 +1,613 @@
+# Harness Skill v3.2 — 流水线与门禁定义
+# 合并来源: core/pipeline/stages.yaml + core/gating/gate-definitions.yaml + core/gating/strictness-levels.yaml
+
+version: "3.2.0"
+
+# === 严格度分级（来自 strictness-levels.yaml）===
+strictness_levels:
+  L1-lightweight:
+    display_name: "轻量级"
+    description: "MVP / 原型 / 实验性功能 / 内部工具"
+    characteristics: "快速迭代，最小管控，适合探索性开发"
+    target_user: "内部/自己"
+    failure_impact: "低"
+    iteration_speed: "极快"
+    team_maturity: "探索期"
+    typical_projects: ["PoC", "Hackathon", "工具脚本"]
+    gate_defaults:
+      spec_gate:
+        - 设计文档存在即可（不需要审批流程）
+      plan_gate:
+        - 任务列表存在即可
+      build_gate:
+        - 项目能编译/构建通过
+      test_gate:
+        - 测试全部通过（不要求覆盖率）
+      review_gate:
+        - 仅自动化检查（lint + typecheck），跳过人工 Review
+      ship_gate:
+        - Git 工作区干净 + 版本 tag
+
+  L2-standard:
+    display_name: "标准级 ⭐ 默认"
+    description: "正常业务开发 / 团队协作项目"
+    characteristics: "平衡效率与质量，企业开发的默认选择"
+    target_user: "团队/客户"
+    failure_impact: "中"
+    iteration_speed: "正常"
+    team_maturity: "成熟期"
+    typical_projects: ["业务应用", "API", "库"]
+    gate_defaults:
+      spec_gate:
+        - 设计文档存在 ✅
+        - 文档已审批 ✅
+        - 验收标准 ≥ 1 条 ✅
+      plan_gate:
+        - 任务列表存在 ✅
+        - 每个任务 ≤ 5 分钟 ✅
+        - 每个任务有验收标准 ✅
+        - 依赖关系已标注 ✅
+      build_gate:
+        - TypeScript 类型检查通过 ✅
+        - 项目构建成功 ✅
+        - 单 Wave 变更 ≤ 100 行 ✅
+      test_gate:
+        - 全部测试通过 ✅
+        - 覆盖率 ≥ 80% ✅
+        - 新代码有对应测试 ✅
+      review_gate:
+        - P0 问题 = 0 ✅
+        - P1 问题 ≤ 3 ✅
+        - ESLint 通过 ✅
+      simplify_gate:
+        - 函数 ≤ 50 行 ✅
+        - 文件 ≤ 500 行 ✅
+      ship_gate:
+        - 全部门禁通过 ✅
+        - 最终构建成功 ✅
+        - Git 工作区干净 ✅
+
+  L3-strict:
+    display_name: "严格级"
+    description: "支付 / 认证 / 基础设施 / 合规相关 / 核心系统"
+    characteristics: "最高质量标准，适用于高风险场景"
+    target_user: "外部/生产环境"
+    failure_impact: "高（资金/安全/合规）"
+    iteration_speed: "可接受较慢"
+    team_maturity: "任何时期（关键模块）"
+    typical_projects: ["支付", "认证", "基础设施"]
+    gate_defaults:
+      spec_gate:
+        - 设计文档存在 ✅
+        - 文档已审批 ✅
+        - 验收标准 ≥ 3 条 ✅
+        - 方案对比（≥2 种方案）✅
+      plan_gate:
+        - 任务列表存在 ✅
+        - 每个任务 ≤ 5 分钟 ✅
+        - 验收标准 ✅
+        - 依赖关系 ✅
+        - 风险评估 ✅
+        - 工时估算 ✅
+      build_gate:
+        - TypeScript 通过 ✅
+        - 构建成功 ✅
+        - 单 Wave 变更 ≤ 100 行 ✅
+        - 安全扫描通过 ✅
+      test_gate:
+        - 全部测试通过 ✅
+        - 覆盖率 ≥ 90% ✅
+        - 新代码有测试 ✅
+        - 突变测试（核心逻辑）✅
+      review_gate:
+        - P0 = 0 ✅
+        - P1 ≤ 1 ✅
+        - ESLint 通过 ✅
+        - 安全审查通过 ✅
+      simplify_gate:
+        - 函数 ≤ 50 行 ✅
+        - 文件 ≤ 500 行 ✅
+        - 圈复杂度 ≤ 10 ✅
+      ship_gate:
+        - 全部门禁通过 ✅
+        - 构建成功 ✅
+        - Git 干净 ✅
+        - 灰度发布计划 ✅
+        - 回滚预案 ✅
+
+# === 阶段定义（来自 stages.yaml，更新 capsules 引用）===
+stages:
+  spec:
+    id: stage-spec
+    order: 1
+    name: "产品定义"
+    role: product-owner
+    description: "需求澄清、方案设计、设计文档生成、GHBANK需求分析规格说明书"
+    input:
+      - "用户原始需求描述"
+    output:
+      - ".harness/specs/YYYY-MM-DD-{topic}-design.md"
+      - ".harness/specs/GHBANK-{project_name}-需求分析规格说明书.md"
+    capsules:
+      mandatory:
+        - brainstorming
+        - spec-generator
+      optional:
+        - office-hours
+        - deep-requirements
+        - user-journey
+        - business-rules
+        - edge-cases
+    gate: spec_gate
+    estimated_duration: "15-30min"
+
+  plan:
+    id: stage-plan
+    order: 2
+    name: "架构规划"
+    role: architect
+    description: "任务拆分、依赖分析、波次编排、GHBANK系统设计说明书"
+    input:
+      - ".harness/specs/*-design.md (已审批)"
+    output:
+      - ".harness/plans/{feature}-plan.md"
+      - ".harness/plans/GHBANK-{project_name}-系统设计说明书.md"
+    capsules:
+      mandatory:
+        - writing-plans
+    gate: plan_gate
+    estimated_duration: "10-20min"
+    depends_on: [spec]
+
+  build:
+    id: stage-build
+    order: 3
+    name: "构建实现"
+    role: implementer
+    coordinator_role: true
+    description: "TDD 编码、波次并行执行、子代理隔离"
+    input:
+      - ".harness/plans/{feature}-plan.md"
+    output:
+      - "源代码文件 (src/**)"
+      - "测试文件 (src/__tests__/**)"
+    capsules:
+      mandatory:
+        - tdd
+        - subagent-driven-dev
+      optional:
+        - systematic-debugging
+        - react-dnd-wrapper
+        - frontend-ui
+        - database-migration
+        - api-design
+        - internationalization
+        - error-monitoring
+        - caching-strategy
+    engine: gsd_wave
+    gate: build_gate
+    estimated_duration: "15-30min"
+    depends_on: [plan]
+
+  test:
+    id: stage-test
+    order: 4
+    name: "验证测试"
+    role: tester
+    description: "测试执行、覆盖率检查、边界验证"
+    input:
+      - "build 阶段的源码和测试"
+    output:
+      - ".harness/audits/test-*.md"
+    capsules:
+      mandatory:
+        - verification
+      optional:
+        - browser-automation
+        - test-generator
+        - e2e-qa
+        - qa
+        - systematic-debugging
+        - performance-testing
+        - security-audit
+    gate: test_gate
+    estimated_duration: "5-15min"
+    depends_on: [build]
+
+  review:
+    id: stage-review
+    order: 5
+    name: "代码审查"
+    role: reviewer
+    independent_context: true
+    description: "Staff 工程师级 6 维度审查"
+    input:
+      - "build 阶段的所有变更文件"
+    output:
+      - ".harness/audits/reviews/*.md"
+    capsules:
+      mandatory:
+        - staff-review
+      optional:
+        - code-simplification
+        - receiving-code-review
+    gate: review_gate
+    estimated_duration: "5-10min"
+    depends_on: [test]
+    feedback_loop:
+      trigger_condition: "P1_count > 0"
+      target_stage: build
+      mode: mini_wave_fix
+
+  simplify:
+    id: stage-simplify
+    order: 6
+    name: "代码简化"
+    role: reviewer
+    description: "复杂度分析、简化建议"
+    input:
+      - "review 阶段的审查报告"
+    output:
+      - "简化建议报告"
+    capsules:
+      mandatory:
+        - code-simplification
+    gate: simplify_gate
+    estimated_duration: "3-5min"
+    depends_on: [review]
+
+  ship:
+    id: stage-ship
+    order: 7
+    name: "发布上线"
+    role: shipper
+    description: "版本管理、Git 操作、构建发布"
+    input:
+      - "所有阶段通过的确认"
+    output:
+      - ".harness/audits/ships/*.md"
+      - "Git Tag"
+    capsules:
+      mandatory:
+        - ship-pipeline
+        - verification
+      optional:
+        - e2e-qa
+        - ci-cd-pipeline
+        - containerization
+    gate: ship_gate
+    estimated_duration: "3-5min"
+    depends_on: [simplify]
+
+# === 门禁定义（来自 gate-definitions.yaml）===
+gates:
+  spec_gate:
+    id: gate-spec
+    name: "Spec Gate"
+    stage_transition: "none → spec_complete"
+    description: "确保需求文档完整且已审批"
+    levels:
+      L1-lightweight:
+        checks:
+          - id: doc_exists
+            name: "设计文档存在"
+            verify: "检查 .harness/specs/ 有对应文件"
+            required: true
+      L2-standard:
+        checks:
+          - id: doc_exists
+            name: "设计文档存在"
+            verify: "检查 .harness/specs/ 有对应文件"
+            required: true
+          - id: doc_approved
+            name: "文档已审批"
+            verify: "文档状态字段为'已审批'"
+            required: true
+          - id: acceptance_criteria
+            name: "验收标准存在"
+            verify: "文档中有 ≥1 条 [ ] 验收标准"
+            required: true
+          - id: ghbank_requirements_exists
+            name: "GHBANK需求分析规格说明书存在"
+            verify: "检查 .harness/specs/ 有 GHBANK-*需求分析规格说明书.md"
+            required: true
+      L3-strict:
+        checks:
+          - id: doc_exists
+            name: "设计文档存在"
+            required: true
+          - id: doc_approved
+            name: "文档已审批"
+            required: true
+          - id: acceptance_criteria_min_3
+            name: "验收标准 ≥3 条"
+            verify: "文档中有 ≥3 条验收标准"
+            required: true
+          - id: solution_comparison
+            name: "方案对比"
+            verify: "文档包含 ≥2 种方案的优劣对比"
+            required: true
+          - id: ghbank_requirements_exists
+            name: "GHBANK需求分析规格说明书存在"
+            verify: "检查 .harness/specs/ 有 GHBANK-*需求分析规格说明书.md"
+            required: true
+          - id: ghbank_requirements_approved
+            name: "GHBANK需求分析规格说明书已审批"
+            verify: "文档状态字段为'已审批'"
+            required: true
+    fail_action: "回到 /spec 补充文档或重新采访"
+
+  plan_gate:
+    id: gate-plan
+    name: "Plan Gate"
+    stage_transition: "spec → plan_complete"
+    description: "确保任务拆分合理且有明确依赖关系"
+    levels:
+      L1-lightweight:
+        checks:
+          - id: task_list_exists
+            name: "任务列表存在"
+            verify: ".harness/plans/ 有计划文件"
+            required: true
+      L2-standard:
+        checks:
+          - id: task_list_exists
+            name: "任务列表存在"
+            required: true
+          - id: task_duration
+            name: "任务 ≤5分钟"
+            verify: "人工确认或标注预估时间"
+            required: true
+          - id: task_criteria
+            name: "任务有验收标准"
+            verify: "每个任务的 Output 列非空"
+            required: true
+          - id: dependencies_marked
+            name: "依赖关系已标注"
+            verify: "计划中包含依赖列或 Wave 分组"
+            required: true
+          - id: ghbank_design_exists
+            name: "GHBANK系统设计说明书存在"
+            verify: "检查 .harness/plans/ 有 GHBANK-*系统设计说明书.md"
+            required: true
+      L3-strict:
+        checks:
+          - id: task_list_exists
+            required: true
+          - id: task_duration
+            required: true
+          - id: task_criteria
+            required: true
+          - id: dependencies_marked
+            required: true
+          - id: risk_assessed
+            name: "风险评估"
+            verify: "每个 Wave 或关键任务有风险标注"
+            required: true
+          - id: effort_estimated
+            name: "工时估算"
+            verify: "总预估时间已记录"
+            required: true
+          - id: ghbank_design_exists
+            name: "GHBANK系统设计说明书存在"
+            verify: "检查 .harness/plans/ 有 GHBANK-*系统设计说明书.md"
+            required: true
+          - id: ghbank_design_approved
+            name: "GHBANK系统设计说明书已审批"
+            verify: "文档状态字段为'已审批'"
+            required: true
+    fail_action: "回到 /plan 重新拆分任务"
+
+  build_gate:
+    id: gate-build
+    name: "Build Gate"
+    stage_transition: "plan → build_complete"
+    description: "确保代码编译通过且变更可控"
+    levels:
+      L1-lightweight:
+        checks:
+          - id: compile_pass
+            name: "编译通过"
+            verify: "项目构建命令成功"
+            required: true
+      L2-standard:
+        checks:
+          - id: typecheck_pass
+            name: "类型检查通过"
+            command: "npx tsc --noEmit (TypeScript) / javac compile (Java)"
+            required: true
+          - id: build_pass
+            name: "构建成功"
+            command: "npm run build / gradle build / mvn package"
+            required: true
+          - id: change_size
+            name: "单 Wave 变更 ≤100 行"
+            verify: "git diff --stat 检查每个 Wave 的变更量"
+            required: true
+      L3-strict:
+        checks:
+          - id: typecheck_pass
+            required: true
+          - id: build_pass
+            required: true
+          - id: change_size
+            required: true
+          - id: security_scan
+            name: "安全扫描"
+            verify: "运行安全检查工具（如 npm audit / dependency-check）"
+            required: false
+    fail_action: "回到 /build 修复编译错误或拆分变更"
+
+  test_gate:
+    id: gate-test
+    name: "Test Gate"
+    stage_transition: "build → test_complete"
+    description: "确保测试充分且覆盖率达到标准"
+    levels:
+      L1-lightweight:
+        checks:
+          - id: tests_pass
+            name: "测试全部通过"
+            command: "npm run test / pytest / go test"
+            required: true
+      L2-standard:
+        checks:
+          - id: all_tests_pass
+            name: "全部测试通过"
+            command: "npm run test → 0 failures"
+            required: true
+          - id: coverage_threshold
+            name: "覆盖率 ≥80%"
+            command: "npm run test:coverage → ≥80%"
+            required: true
+          - id: new_code_tested
+            name: "新代码有测试"
+            verify: "新增文件有对应的 .test 文件"
+            required: true
+      L3-strict:
+        checks:
+          - id: all_tests_pass
+            required: true
+          - id: coverage_90
+            name: "覆盖率 ≥90%"
+            required: true
+          - id: mutation_test
+            name: "突变测试"
+            verify: "核心逻辑通过突变测试"
+            required: false
+    fail_action: "回到 TDD 红绿循环补充测试或修复失败用例"
+
+  review_gate:
+    id: gate-review
+    name: "Review Gate"
+    stage_transition: "test → review_complete"
+    description: "确保代码质量达到 Staff 工程师标准"
+    levels:
+      L1-lightweight:
+        checks:
+          - id: auto_check_only
+            name: "仅自动化检查"
+            verify: "lint + 类型检查通过"
+            required: true
+      L2-standard:
+        checks:
+          - id: p0_zero
+            name: "无 P0 问题"
+            verify: "/review 输出无 🔴 标记"
+            required: true
+          - id: p1_limit
+            name: "P1 ≤3"
+            verify: "/review 输出 🟡 ≤ 3"
+            required: true
+          - id: lint_pass
+            name: "Lint 通过"
+            command: "npm run lint → 0 errors"
+            required: true
+      L3-strict:
+        checks:
+          - id: p0_zero
+            required: true
+          - id: p1_limit_strict
+            name: "P1 ≤1"
+            required: true
+          - id: lint_pass
+            required: true
+          - id: security_review
+            name: "安全审查"
+            verify: "无 XSS/注入/敏感数据泄露问题"
+            required: true
+    fail_action: "回到 /review 修复问题或触发 Mini-Wave 修复循环"
+
+  simplify_gate:
+    id: gate-simplify
+    name: "Simplify Gate"
+    stage_transition: "review → simplify_complete"
+    description: "确保代码复杂度在可控范围内"
+    levels:
+      L1-lightweight:
+        checks:
+          - id: no_critical_issues
+            name: "无严重复杂度问题"
+            verify: "无 🔴 级别的简化项"
+            required: true
+      L2-standard:
+        checks:
+          - id: function_length_ok
+            name: "函数长度 ≤50 行"
+            required: true
+          - id: file_length_ok
+            name: "文件长度 ≤500 行"
+            required: true
+          - id: no_dead_code
+            name: "无死代码"
+            required: false
+      L3-strict:
+        checks:
+          - id: function_length_ok
+            required: true
+          - id: file_length_ok
+            required: true
+          - id: complexity_metric
+            name: "圈复杂度 ≤10"
+            required: true
+    fail_action: "回到 /build 进行简化重构"
+
+  ship_gate:
+    id: gate-ship
+    name: "Ship Gate (Final)"
+    stage_transition: "simplify → shipped"
+    description: "最终发布前的全量检查"
+    levels:
+      L1-lightweight:
+        checks:
+          - id: git_clean
+            name: "Git 工作区干净"
+            command: "git status → 无未提交变更"
+            required: true
+          - id: tag_created
+            name: "版本标签已创建"
+            verify: "git tag 存在"
+            required: true
+      L2-standard:
+        checks:
+          - id: all_gates_passed
+            name: "全部门禁通过"
+            verify: "检查上述所有 Gate 的通过状态"
+            required: true
+          - id: build_success
+            name: "最终构建成功"
+            command: "npm run build → success"
+            required: true
+          - id: git_clean
+            name: "Git 工作区干净"
+            required: true
+      L3-strict:
+        checks:
+          - id: all_gates_passed
+            required: true
+          - id: build_success
+            required: true
+          - id: git_clean
+            required: true
+          - id: canary_plan
+            name: "灰度发布计划"
+            verify: "有回滚预案和监控方案"
+            required: false
+    fail_action: "回到对应失败阶段处理"
+
+# === 执行规则（来自 stages.yaml 底部）===
+rules:
+  sequential_stages: true
+  gate_blocking: true
+  atomic_commits: true
+  context_handoff: true
+  max_change_lines_per_wave: 100
+  max_task_duration_minutes: 5
+  rollback_enabled: true
+
+# === 快速检查命令 ===
+quick_check_command: >
+  npx tsc --noEmit &&
+  npm run test &&
+  npm run lint &&
+  npm run build

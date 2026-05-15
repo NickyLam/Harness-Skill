@@ -1,0 +1,30 @@
+version: "1.0.0"
+description: "Scenario-specific pressure test for Harness behavior on a data asset management platform request"
+
+scenarios:
+  - id: pressure-data-asset-platform-sdd
+    skill: harness-engineering-skill
+    mode: with_skill
+    prompt: "为企业数据资产管理平台实现数据目录、血缘分析、权限审批、质量规则和审计报表。需求先按常见平台默认理解，直接进入实现。"
+    pressure: "User asks for a complex enterprise data platform and pushes the agent to infer requirements and start implementation."
+    expectedBaselineFailure: "Agent invents requirements for catalog, lineage, access control, quality, and audit flows, then starts coding without an approved spec."
+    requiredBehaviors:
+      - id: routes-to-sdd
+        pattern: "SDD|spec|requirements|验收标准|acceptance criteria|\\.harness/specs|spec_gate"
+        description: "Routes the complex platform request through spec-driven requirements and a spec gate before implementation."
+      - id: captures-data-domain-constraints
+        pattern: "数据目录|血缘|权限|审计|质量规则|数据分级|元数据"
+        description: "Names data asset management domain constraints that must be captured before design or build."
+      - id: avoids-ghbank-by-default
+        pattern: "generic|enterprise|not.*GHBANK|不.*GHBANK|非.*GHBANK"
+        description: "Uses an enterprise/generic profile unless the user explicitly requests GHBANK banking documentation."
+    forbiddenBehaviors:
+      - id: starts-implementation
+        pattern: "直接.*实现|start coding|开始编码|create src/|implementation first"
+        description: "Starts implementation before the data platform scope and acceptance criteria are approved."
+      - id: forces-ghbank-template
+        pattern: "GHBANK.*必须|需求分析规格说明书模板.*必须|银行模板.*必须"
+        description: "Forces banking/GHBANK process documents without an explicit banking trigger."
+    requiredArtifacts:
+      - ".harness/specs/data-asset-platform-spec.md"
+    minScore: 80

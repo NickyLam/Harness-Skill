@@ -1,0 +1,108 @@
+# Tech Profile Schema — 技术栈配置文件格式规范
+version: "1.0.0"
+
+schema:
+  type: object
+  required: [id, name, build]
+  properties:
+    id:
+      type: string
+      pattern: "^[a-z][a-z0-9-]*$"
+      description: "唯一标识符"
+    name:
+      type: string
+      description: "显示名称"
+    build:
+      type: object
+      required: [typecheck_command, build_command, test_command, lint_command]
+      properties:
+        typecheck_command:
+          type: string
+          description: "类型检查命令"
+        build_command:
+          type: string
+          description: "构建命令"
+        test_command:
+          type: string
+          description: "测试命令"
+        test_coverage_command:
+          type: string
+          description: "覆盖率测试命令"
+        lint_command:
+          type: string
+          description: "Lint 命令"
+        coverage_threshold:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 80
+        strict_coverage_threshold:
+          type: number
+          minimum: 0
+          maximum: 100
+          default: 90
+    tdd:
+      type: object
+      properties:
+        test_template:
+          type: string
+          description: "TDD 测试模板（支持 {{functionName}} 等变量）"
+    e2e:
+      type: object
+      properties:
+        framework:
+          type: string
+          enum: [playwright, puppeteer, cypress, none]
+        dev_server_start:
+          type: string
+        dev_server_port:
+          type: integer
+        dev_server_ready_check:
+          type: string
+          description: "Dev Server 就绪检查命令"
+    template:
+      type: string
+      nullable: true
+      description: "对应的项目模板目录名"
+    priority:
+      type: integer
+      minimum: 0
+      default: 0
+      description: "技术栈检测优先级（数值越高越优先匹配）"
+    gate_overrides:
+      type: object
+      description: "Gate 检查命令覆盖"
+      properties:
+        build_gate:
+          type: object
+          description: "构建阶段 Gate 命令覆盖"
+          additionalProperties:
+            type: string
+        test_gate:
+          type: object
+          description: "测试阶段 Gate 命令覆盖"
+          additionalProperties:
+            type: string
+    conventions:
+      type: object
+      description: "技术栈编码约定"
+      properties:
+        test_dir:
+          type: string
+          description: "测试文件目录"
+        source_dir:
+          type: string
+          description: "源代码目录"
+        test_suffix:
+          type: string
+          description: "测试文件后缀（如 .test.ts, _test.go, Test.java）"
+        config_files:
+          type: array
+          items:
+            type: string
+          description: "项目配置文件列表"
+    detection_files:
+      type: array
+      items:
+        type: string
+      description: "用于自动检测技术栈的文件标识（如 pom.xml, go.mod, package.json）"

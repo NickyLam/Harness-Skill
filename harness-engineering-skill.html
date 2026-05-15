@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HARNESS ENGINEERING SKILL — Canvas</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg: #08080c;
+            --surface: #0f0f16;
+            --surface-2: #16161f;
+            --surface-3: #1c1c28;
+            --border: #252535;
+            --border-light: #303045;
+            --text: #e8e8f0;
+            --text-dim: #8888a0;
+            --text-muted: #55556a;
+            --blue: #3b82f6;
+            --blue-dim: #1d4ed8;
+            --cyan: #06b6d4;
+            --violet: #8b5cf6;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --gradient-1: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
+            --gradient-2: linear-gradient(135deg, #8b5cf6, #f43f5e);
+            --gradient-3: linear-gradient(135deg, #06b6d4, #10b981);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .canvas {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 48px;
+        }
+
+        /* ═══════════════════════════════════════
+           HERO — Monumental Typography
+           ═══════════════════════════════════════ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            padding: 120px 0 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -200px; right: -200px; bottom: 0;
+            background:
+                radial-gradient(ellipse 600px 400px at 25% 40%, rgba(59,130,246,0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 500px 350px at 75% 60%, rgba(139,92,246,0.05) 0%, transparent 70%),
+                radial-gradient(ellipse 400px 300px at 50% 80%, rgba(6,182,212,0.04) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .hero-label::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--cyan);
+            border-radius: 50%;
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(6,182,212,0.6); }
+            50% { opacity: 0.4; box-shadow: 0 0 2px rgba(6,182,212,0.2); }
+        }
+
+        .hero-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(48px, 8vw, 120px);
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -3px;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title .line {
+            display: block;
+        }
+
+        .hero-title .gradient {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-title .outline {
+            -webkit-text-stroke: 1.5px var(--border-light);
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 17px;
+            color: var(--text-dim);
+            max-width: 560px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+            margin-bottom: 64px;
+        }
+
+        .hero-metrics {
+            display: flex;
+            gap: 64px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .metric {
+            position: relative;
+        }
+
+        .metric-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .metric::after {
+            content: '';
+            position: absolute;
+            right: -32px;
+            top: 8px;
+            bottom: 8px;
+            width: 1px;
+            background: var(--border);
+        }
+
+        .metric:last-child::after { display: none; }
+
+        /* ═══════════════════════════════════════
+           SECTION DIVIDER
+           ═══════════════════════════════════════ */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+            margin: 0 -48px;
+        }
+
+        /* ═══════════════════════════════════════
+           PHILOSOPHY
+           ═══════════════════════════════════════ */
+        .section {
+            padding: 120px 0;
+        }
+
+        .section-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--violet);
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(32px, 4vw, 56px);
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+        }
+
+        .section-subtitle {
+            font-size: 16px;
+            color: var(--text-dim);
+            max-width: 520px;
+            line-height: 1.7;
+        }
+
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 64px;
+        }
+
+        .philosophy-layer {
+            background: var(--surface);
+            padding: 32px 24px;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+
+        .philosophy-layer:hover {
+            background: var(--surface-2);
+        }
+
+        .layer-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .layer-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .layer-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .layer-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .layer-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            padding: 4px 10px;
+            background: var(--surface-2);
+            border-radius: 4px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        /* ═══════════════════════════════════════
+           PIPELINE
+           ═══════════════════════════════════════ */
+        .pipeline-track {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            margin-top: 64px;
+            position: relative;
+        }
+
+        .pipeline-track::before {
+            content: '';
+            position: absolute;
+            top: 44px;
+            left: 28px;
+            right: 28px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--blue), var(--violet), var(--cyan), var(--emerald), var(--amber), var(--rose), var(--blue));
+            opacity: 0.3;
+        }
+
+        .stage {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stage-node {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin: 0 auto 16px;
+            border: 1.5px solid var(--border-light);
+            background: var(--surface);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .stage:hover .stage-node {
+            transform: translateY(-4px);
+            border-color: var(--blue);
+            box-shadow: 0 8px 32px rgba(59,130,246,0.15);
+        }
+
+        .stage-cmd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .stage-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .stage-gate {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--emerald);
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        /* ═══════════════════════════════════════
+           CAPSULES
+           ═══════════════════════════════════════ */
+        .capsules-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 64px;
+        }
+
+        .capsule {
+            background: var(--surface);
+            padding: 28px 24px;
+            transition: background 0.3s ease;
+            position: relative;
+        }
+
+        .capsule:hover {
+            background: var(--surface-2);
+        }
+
+        .capsule-icon {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .capsule-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .capsule-desc {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        .capsule-stage {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .capsule-mandatory {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+        }
+
+        .capsule-optional {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .pillar-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 56px;
+        }
+        .pillar {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .pillar-num {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            opacity: 0.06;
+            position: absolute;
+            top: 12px;
+            right: 20px;
+        }
+        .pillar-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .pillar.comp .pillar-label { color: var(--blue); }
+        .pillar.exp .pillar-label { color: var(--violet); }
+        .pillar.dec .pillar-label { color: var(--emerald); }
+        .pillar-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .pillar-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 56px;
+        }
+        .result-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+        }
+        .result-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 42px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .result-value.neutral { color: var(--cyan); }
+        .result-label {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+        .result-note {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            margin-top: 12px;
+            letter-spacing: 1px;
+        }
+
+        /* ═══════════════════════════════════════
+           GATES
+           ═══════════════════════════════════════ */
+        .gates-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 64px;
+        }
+
+        .gates-table th,
+        .gates-table td {
+            padding: 16px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .gates-table th {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: var(--surface);
+        }
+
+        .gates-table td {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .gates-table td:first-child {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .gate-level {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .gate-l1 { background: rgba(16,185,129,0.1); color: var(--emerald); }
+        .gate-l2 { background: rgba(59,130,246,0.1); color: var(--blue); }
+        .gate-l3 { background: rgba(244,63,94,0.1); color: var(--rose); }
+
+        /* ═══════════════════════════════════════
+           QUICK START
+           ═══════════════════════════════════════ */
+        .code-canvas {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 64px;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .code-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .code-dot:nth-child(1) { background: #ef4444; }
+        .code-dot:nth-child(2) { background: #f59e0b; }
+        .code-dot:nth-child(3) { background: #22c55e; }
+
+        .code-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-left: 12px;
+        }
+
+        .code-body {
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 2;
+        }
+
+        .code-body .cmd { color: var(--cyan); }
+        .code-body .flag { color: var(--violet); }
+        .code-body .comment { color: var(--text-muted); }
+        .code-body .stage-name { color: var(--blue); }
+
+        /* ═══════════════════════════════════════
+           FOOTER
+           ═══════════════════════════════════════ */
+        .footer {
+            text-align: center;
+            padding: 120px 0 80px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+        }
+
+        .footer-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .footer-desc {
+            font-size: 15px;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+        }
+
+        .footer-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 36px;
+            background: var(--gradient-1);
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .footer-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(59,130,246,0.25);
+        }
+
+        .footer-meta {
+            margin-top: 64px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+        }
+
+        /* ═══════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════ */
+        @media (max-width: 1024px) {
+            .philosophy-grid { grid-template-columns: repeat(3, 1fr); }
+            .capsules-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .canvas { padding: 0 24px; }
+            .hero-metrics { gap: 32px; flex-wrap: wrap; }
+            .metric::after { display: none; }
+            .philosophy-grid { grid-template-columns: 1fr; }
+            .capsules-grid { grid-template-columns: repeat(2, 1fr); }
+            .pipeline-track {
+                flex-direction: column;
+                gap: 24px;
+            }
+            .pipeline-track::before { display: none; }
+            .stage { text-align: left; display: flex; align-items: center; gap: 16px; }
+            .stage-node { margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas">
+
+        <!-- ═══ HERO ═══ -->
+        <section class="hero">
+            <div class="hero-label">v2.0.0 · Observability-Driven AI Engineering Pipeline · Inspired by AHE</div>
+            <h1 class="hero-title">
+                <span class="line gradient">HARNESS</span>
+                <span class="line">ENGINEERING</span>
+                <span class="line outline">SKILL</span>
+            </h1>
+            <p class="hero-desc">
+                融合 GSD + GSTACKS + Superpowers + Agent-skill 四大研发流程优势，<br>
+                构建统一的全生命周期 AI 研发引擎 — 可观测性驱动，增量流水线，波次并行执行，质量门禁守护<br>
+                <span style="color: var(--violet); font-size: 13px;">v2.0 新增：三大可观测性支柱 + Fix Loop 自动修复 + 三层记忆蒸馏 + 进化循环</span>
+            </p>
+            <div class="hero-metrics">
+                <div class="metric">
+                    <div class="metric-value">7</div>
+                    <div class="metric-label">Pipeline Stages</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">6</div>
+                    <div class="metric-label">AI Roles</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">13</div>
+                    <div class="metric-label">Capability Capsules</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">7</div>
+                    <div class="metric-label">Quality Gates</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">3</div>
+                    <div class="metric-label">Observability Pillars</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">L4</div>
+                    <div class="metric-label">Maturity Level</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ PHILOSOPHY ═══ -->
+        <section class="section">
+            <div class="section-label">Architecture</div>
+            <h2 class="section-title">五层有机融合架构</h2>
+            <p class="section-subtitle">以 Orchestrator 流水线为骨架，GSD 波次引擎为肌肉，Superpowers 方法论为血液，GSTACKS 质量体系为免疫系统</p>
+
+            <div class="philosophy-grid">
+                <div class="philosophy-layer">
+                    <div class="layer-id">L5</div>
+                    <div class="layer-name">治理与记忆</div>
+                    <div class="layer-sub">Governance + Memory</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">OODA 学习循环</span>
+                        <span class="layer-tag">记忆三层蒸馏</span>
+                        <span class="layer-tag">成熟度 L0-L3</span>
+                    </div>
+                </div>
+                <div class="philosophy-layer">
+                    <div class="layer-id">L4</div>
+                    <div class="layer-name">门控与保障</div>
+                    <div class="layer-sub">Gating + QA</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">7-Gate 防御纵深</span>
+                        <span class="layer-tag">Staff Review 6 维</span>
+                        <span class="layer-tag">严格度 L1/L2/L3</span>
+                    </div>
+                </div>
+                <div class="philosophy-layer">
+                    <div class="layer-id">L3</div>
+                    <div class="layer-name">编排与执行</div>
+                    <div class="layer-sub">Orchestrator + GSD</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">7-Stage Pipeline</span>
+                        <span class="layer-tag">Wave 并行执行</span>
+                        <span class="layer-tag">上下文交接</span>
+                    </div>
+                </div>
+                <div class="philosophy-layer">
+                    <div class="layer-id">L2</div>
+                    <div class="layer-name">方法论能力库</div>
+                    <div class="layer-sub">Superpowers Capsules</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">TDD</span>
+                        <span class="layer-tag">Brainstorming</span>
+                        <span class="layer-tag">Systematic Debug</span>
+                        <span class="layer-tag">+ 10 more</span>
+                    </div>
+                </div>
+                <div class="philosophy-layer">
+                    <div class="layer-id">L1</div>
+                    <div class="layer-name">基础设施</div>
+                    <div class="layer-sub">Foundation</div>
+                    <div class="layer-tags">
+                        <span class="layer-tag">项目模板</span>
+                        <span class="layer-tag">插件化扩展</span>
+                        <span class="layer-tag">审计追踪</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ PIPELINE ═══ -->
+        <section class="section">
+            <div class="section-label">Pipeline</div>
+            <h2 class="section-title">7-Stage 增量流水线</h2>
+            <p class="section-subtitle">每个增量经过完整的定义→规划→构建→验证→审查→简化→发布流水线</p>
+
+            <div class="pipeline-track">
+                <div class="stage">
+                    <div class="stage-node">📋</div>
+                    <div class="stage-cmd">/harness spec</div>
+                    <div class="stage-role">Product Owner</div>
+                    <div class="stage-gate">SPEC GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">📐</div>
+                    <div class="stage-cmd">/harness plan</div>
+                    <div class="stage-role">Architect</div>
+                    <div class="stage-gate">PLAN GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">🔨</div>
+                    <div class="stage-cmd">/harness build</div>
+                    <div class="stage-role">Implementer</div>
+                    <div class="stage-gate">BUILD GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">🧪</div>
+                    <div class="stage-cmd">/harness test</div>
+                    <div class="stage-role">Tester</div>
+                    <div class="stage-gate">TEST GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">🔍</div>
+                    <div class="stage-cmd">/harness review</div>
+                    <div class="stage-role">Reviewer</div>
+                    <div class="stage-gate">REVIEW GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">✨</div>
+                    <div class="stage-cmd">/harness simplify</div>
+                    <div class="stage-role">Reviewer</div>
+                    <div class="stage-gate">SIMPLIFY GATE</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node">🚀</div>
+                    <div class="stage-cmd">/harness ship</div>
+                    <div class="stage-role">Shipper</div>
+                    <div class="stage-gate">SHIP GATE</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ CAPSULES ═══ -->
+        <section class="section">
+            <div class="section-label">Capsules</div>
+            <h2 class="section-title">13 个可插拔能力胶囊</h2>
+            <p class="section-subtitle">每个 Capsule 封装一种工程方法论，由 Role 在对应 Stage 按需调用</p>
+
+            <div class="capsules-grid">
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🧠</div>
+                    <div class="capsule-name">Brainstorming</div>
+                    <div class="capsule-desc">Inversion 模式：先采访用户再设计方案，5 个核心问题 + 2-3 种方案对比</div>
+                    <div class="capsule-stage">spec</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">📝</div>
+                    <div class="capsule-name">Spec Generator</div>
+                    <div class="capsule-desc">模板驱动的规范文档生成器，从采访结果提取变量填充模板</div>
+                    <div class="capsule-stage">spec</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">💡</div>
+                    <div class="capsule-name">Office Hours</div>
+                    <div class="capsule-desc">YC 合伙人 6 问诊断：挑战假设、MVP 思维、机会成本评估</div>
+                    <div class="capsule-stage">spec</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">📊</div>
+                    <div class="capsule-name">Writing Plans</div>
+                    <div class="capsule-desc">微任务拆分：≤5 分钟原子任务，输出 Wave 可执行格式</div>
+                    <div class="capsule-stage">plan</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🔴</div>
+                    <div class="capsule-name">TDD</div>
+                    <div class="capsule-desc">测试驱动开发铁律：RED → GREEN → REFACTOR，先写测试</div>
+                    <div class="capsule-stage">build</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🤖</div>
+                    <div class="capsule-name">Subagent Dev</div>
+                    <div class="capsule-desc">角色隔离：实现者与审查者绝不在同一上下文中</div>
+                    <div class="capsule-stage">build</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🐛</div>
+                    <div class="capsule-name">Systematic Debug</div>
+                    <div class="capsule-desc">四阶段根因调查：收集→分析→假设→修复，禁止猜测</div>
+                    <div class="capsule-stage">build / test</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🧪</div>
+                    <div class="capsule-name">Test Generator</div>
+                    <div class="capsule-desc">模板填充式测试生成，AAA 模式，测试金字塔 80/15/5</div>
+                    <div class="capsule-stage">test</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">✅</div>
+                    <div class="capsule-name">Verification</div>
+                    <div class="capsule-desc">完成前验证：没有证据不算完成，自动化 + 功能验收 + 证据报告</div>
+                    <div class="capsule-stage">test / ship</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">🌐</div>
+                    <div class="capsule-name">E2E QA</div>
+                    <div class="capsule-desc">真实浏览器端到端验证：用户路径 + 边界 + 多视口 + 自动修 Bug</div>
+                    <div class="capsule-stage">test / ship</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🔍</div>
+                    <div class="capsule-name">Staff Review</div>
+                    <div class="capsule-desc">6 维度深度审查：逻辑/框架/性能/类型/可维护性/安全性</div>
+                    <div class="capsule-stage">review</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-optional"></div>
+                    <div class="capsule-icon">✂️</div>
+                    <div class="capsule-name">Code Simplification</div>
+                    <div class="capsule-desc">Chesterton 栅栏 + 500 规则：函数≤50行，文件≤500行</div>
+                    <div class="capsule-stage">simplify</div>
+                </div>
+                <div class="capsule">
+                    <div class="capsule-mandatory"></div>
+                    <div class="capsule-icon">🚀</div>
+                    <div class="capsule-name">Ship Pipeline</div>
+                    <div class="capsule-desc">门控发布：原子提交→版本标记→推送→构建→部署</div>
+                    <div class="capsule-stage">ship</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ GATES ═══ -->
+        <section class="section">
+            <div class="section-label">Quality Gates</div>
+            <h2 class="section-title">7-Gate 防御纵深</h2>
+            <p class="section-subtitle">每个 Gate 不通过 = 不允许进入下一阶段，支持 L1/L2/L3 严格度分级</p>
+
+            <table class="gates-table">
+                <thead>
+                    <tr>
+                        <th>Gate</th>
+                        <th>L1 Lightweight</th>
+                        <th>L2 Standard</th>
+                        <th>L3 Strict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Spec Gate</td>
+                        <td><span class="gate-level gate-l1">文档存在</span></td>
+                        <td><span class="gate-level gate-l2">+ 审批 + ≥1 验收标准</span></td>
+                        <td><span class="gate-level gate-l3">+ ≥3 验收 + 方案对比</span></td>
+                    </tr>
+                    <tr>
+                        <td>Plan Gate</td>
+                        <td><span class="gate-level gate-l1">任务列表存在</span></td>
+                        <td><span class="gate-level gate-l2">≤5min/任务 + 依赖标注</span></td>
+                        <td><span class="gate-level gate-l3">+ 风险评估 + 工时估算</span></td>
+                    </tr>
+                    <tr>
+                        <td>Build Gate</td>
+                        <td><span class="gate-level gate-l1">编译通过</span></td>
+                        <td><span class="gate-level gate-l2">TS + Build + ≤100行</span></td>
+                        <td><span class="gate-level gate-l3">+ 安全扫描</span></td>
+                    </tr>
+                    <tr>
+                        <td>Test Gate</td>
+                        <td><span class="gate-level gate-l1">测试通过</span></td>
+                        <td><span class="gate-level gate-l2">+ 覆盖率 ≥80%</span></td>
+                        <td><span class="gate-level gate-l3">+ ≥90% + 突变测试</span></td>
+                    </tr>
+                    <tr>
+                        <td>Review Gate</td>
+                        <td><span class="gate-level gate-l1">自动化检查</span></td>
+                        <td><span class="gate-level gate-l2">P0=0, P1≤3, Lint</span></td>
+                        <td><span class="gate-level gate-l3">P1≤1 + 安全审查</span></td>
+                    </tr>
+                    <tr>
+                        <td>Simplify Gate</td>
+                        <td><span class="gate-level gate-l1">无严重问题</span></td>
+                        <td><span class="gate-level gate-l2">函数≤50行, 文件≤500行</span></td>
+                        <td><span class="gate-level gate-l3">+ 圈复杂度 ≤10</span></td>
+                    </tr>
+                    <tr>
+                        <td>Ship Gate</td>
+                        <td><span class="gate-level gate-l1">Git 干净 + Tag</span></td>
+                        <td><span class="gate-level gate-l2">全部门禁 + 构建成功</span></td>
+                        <td><span class="gate-level gate-l3">+ 灰度计划 + 回滚预案</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ QUICK START ═══ -->
+        <section class="section">
+            <div class="section-label">Quick Start</div>
+            <h2 class="section-title">快速开始</h2>
+            <p class="section-subtitle">5 分钟上手完整 Skill 体系</p>
+
+            <div class="code-canvas">
+                <div class="code-header">
+                    <div class="code-dot"></div>
+                    <div class="code-dot"></div>
+                    <div class="code-dot"></div>
+                    <span class="code-title">terminal</span>
+                </div>
+                <div class="code-body">
+                    <span class="cmd">/harness</span> <span class="stage-name">init</span> <span class="flag">--template</span> web-react <span class="flag">--strictness</span> L2<br>
+                    <span class="cmd">/harness</span> <span class="stage-name">spec</span>&nbsp;&nbsp;&nbsp;<span class="comment"># 需求定义 → Brainstorming + Spec Generator</span><br>
+                    <span class="cmd">/harness</span> <span class="stage-name">plan</span>&nbsp;&nbsp;&nbsp;<span class="comment"># 架构规划 → Writing Plans (Wave 编排)</span><br>
+                    <span class="cmd">/harness</span> <span class="stage-name">build</span>&nbsp;&nbsp;<span class="comment"># 构建实现 → GSD Wave Engine + TDD</span><br>
+                    <span class="cmd">/harness</span> <span class="stage-name">test</span>&nbsp;&nbsp;&nbsp;<span class="comment"># 验证测试 → Verification + E2E QA</span><br>
+                    <span class="cmd">/harness</span> <span class="stage-name">review</span> <span class="comment"># 代码审查 → Staff Review 6 维</span><br>
+                    <span class="cmd">/harness</span> <span class="stage-name">simplify</span> <span class="comment"># 代码简化 → Code Simplification</span><br>
+                    <span class="cmd">/harness</span> <span class="stage-name">ship</span>&nbsp;&nbsp;&nbsp;<span class="comment"># 发布上线 → Ship Pipeline</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ OBSERVABILITY ═══ -->
+        <section class="section">
+            <div class="section-label" style="color: var(--violet);">Observability (v2.0)</div>
+            <h2 class="section-title">三大可观测性支柱</h2>
+            <p class="section-subtitle">灵感来源：AHE (Agentic Harness Engineering) — 将每次编辑变成可证伪的契约</p>
+
+            <div class="pillar-row">
+                <div class="pillar comp">
+                    <div class="pillar-num">1</div>
+                    <div class="pillar-label">PILLAR 1</div>
+                    <div class="pillar-name">组件可观测性</div>
+                    <div class="pillar-desc">7 类 Skill 组件注册为文件级实体，git 追踪变更，编辑可审计、可回退</div>
+                </div>
+                <div class="pillar exp">
+                    <div class="pillar-num">2</div>
+                    <div class="pillar-label">PILLAR 2</div>
+                    <div class="pillar-name">经验可观测性</div>
+                    <div class="pillar-desc">三层记忆蒸馏：摘要层→详细层→原始层，支持钻取和溯源</div>
+                </div>
+                <div class="pillar dec">
+                    <div class="pillar-num">3</div>
+                    <div class="pillar-label">PILLAR 3</div>
+                    <div class="pillar-name">决策可观测性</div>
+                    <div class="pillar-desc">每次修改附带预测声明，下一轮自动证伪，形成闭环验证</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ FIX LOOP ═══ -->
+        <section class="section">
+            <div class="section-label" style="color: var(--emerald);">Fix Loop (v2.0)</div>
+            <h2 class="section-title">自动修复迭代循环</h2>
+            <p class="section-subtitle">测试失败后自动进入 COLLECT → DIAGNOSE → FIX → VERIFY 闭环，直到通过或达到终止条件</p>
+
+            <div class="pipeline-track">
+                <div class="stage">
+                    <div class="stage-node" style="border-color: var(--blue);">📋</div>
+                    <div class="stage-cmd">COLLECT</div>
+                    <div class="stage-role">收集失败信息</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node" style="border-color: var(--violet);">🔬</div>
+                    <div class="stage-cmd">DIAGNOSE</div>
+                    <div class="stage-role">定位根因</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node" style="border-color: var(--amber);">🔧</div>
+                    <div class="stage-cmd">FIX</div>
+                    <div class="stage-role">TDD 修复</div>
+                </div>
+                <div class="stage">
+                    <div class="stage-node" style="border-color: var(--emerald);">✅</div>
+                    <div class="stage-cmd">VERIFY</div>
+                    <div class="stage-role">自动重测</div>
+                </div>
+            </div>
+
+            <div class="results-grid" style="margin-top: 48px;">
+                <div class="result-card">
+                    <div class="result-value neutral">3</div>
+                    <div class="result-label">最大修复轮次</div>
+                    <div class="result-note">MAX FIX ATTEMPTS</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-value neutral">15min</div>
+                    <div class="result-label">单次 Fix Loop 超时</div>
+                    <div class="result-note">TIME LIMIT</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-value neutral">7步</div>
+                    <div class="result-label">强制验证流程</div>
+                    <div class="result-note">MANDATORY VERIFICATION</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- ═══ FOOTER ═══ -->
+        <footer class="footer">
+            <h2 class="footer-title">准备好升级研发流程了吗？</h2>
+            <p class="footer-desc">增量流水线驱动 · 波次并行执行 · 能力按需装配 · 质量门禁守护 · 经验持续沉淀</p>
+            <a href="#" class="footer-cta">
+                <span>🚀</span>
+                <span>/harness init</span>
+            </a>
+            <p class="footer-meta">HARNESS ENGINEERING SKILL v2.0.0 · OBSERVABILITY-DRIVEN · GSD + GSTACKS + SUPERPOWERS + AGENT-SKILL · INSPIRED BY AHE</p>
+        </footer>
+
+    </div>
+</body>
+</html>

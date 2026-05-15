@@ -1,0 +1,31 @@
+id: generic
+name: "Generic (Minimal)"
+version: "1.0.0"
+priority: 0
+
+build:
+  typecheck_command: "echo 'No typecheck configured for this profile'"
+  build_command: "echo 'No build command configured'"
+  test_command: "echo 'No test command configured'"
+  test_coverage_command: ""
+  lint_command: "echo 'No lint configured'"
+  coverage_threshold: 0
+  strict_coverage_threshold: 0
+
+tdd:
+  test_template: ""
+
+template: null
+
+conventions:
+  test_dir: ""
+  source_dir: ""
+  test_suffix: ".test.*"
+  config_files: []
+
+e2e:
+  framework: "none"
+  dev_server_start: ""
+  dev_server_port: 0
+
+detection_files: []

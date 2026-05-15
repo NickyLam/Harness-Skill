@@ -1,0 +1,327 @@
+# Web React Template — React + TypeScript + Vite
+
+> **模板 ID**: web-react
+> **版本**: 2.2.0 (2026-05-05 更新)
+> **适用场景**: 标准 React Web 应用（SPA）
+
+## 技术栈
+
+```yaml
+language: typescript
+framework: react
+build_tool: vite
+package_manager: npm
+test_runner: vitest
+linter: eslint  # 推荐使用 ESLint (v8.57+)，避免 biome 兼容性问题
+styling: tailwind_css
+```
+
+## ⚠️ 模块系统规范 (ESM/CJS 统一)
+
+> **重要**: 本模板使用 **ESM (ES Modules)** 作为默认模块系统。
+
+### 文件扩展名约定
+
+| 扩展名 | 模块系统 | 用途 | 示例文件 |
+|--------|----------|------|----------|
+| `.ts` / `.tsx` | **ESM** | 源代码 (默认) | `src/hooks/useAuth.ts` |
+| `.js` / `.jsx` | **ESM** | ESM 脚本 (当 package.json 有 `"type": "module"`) | `vite.config.ts` |
+| `.cjs` | **CJS** | CommonJS 配置文件 (Node.js 兼容) | `tailwind.config.cjs`, `.eslintrc.cjs` |
+| `.mjs` | **ESM** | 显式 ESM 脚本 | - |
+| `.d.ts` | **类型声明** | TypeScript 声明文件 | 自动生成 |
+
+### 必须使用 CJS 的配置文件
+
+以下文件**必须**使用 `.cjs` 扩展名（因为它们被 Node.js 直接 require）：
+
+```bash
+tailwind.config.cjs    # TailwindCSS 配置
+.eslintrc.cjs         # ESLint 配置
+postcss.config.cjs    # PostCSS 配置
+jest.config.cjs       # Jest 配置 (如使用)
+babel.config.cjs      # Babel 配置 (如使用)
+```
+
+### 可以使用 ESM 的配置文件
+
+```bash
+tsconfig.json          # TypeScript (JSON 格式，无模块问题)
+vite.config.ts         # Vite (原生支持 ESM)
+vitest.config.ts       # Vitest (原生支持 ESM)
+package.json           # NPM 包配置
+```
+
+### package.json 关键配置
+
+```json
+{
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b && vite build"
+  }
+}
+```
+
+## 项目约定
+
+### 文件结构
+```
+project-root/
+├── src/
+│   ├── components/          # UI 组件 (PascalCase)
+│   │   └── {ComponentName}.tsx
+│   ├── hooks/               # 自定义 Hooks (use{Purpose})
+│   │   └── use{HookName}.ts
+│   ├── utils/               # 工具函数 (camelCase)
+│   │   └── {utilName}.ts
+│   ├── types/               # TypeScript 类型定义
+│   │   └── index.ts        # 统一导出
+│   ├── __tests__/           # 测试文件
+│   │   ├── config/          # 配置测试
+│   │   ├── hooks/           # Hook 测试
+│   │   ├── utils/           # 工具函数测试
+│   │   ├── mocks/           # Mock 数据 & Factory
+│   │   └── utils/
+│   │       └── test-utils.tsx  # 自定义 render + 路径工具
+│   ├── App.tsx              # 根组件
+│   ├── main.tsx             # 入口
+│   └── vite-env.d.ts        # Vite 类型声明
+├── .harness/                # Harness 工作目录
+├── index.html               # HTML 入口
+├── package.json             # NPM 配置 (type: module)
+├── tsconfig.json            # TS 配置 (含路径别名)
+├── tsconfig.app.json        # TS App 配置
+├── tsconfig.node.json       # TS Node 配置
+├── vite.config.ts           # Vite 配置
+├── tailwind.config.cjs      # TW 配置 (**必须 .cjs**)
+├── .eslintrc.cjs            # ESLint 配置 (**必须 .cjs**)
+└── db.json                  # Mock 数据库 (如使用 JSON Server)
+```
+
+### 命名规范
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| 组件 | PascalCase | `TodoList`, `TodoItem` |
+| Hook | camelCase + use 前缀 | `useTodos`, `useFilter` |
+| 工具函数 | camelCase | `formatDate`, `generateId` |
+| 类型接口 | PascalCase | `TodoType`, `FilterType` (无需后缀) |
+| 常量 | UPPER_SNAKE_CASE | `MAX_TODOS`, `API_BASE_URL` |
+| 测试文件 | `{name}.test.{ts,tsx}` | `TodoList.test.tsx` |
+| CSS 类名 | kebab-case | `todo-item`, `filter-btn` |
+
+### Git Conventional Commits
+```
+feat: 新功能
+fix: Bug 修复
+refactor: 重构（不改变行为）
+docs: 文档变更
+style: 代码格式调整
+test: 测试相关
+chore: 构建/工具/配置
+```
+
+### 默认 Gate 命令映射
+```yaml
+typecheck: "npx tsc --noEmit"  # 或 "tsc -b" (project references 模式)
+build: "npm run build"
+test: "npm run test -- --run"
+test_coverage: "npm run test -- --run --coverage"
+lint: "npx eslint src/ --ext .ts,.tsx"  # 使用 ESLint
+```
+
+## 🔒 经过验证的依赖版本
+
+> **注意**: 以下版本已在多个项目中验证兼容性，推荐直接使用。
+
+### 核心依赖 (dependencies)
+
+```json
+{
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "react-router-dom": "^6.26.0"
+}
+```
+
+### 开发依赖 (devDependencies)
+
+```json
+{
+  "@testing-library/jest-dom": "^6.4.8",
+  "@testing-library/react": "^16.0.0",
+  "@types/react": "^18.3.5",
+  "@types/react-dom": "^18.3.1",
+  "@vitejs/plugin-react": "^4.3.1",
+  "@typescript-eslint/eslint-plugin": "^7.15.0",
+  "@typescript-eslint/parser": "^7.15.0",
+  "eslint": "^8.57.0",
+  "eslint-plugin-react-hooks": "^4.6.2",
+  "eslint-plugin-react-refresh": "^0.4.7",
+  "jsdom": "^24.1.1",
+  "tailwindcss": "^3.4.7",
+  "typescript": "^5.5.4",
+  "vite": "^5.4.2",
+  "vitest": "^2.0.5",
+  "@types/node": "^20.14.0",
+  "json-server": "^0.17.4"  // 可选：Mock API
+}
+```
+
+### ❌ 不推荐的依赖
+
+| 包名 | 原因 | 替代方案 |
+|------|------|----------|
+| `biome@^1.x` | 版本不稳定，频繁 breaking change | `eslint@^8.57.0` |
+| `prettier` | 与 ESLint 规则冲突风险 | ESLint format |
+| `husky` v5+ | 配置复杂 | `simple-git-hooks` 或手动 |
+
+## 🛡️ Pre-Execution Safety Gate
+
+### 触发时机
+
+Pre-Execution Gate **必须在以下时机触发用户确认**：
+
+```
+1. Wave 开始前 (推荐)          → 确认任务列表和风险评估
+2. 危险操作前 (删除/权限变更)   → 二次确认
+3. 外部 API 调用前              → 确认网络和数据安全
+```
+
+### Gate 检查清单
+
+```markdown
+## 🛡️ Pre-Execution Checklist
+
+### 安全检查
+- [ ] 是否涉及数据删除操作？
+- [ ] 是否涉及权限变更？
+- [ ] 是否有外部 API 调用？
+- [ ] 是否有敏感数据处理？
+
+### 环境检查
+- [ ] 依赖是否已安装？(node_modules 存在)
+- [ ] Mock Server 是否启动？(如需要)
+- [ ] 环境变量是否配置？
+
+### 数据备份
+- [ ] 重要数据是否已备份？
+- [ ] Git 是否已提交当前进度？（便于回滚）
+```
+
+### 实现代码示例
+
+```typescript
+// 在 orchestrator 或 Task 执行器中
+async function preExecutionGate(task: Task): Promise<boolean> {
+  const checks = [
+    task.type === 'delete' ? '⚠️ 删除操作' : null,
+    task.requiresNetwork ? '🌐 网络请求' : null,
+  ].filter(Boolean);
+
+  if (checks.length > 0) {
+    console.log('\n🛡️ PRE-EXECUTION SAFETY GATE');
+    console.log(`Task: ${task.name}`);
+    console.log('Warnings:', checks.join(', '));
+    
+    // MCP 强制交互点 - 等待用户确认
+    const confirmed = await askUserConfirmation(
+      `是否继续执行任务 "${task.name}"？`,
+      ['✅ 确认执行', '❌ 取消', '⏭️ 跳过']
+    );
+    
+    return confirmed === '✅ 确认执行';
+  }
+  
+  return true;
+}
+```
+
+## 🧪 异步测试标准模式
+
+### Hook 测试模板 (useXxx)
+
+```typescript
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { useXxx } from '@/hooks/useXxx';
+
+// Mock fetch/API
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
+
+describe('useXxx Hook', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+    vi.clearAllMocks();
+    localStorage.clear();  // 如涉及 auth
+  });
+
+  it('should handle async data fetching', async () => {
+    // 1. 准备 mock 数据
+    const mockData = [{ id: '1', name: 'Test' }];
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => mockData,
+    });
+
+    // 2. 渲染 hook
+    const { result } = renderHook(() => useXxx());
+
+    // 3. 使用 waitFor 等待异步状态更新
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    }, { timeout: 5000 });  // ← 注意：timeout 必须是对象格式
+
+    // 4. 断言结果
+    expect(result.current.data).toEqual(mockData);
+    expect(result.current.error).toBeNull();
+  });
+
+  it('should handle errors gracefully', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Network Error'));
+
+    const { result } = renderHook(() => useXxx());
+
+    await waitFor(() => {
+      expect(result.current.error).toBeTruthy();
+    });
+  });
+});
+```
+
+### 关键注意事项
+
+1. **始终使用 `waitFor()`** 而非 `waitForNextUpdate()`
+2. **timeout 参数格式**: `{ timeout: 5000 }` (对象格式)
+3. **清理工作**: 在 `beforeEach` 中重置所有 mocks
+4. **避免 act() 警告**: 将状态更新包裹在 `waitFor` 中
+
+## 预注册 Capsules
+
+此模板默认启用以下 Capsule:
+- `tdd` — 强制测试驱动开发
+- `systematic-debugging` — 系统化调试
+- `subagent-driven-dev` — 子代理驱动开发
+- `verification` — 完成前验证
+- `staff-review` — Staff 工程师级审查
+- `code-simplification` — 代码简化
+- `e2e-qa` — E2E 测试 (优先使用 Obscura v2.1+)
+
+## 默认严格度
+
+L2-Standard（标准级），可通过 `.harness/config.yaml` 升级到 L3-Strict
+
+---
+
+## 更新日志
+
+### v2.2.0 (2026-05-05)
+- ✅ 新增 **ESM/CJS 模块系统规范**
+- ✅ 新增 **经过验证的依赖版本清单**
+- ✅ 新增 **Pre-Execution Safety Gate** 文档和示例
+- ✅ 新增 **异步测试标准模式** 模板
+- 🔒 锁定 ESLint 为默认 linter（移除 biome）
+- 🐛 修复路径别名配置分散问题
+
+### v2.1.0 (2026-05-04)
+- ✅ 新增 Obscura 浏览器引擎集成

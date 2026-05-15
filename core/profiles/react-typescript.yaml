@@ -1,0 +1,54 @@
+id: react-typescript
+name: "React + TypeScript + Vite"
+version: "1.0.0"
+priority: 100
+
+build:
+  typecheck_command: "npx tsc --noEmit"
+  build_command: "npm run build"
+  test_command: "vitest run"
+  test_coverage_command: "vitest run --coverage"
+  lint_command: "npx eslint src/"
+  coverage_threshold: 80
+  strict_coverage_threshold: 90
+
+gate_overrides:
+  build_gate:
+    change_size_check: "git diff --stat -- '*.ts' '*.tsx' | tail -1 | awk '{print $4}'"
+    security_scan: "npm audit --audit-level=moderate"
+  test_gate:
+    mutation_test: "npx stryker run"
+
+tdd:
+  test_template: |
+    import { describe, it, expect } from 'vitest';
+    import { {{functionName}} } from '../{{modulePath}}';
+
+    describe('{{functionName}}', () => {
+      it('should {{behavior}}', () => {
+        // RED: 先写失败测试
+        expect({{functionName}}({{input}})).toEqual({{expected}});
+      });
+    });
+
+e2e:
+  framework: "playwright"
+  dev_server_start: "npm run dev"
+  dev_server_port: 5173
+  dev_server_ready_check: "curl -sf http://localhost:5173 > /dev/null"
+
+template: "web-react"
+
+conventions:
+  test_dir: "__tests__"
+  test_suffix: ".test.ts"
+  source_dir: "src"
+  config_files:
+    - "tsconfig.json"
+    - "vite.config.ts"
+    - "package.json"
+
+detection_files:
+  - "package.json"
+  - "tsconfig.json"
+  - "vite.config.ts"

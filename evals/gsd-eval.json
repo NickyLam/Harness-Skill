@@ -1,0 +1,25 @@
+{
+  "skill_name": "gsd",
+  "evals": [
+    {"query": "这个任务太复杂了，帮我拆分成多个子任务并行执行", "should_trigger": true},
+    {"query": "我需要用 wave execution 来协调多个子代理", "should_trigger": true},
+    {"query": "帮我编排一下，让多个任务并行跑", "should_trigger": true},
+    {"query": "用 subagent 方式实现这个功能，先拆分任务", "should_trigger": true},
+    {"query": "我要做一个大功能，需要拆成微任务按波次执行", "should_trigger": true},
+    {"query": "怎么把大需求拆成原子任务？需要并行执行", "should_trigger": true},
+    {"query": "启动多个子代理，分别处理不同模块", "should_trigger": true},
+    {"query": "帮我设计 wave-based 的执行计划", "should_trigger": true},
+    {"query": "复杂任务拆分，需要用户确认检查点", "should_trigger": true},
+    {"query": "用 GSD 方式执行这个多步骤开发任务", "should_trigger": true},
+    {"query": "帮我写个单元测试", "should_trigger": false},
+    {"query": "这个 API 怎么设计？", "should_trigger": false},
+    {"query": "帮我 debug 这个 bug", "should_trigger": false},
+    {"query": "代码审查一下", "should_trigger": false},
+    {"query": "发布到生产环境", "should_trigger": false},
+    {"query": "帮我配置 Docker", "should_trigger": false},
+    {"query": "写个需求文档", "should_trigger": false},
+    {"query": "优化数据库查询", "should_trigger": false},
+    {"query": "帮我写个 CI/CD 配置", "should_trigger": false},
+    {"query": "这个函数怎么重构？", "should_trigger": false}
+  ]
+}

@@ -1,0 +1,774 @@
+# Harness Skill v3.2 — 统一注册表
+# 合并来源: core/component-registry.yaml + core/capsules/registry.yaml
+# 新增: react-dnd-wrapper, gsd, qa, gstack-review, gstack-ship
+
+version: "3.2.0"
+
+# === 组件类定义（来自 component-registry.yaml）===
+component_classes:
+  system_prompt:
+    description: "系统提示词 — 定义角色、行为约束、工作流指令"
+    failure_pattern: "Agent 走偏/忽略约束/重复犯错"
+    file_pattern: "**/SKILL.md"
+    examples:
+      - path: ".workbuddy/skills/harness/orchestrator/SKILL.md"
+        role: "Orchestrator 入口路由"
+      - path: ".workbuddy/skills/harness/gating/SKILL.md"
+        role: "7-Gate 质量门禁定义"
+      - path: ".workbuddy/skills/harness/onboarding/SKILL.md"
+        role: "快速启动指南"
+      - path: "core/roles/*/SKILL.md"
+        role: "6 个角色定义"
+
+  tool_description:
+    description: "工具描述 — 定义可用工具的 API 签名和使用说明"
+    failure_pattern: "Agent 误用/漏用工具/工具调用格式错误"
+    file_pattern: "**/references/*.md"
+    examples:
+      - path: ".workbuddy/skills/superpowers/systematic-debugging/references/bug-patterns.md"
+        role: "Bug 模式库"
+      - path: ".workbuddy/skills/superpowers/react-dnd-wrapper/references/api-patterns.md"
+        role: "库 API 速查"
+
+  tool_implementation:
+    description: "工具实现 — 工具的实际执行逻辑和模板"
+    failure_pattern: "工具执行错误/输出格式不符/缺失必要字段"
+    file_pattern: "**/assets/**"
+    examples:
+      - path: ".workbuddy/skills/harness/orchestrator/assets/role-prompts/*.md"
+        role: "角色提示词模板"
+      - path: ".workbuddy/skills/harness/orchestrator/assets/rollback-protocol.md"
+        role: "回滚协议"
+      - path: ".workbuddy/skills/harness/orchestrator/assets/incremental-tracker.md"
+        role: "增量追踪模板"
+
+  middleware:
+    description: "中间件 — 上下文压缩、故障转移、循环检测"
+    failure_pattern: "上下文溢出/死循环/信息丢失"
+    file_pattern: "core/engine/*.md"
+    examples:
+      - path: "core/engine/wave-executor.md"
+        role: "Wave 执行引擎"
+      - path: "core/engine/rollback-protocol.md"
+        role: "回滚协议"
+
+  skill:
+    description: "技能 — 领域特定的操作指南和方法论"
+    failure_pattern: "缺乏领域知识/方法论执行偏差"
+    file_pattern: ".workbuddy/skills/superpowers/*/SKILL.md"
+    examples:
+      - path: ".workbuddy/skills/superpowers/brainstorming/SKILL.md"
+        role: "Inversion 采访"
+      - path: ".workbuddy/skills/superpowers/test-driven-development/SKILL.md"
+        role: "TDD 铁律"
+      - path: ".workbuddy/skills/superpowers/systematic-debugging/SKILL.md"
+        role: "系统化调试"
+
+  sub_agent:
+    description: "子代理 — 辅助代理的角色定义和协作协议"
+    failure_pattern: "子代理协作失败/上下文交接遗漏"
+    file_pattern: "core/roles/*/SKILL.md"
+    examples:
+      - path: "core/roles/product-owner/SKILL.md"
+        role: "Product Owner"
+      - path: "core/roles/implementer/SKILL.md"
+        role: "Implementer"
+      - path: "core/roles/reviewer/SKILL.md"
+        role: "Reviewer"
+
+  long_term_memory:
+    description: "长期记忆 — 跨任务的经验积累和检索"
+    failure_pattern: "重复犯相同错误/经验未沉淀/记忆过时"
+    file_pattern: ".workbuddy/memory/*.md"
+    examples:
+      - path: ".workbuddy/memory/MEMORY.md"
+        role: "长期项目记忆"
+      - path: ".harness/memory/MEMORY.md"
+        role: "项目级记忆"
+
+# === 能力胶囊注册（来自 capsules/registry.yaml + 新增）===
+capsules:
+  # ============================================================
+  # 定义阶段 (spec)
+  # ============================================================
+  brainstorming:
+    id: cp-brainstorm
+    name: "Brainstorming — 先想后做"
+    stage: spec
+    roles: [product-owner]
+    pattern: inversion-interview
+    mandatory: true
+    description: "Inversion 模式：先采访用户再设计方案，避免 Agent 猜需求"
+    process:
+      - "逐一询问 5 个核心问题（目标用户/场景/现有代码/风险/完成标准）"
+      - "提出 2-3 种方案对比"
+      - "分段展示等待用户逐段审批"
+    output: design_decisions
+    assets:
+      - references/interview-questions.md
+      - references/deep-interview-questions.md
+    file_path: "core/skills/spec/brainstorming/SKILL.md"
+
+  deep-requirements:
+    id: cp-deep-req
+    name: "Deep Requirements — 企业级深度需求分析"
+    stage: spec
+    roles: [product-owner]
+    pattern: deep-interview
+    mandatory: false
+    trigger: depth_gate
+    depends: [cp-brainstorm]
+    description: "企业级深度需求分析：12个结构化问题 + 4个产出审批，覆盖业务规则、用户旅程、边缘case"
+    process:
+      - "MODULE A: 业务规则深度拆解 (BR-Q1~Q5, WHY→WHAT→HOW)"
+      - "MODULE B: 用户旅程分析 (UJ-Q1~Q4, WHO→HOW→PAIN→SUCCESS)"
+      - "MODULE C: 边缘 Case 分析 (EC-Q1~Q3, ERROR→CONCURRENCY→BOUNDARY)"
+      - "PHASE 5: 深度产出审批 (RULES/JOURNEY/EDGE/GHERKIN ×4)"
+      - "PHASE 6: 产出生成 (REQUIREMENTS.md + Gherkin + Mermaid)"
+    modules:
+      business-rules:
+        questions: 5
+        output: 业务规则表 (Markdown) + 规则依赖图 (Mermaid)
+      user-journey:
+        questions: 4
+        output: 用户角色画像 + 旅程图 + 状态机 (Mermaid)
+      edge-cases:
+        questions: 3
+        output: 异常场景清单 + 数据边界限制表
+    generators:
+      requirements-doc: "REQUIREMENTS.md 结构化文档生成器"
+      gherkin-spec: "Gherkin .feature 可执行规格生成器"
+      mermaid-charts: "Mermaid 图表生成器 (5种图表类型)"
+    output:
+      - ".harness/requirements/REQUIREMENTS.md"
+      - ".harness/features/*.feature"
+      - ".harness/diagrams/*.mmd"
+      - ".harness/analysis/edge-cases.md"
+    mcp_protocol: "TYPE_D (DEEP_INTERVIEW_CHECKPOINT) ×12 + TYPE_B (APPROVAL) ×4"
+    file_path: "core/skills/spec/deep-requirements/SKILL.md"
+
+  spec-generator:
+    id: cp-spec-gen
+    name: "Spec Generator — 规范文档生成器"
+    stage: spec
+    roles: [product-owner]
+    pattern: template-filling
+    mandatory: true
+    depends: [cp-brainstorm]
+    description: "从 brainstorming 结果中提取变量，填充模板生成标准化设计文档和 GHBANK 需求分析规格说明书"
+    output:
+      - ".harness/specs/YYYY-MM-DD-{topic}-design.md"
+      - ".harness/specs/GHBANK-{project_name}-需求分析规格说明书.md"
+    assets:
+      - assets/spec-template.md
+      - generators/ghbank-requirements.md
+    file_path: "core/skills/spec/spec-generator/SKILL.md"
+
+  office-hours:
+    id: cp-office-hours
+    name: "Office Hours — 产品诊断"
+    stage: spec
+    roles: [product-owner]
+    pattern: six-question-challenge
+    mandatory: false
+    trigger: user_request
+    description: "YC 合伙人式 6 问诊断：挑战假设、MVP 思维、机会成本评估"
+    output: diagnosis_report
+    file_path: "core/skills/spec/office-hours/SKILL.md"
+
+  # ============================================================
+  # 规划阶段 (plan)
+  # ============================================================
+  writing-plans:
+    id: cp-writing-plans
+    name: "Writing Plans — 微任务拆分"
+    stage: plan
+    roles: [architect]
+    pattern: task-decomposition
+    mandatory: true
+    description: "将设计文档拆分为 ≤5 分钟的微任务，输出 Wave 可执行的格式，并生成 GHBANK 系统设计说明书"
+    constraints:
+      max_task_duration: "5min"
+      require_acceptance_criteria: true
+      require_dependency_annotation: true
+    output:
+      - ".harness/plans/{feature}-plan.md"
+      - ".harness/plans/GHBANK-{project_name}-系统设计说明书.md"
+    output_format: wave_executable
+    generators:
+      ghbank-design: "GHBANK 系统设计说明书生成器"
+    file_path: "core/skills/plan/writing-plans/SKILL.md"
+
+  # ============================================================
+  # 构建阶段 (build)
+  # ============================================================
+  tdd:
+    id: cp-tdd
+    name: "TDD — 测试驱动开发"
+    stage: build
+    roles: [implementer]
+    pattern: red-green-refactor
+    mandatory: true
+    description: "强制测试先行：RED(写失败测试)→GREEN(最少代码)→REFACTOR(重构)"
+    iron_rules:
+      - "先写测试，再写实现代码"
+      - "测试不通过 → 只写最少代码让其通过"
+      - "测试通过 → 才允许重构"
+      - "任何在测试之前写好的代码都会被删除"
+    cycle_target_time: "≤5min"
+    file_path: "core/skills/build/tdd/SKILL.md"
+
+  subagent-driven-dev:
+    id: cp-subagent
+    name: "Subagent Driven Development — 子代理驱动"
+    stage: build
+    roles: [coordinator]
+    pattern: role-isolation
+    mandatory_for_complex_tasks: true
+    engine: gsd_wave
+    description: "每个微任务启动独立子代理，实现者与审查者绝不在同一上下文"
+    roles_definition:
+      coordinator: "任务拆分、子代理调度、结果汇总"
+      implementer: "写代码+测试(TDD)，只负责一个微任务"
+      reviewer: "独立审查代码，不修改"
+    file_path: "core/skills/build/subagent-driven-dev/SKILL.md"
+
+  systematic-debugging:
+    id: cp-debug
+    name: "Systematic Debugging — 系统化调试"
+    stage: [build, test]
+    roles: [implementer, tester]
+    pattern: four-stage-investigation
+    trigger: on_error
+    mandatory: false
+    description: "四阶段根因调查：收集信息→模式分析→假设测试→实施修复"
+    iron_rules:
+      - "找不到根因不能修"
+      - "禁止猜测式修改"
+      - "禁止试试看式修复"
+    stages:
+      - name: investigate
+        actions: ["收集错误信息", "定位范围", "形成调查记录"]
+      - name: analyze
+        actions: ["找错误模式", "追踪代码路径", "排除不可能原因"]
+      - name: hypothesize
+        actions: ["列出所有假设", "逐一验证", "确认根因"]
+      - name: fix
+        actions: ["先写失败测试", "实施修复", "回归验证"]
+    file_path: "core/skills/build/systematic-debugging/SKILL.md"
+
+  react-dnd-wrapper:
+    id: cp-react-dnd
+    name: "React DnD Wrapper — 第三方库知识封装"
+    stage: build
+    roles: [implementer]
+    pattern: tool-wrapper
+    mandatory: false
+    trigger: on_library_usage
+    description: "第三方库（以 React DnD 为例）的知识封装：API 速查、常见陷阱、最佳实践"
+    file_path: "core/skills/build/react-dnd-wrapper/SKILL.md"
+
+  frontend-ui:
+    id: cp-frontend-ui
+    name: "Frontend UI — 高质量前端界面"
+    stage: build
+    roles: [implementer]
+    pattern: ui-design
+    mandatory: false
+    description: "高质量前端界面开发：融合创意设计与生产级代码，支持 React/Vue/HTML/CSS"
+    process:
+      - "选择创意设计或产品 UI 模式"
+      - "建立字体、颜色、动效和响应式规范"
+      - "实现界面并执行视觉质量检查"
+    file_path: "core/skills/build/frontend-ui/SKILL.md"
+
+  # ============================================================
+  # 跨阶段 (cross-cutting)
+  # ============================================================
+  gsd:
+    id: cp-gsd
+    name: "GSD — Getting Stuff Done 上下文引擎"
+    stage: cross-cutting
+    roles: [orchestrator, coordinator]
+    pattern: wave-execution
+    mandatory: false
+    description: "通过子代理隔离和波次编排解决 AI 长时任务质量退化问题。触发词：/gsd、波次执行、子代理开发"
+    file_path: "core/skills/cross-cutting/gsd/SKILL.md"
+
+  # ============================================================
+  # 验证阶段 (test)
+  # ============================================================
+  test-generator:
+    id: cp-test-gen
+    name: "Test Generator — 自动测试生成"
+    stage: test
+    roles: [tester]
+    pattern: auto-generation
+    mandatory: false
+    description: "基于代码分析自动补充边界条件测试和集成测试"
+    file_path: "core/skills/test/test-generator/SKILL.md"
+
+  verification:
+    id: cp-verification
+    name: "Verification Before Completion — 完成前验证"
+    stage: [test, ship]
+    roles: [tester, shipper]
+    pattern: evidence-collection
+    mandatory: true
+    description: "没有证据不算完成：自动化验证+功能验收+证据报告"
+    checks:
+      automated: ["单元测试", "TypeScript编译", "ESLint", "构建"]
+      manual: ["验收标准逐项确认"]
+    output: evidence_report
+    file_path: "core/skills/test/verification/SKILL.md"
+
+  e2e-qa:
+    id: cp-e2e-qa
+    name: "E2E QA — 真实浏览器验证"
+    stage: [test, ship]
+    roles: [tester, shipper]
+    pattern: browser-validation
+    mandatory: false
+    strictness_requirement: L2_plus
+    description: "真实浏览器端到端验证：用户路径+边界情况+多视口+自动修Bug"
+    viewports: [desktop, tablet, mobile]
+    auto_fix: true
+    file_path: "core/skills/test/e2e-qa/SKILL.md"
+
+  qa:
+    id: cp-qa
+    name: "QA — GSTACK 真实浏览器 E2E 验证"
+    stage: test
+    roles: [tester]
+    pattern: browser-e2e-validation
+    mandatory: false
+    description: "GSTACK 产品决策层：真实浏览器测试 + 自动修 Bug，全视口覆盖（桌面/平板/手机）"
+    file_path: "core/skills/test/qa/SKILL.md"
+
+  browser-automation:
+    id: cp-browser-automation
+    name: "Browser Automation — 浏览器自动化测试"
+    stage: test
+    roles: [tester]
+    pattern: browser-automation
+    mandatory: false
+    description: "浏览器自动化测试：支持 Playwright、agent-browser，覆盖 E2E 测试、数据抓取、视觉回归"
+    file_path: "core/skills/test/browser-automation/SKILL.md"
+
+  # ============================================================
+  # 评审阶段 (review / simplify)
+  # ============================================================
+  staff-review:
+    id: cp-staff-review
+    name: "Staff Review — 工程师级审查"
+    stage: review
+    roles: [reviewer]
+    pattern: six-dimension-checklist
+    mandatory: true
+    independent_context: true
+    description: "高于 CI 标准的 6 维度深度审查"
+    dimensions:
+      - id: logic
+        name: "逻辑正确性"
+        checks: ["边界条件", "空值处理", "递归终止"]
+      - id: framework
+        name: "框架特定"
+        checks: ["不必要re-render", "useEffect依赖", "key稳定性"]
+      - id: performance
+        name: "性能"
+        checks: ["不必要计算", "大列表渲染", "内存泄漏"]
+      - id: types
+        name: "类型安全"
+        checks: ["any收窄", "类型断言安全", "泛型合理"]
+      - id: maintainability
+        name: "可维护性"
+        checks: ["命名清晰", "无重复逻辑", "魔法值提取"]
+      - id: security
+        name: "安全性"
+        checks: ["XSS风险", "输入验证", "敏感数据"]
+    severity_levels:
+      - level: P0
+        color: red
+        meaning: "必须修复，阻塞合并"
+      - level: P1
+        color: yellow
+        meaning: "建议修复，≤3个可通过"
+      - level: P2
+        color: green
+        meaning: "可选改进"
+    file_path: "core/skills/review/staff-review/SKILL.md"
+
+  code-simplification:
+    id: cp-simplify
+    name: "Code Simplification — 代码简化"
+    stage: [review, simplify]
+    roles: [reviewer]
+    pattern: simplification-checklist
+    mandatory: false
+    description: "Chesterton 栅栏原则 + 500 规则：在保留精确行为的同时降低复杂度"
+    principles:
+      - name: chesterton_fence
+        rule: "删除代码前先理解它存在的理由"
+      - name: rule_500
+        rule: "函数≤50行(理想≤20)，文件≤500行"
+    check_items:
+      - name: dead_code
+        severity: critical
+        check: "未被引用的函数、变量、导入"
+      - name: duplication
+        severity: medium
+        check: "可抽取为公共函数的重复逻辑"
+      - name: over_abstraction
+        severity: medium
+        check: "只有1个实现的接口、只有1个调用的函数"
+      - name: deep_nesting
+        severity: medium
+        check: "超过3层的 if/for 嵌套"
+      - name: magic_values
+        severity: low
+        check: "硬编码的数字/字符串"
+      - name: long_function
+        severity: critical
+        check: "超过50行的函数"
+      - name: unused_imports
+        severity: low
+        check: "未使用的导入"
+    file_path: "core/skills/review/code-simplification/SKILL.md"
+
+  # ============================================================
+  # 发布阶段 (ship)
+  # ============================================================
+  ship-pipeline:
+    id: cp-ship
+    name: "Ship Pipeline — 发布流水线"
+    stage: ship
+    roles: [shipper]
+    pattern: gated-release
+    mandatory: true
+    description: "原子提交→版本标记→推送→构建产物→部署的完整发布流程"
+    steps:
+      - id: version_update
+        name: "版本更新"
+        action: "确定 semver 版本号并更新 package.json"
+      - id: git_commit
+        name: "Git 提交"
+        action: "git add . && git commit (conventional commit)"
+      - id: git_tag
+        name: "版本标记"
+        action: "git tag v{version}"
+      - id: push
+        name: "推送"
+        action: "git push origin main --tags"
+      - id: build_artifact
+        name: "构建产物"
+        action: "npm run build && 验证 dist/"
+      - id: deploy
+        name: "部署（可选）"
+        action: "部署到目标环境并验证"
+    principles:
+      - "发布前必须验证所有自动化检查"
+      - "每次发布都有版本标记，可快速回滚"
+      - "渐进发布：先验证后上线"
+    file_path: "core/skills/ship/ship-pipeline/SKILL.md"
+
+  # ============================================================
+  # 构建阶段 (build) — 新增技能
+  # ============================================================
+  database-migration:
+    id: cp-database-migration
+    name: "数据库迁移 — Schema 演进管理"
+    stage: build
+    roles: [implementer]
+    pattern: schema-evolution
+    mandatory: false
+    description: "数据库 Schema 演进：迁移设计→TDD 迁移测试→执行与验证，确保数据一致性"
+    process:
+      - step: 1
+        name: "迁移设计"
+        action: "分析当前 Schema 与目标差异，制定迁移策略（增量/全量/回滚）"
+      - step: 2
+        name: "TDD 迁移测试"
+        action: "编写迁移前快照测试、迁移后数据校验、回滚测试"
+      - step: 3
+        name: "执行与验证"
+        action: "执行迁移脚本，运行全量回归，确认数据完整性"
+    file_path: "core/skills/build/database-migration/SKILL.md"
+
+  api-design:
+    id: cp-api-design
+    name: "API 设计 — 接口契约定义"
+    stage: build
+    roles: [implementer]
+    pattern: contract-first
+    mandatory: false
+    description: "API 契约优先设计：接口规范定义→Mock 实现→集成对接，确保 API 一致性"
+    process:
+      - step: 1
+        name: "接口规范定义"
+        action: "定义 RESTful/GraphQL 接口路径、请求响应格式、错误码体系"
+      - step: 2
+        name: "Mock 实现"
+        action: "基于 OpenAPI/Swagger 规范生成 Mock 服务和客户端 SDK"
+      - step: 3
+        name: "集成对接"
+        action: "替换 Mock 为真实实现，通过契约测试验证兼容性"
+    file_path: "core/skills/build/api-design/SKILL.md"
+
+  internationalization:
+    id: cp-internationalization
+    name: "国际化 — 多语言支持"
+    stage: build
+    roles: [implementer]
+    pattern: i18n-extraction
+    mandatory: false
+    description: "国际化改造：文本抽取→Locale 架构→RTL 支持与验证，确保多语言可扩展性"
+    process:
+      - step: 1
+        name: "文本抽取"
+        action: "扫描硬编码字符串，提取到 i18n 资源文件，建立 key 命名规范"
+      - step: 2
+        name: "Locale 架构"
+        action: "搭建 i18n 框架（日期/数字/货币格式化、动态切换、fallback 链）"
+      - step: 3
+        name: "RTL 支持与验证"
+        action: "处理 RTL 布局适配，逐 Locale 视觉回归验证"
+    file_path: "core/skills/build/internationalization/SKILL.md"
+
+  error-monitoring:
+    id: cp-error-monitoring
+    name: "错误监控 — 异常捕获与告警"
+    stage: [build, cross-cutting]
+    roles: [implementer]
+    pattern: observability-pipeline
+    mandatory: false
+    description: "跨阶段错误监控：埋点设计→异常聚合→告警规则，构建可观测性体系"
+    process:
+      - step: 1
+        name: "埋点设计"
+        action: "定义错误分类体系、上下文采集规范、采样策略"
+      - step: 2
+        name: "异常聚合"
+        action: "实现错误收集管道（client/server）、去重、分组、堆栈归一化"
+      - step: 3
+        name: "告警规则"
+        action: "配置分级告警阈值、升级策略、静默窗口、On-call 通知"
+    file_path: "core/skills/build/error-monitoring/SKILL.md"
+
+  caching-strategy:
+    id: cp-caching-strategy
+    name: "缓存策略 — 性能优化层"
+    stage: build
+    roles: [implementer]
+    pattern: cache-hierarchy
+    mandatory: false
+    description: "多级缓存策略：缓存选型→失效策略→穿透/雪崩/击穿防护"
+    process:
+      - step: 1
+        name: "缓存选型"
+        action: "根据访问模式选择缓存层级（内存/Redis/CDN）和数据结构"
+      - step: 2
+        name: "失效策略"
+        action: "设计 TTL/LRU/主动失效策略，保证最终一致性"
+      - step: 3
+        name: "穿透/雪崩/击穿防护"
+        action: "实现布隆过滤器、互斥锁重建、随机过期等防护机制"
+    file_path: "core/skills/build/caching-strategy/SKILL.md"
+
+  # ============================================================
+  # 测试阶段 (test) — 新增技能
+  # ============================================================
+  performance-testing:
+    id: cp-performance-testing
+    name: "性能测试 — 负载与压测"
+    stage: test
+    roles: [tester]
+    pattern: load-profiling
+    mandatory: false
+    description: "性能基准测试：场景建模→负载注入→瓶颈分析，确保系统满足 SLA"
+    process:
+      - step: 1
+        name: "场景建模"
+        action: "识别关键用户路径，定义吞吐量/延迟/P99 等基线指标"
+      - step: 2
+        name: "负载注入"
+        action: "执行梯度压测、并发测试、 soak test（长时间稳定性）"
+      - step: 3
+        name: "瓶颈分析"
+        action: "分析火焰图/慢查询/资源利用率，输出优化建议报告"
+    file_path: "core/skills/test/performance-testing/SKILL.md"
+
+  security-audit:
+    id: cp-security-audit
+    name: "安全审计 — 安全漏洞扫描"
+    stage: test
+    roles: [tester]
+    pattern: vulnerability-scanning
+    mandatory: false
+    description: "安全审计：依赖扫描→静态分析→渗透检查，覆盖 OWASP Top 10"
+    process:
+      - step: 1
+        name: "依赖扫描"
+        action: "扫描第三方依赖已知漏洞（CVE），评估影响范围并升级"
+      - step: 2
+        name: "静态分析"
+        action: "SAST 检查注入/XSS/CSRF/敏感信息泄露等代码级安全问题"
+      - step: 3
+        name: "渗透检查"
+        action: "DAST 动态验证认证/授权/输入校验等运行时安全缺陷"
+    file_path: "core/skills/test/security-audit/SKILL.md"
+
+  # ============================================================
+  # 发布阶段 (ship) — 新增技能
+  # ============================================================
+  ci-cd-pipeline:
+    id: cp-ci-cd-pipeline
+    name: "CI/CD 流水线 — 自动化交付"
+    stage: ship
+    roles: [shipper]
+    pattern: pipeline-automation
+    mandatory: false
+    description: "CI/CD 流水线搭建：流水线编排→环境管理→部署自动化，实现持续交付"
+    process:
+      - step: 1
+        name: "流水线编排"
+        action: "定义 CI/CD 阶段（lint→test→build→scan→deploy），配置触发条件和并行策略"
+      - step: 2
+        name: "环境管理"
+        action: "搭建 dev/staging/prod 多环境，管理环境变量和密钥注入"
+      - step: 3
+        name: "部署自动化"
+        action: "配置蓝绿部署/金丝雀发布/回滚机制，集成部署后健康检查"
+    file_path: "core/skills/ship/ci-cd-pipeline/SKILL.md"
+
+  containerization:
+    id: cp-containerization
+    name: "容器化 — Docker 编排"
+    stage: ship
+    roles: [shipper]
+    pattern: container-packaging
+    mandatory: false
+    description: "应用容器化：Dockerfile 优化→镜像构建→Compose/K8s 编排"
+    process:
+      - step: 1
+        name: "Dockerfile 优化"
+        action: "编写多阶段构建 Dockerfile，最小化镜像体积，优化层缓存"
+      - step: 2
+        name: "镜像构建"
+        action: "配置镜像仓库、标签策略、安全扫描（Trivy），自动化构建流水线"
+      - step: 3
+        name: "Compose/K8s 编排"
+        action: "编写 docker-compose.yml 或 K8s Manifests，定义服务发现和网络拓扑"
+    file_path: "core/skills/ship/containerization/SKILL.md"
+
+  # ============================================================
+  # 跨阶段 (cross-cutting) — 补充注册
+  # ============================================================
+  orchestrator:
+    id: cp-orchestrator
+    name: "Orchestrator — 多角色协作编排器"
+    stage: cross-cutting
+    roles: [orchestrator]
+    pattern: routing
+    mandatory: true
+    description: "多角色协作编排器：任务路由、子代理调度、结果汇总、进度追踪"
+    process:
+      - "识别用户命令或生命周期阶段"
+      - "路由到对应角色、capsule 和 gate"
+      - "维护上下文交接、冲突处理和进度记录"
+    file_path: "core/skills/cross-cutting/orchestrator/SKILL.md"
+
+  governance:
+    id: cp-governance
+    name: "Governance — 治理流程"
+    stage: cross-cutting
+    roles: [reviewer]
+    pattern: governance
+    mandatory: false
+    description: "经验沉淀与持续治理：决策可观测性、技术债务追踪、质量趋势分析"
+    file_path: "core/skills/cross-cutting/governance/SKILL.md"
+
+  memory-management:
+    id: cp-memory-mgmt
+    name: "Memory Management — 记忆管理"
+    stage: cross-cutting
+    roles: [orchestrator]
+    pattern: memory-management
+    mandatory: false
+    description: "三层可观测性增强的记忆管理：短期上下文 + 中期项目记忆 + 长期经验沉淀"
+    file_path: "core/skills/cross-cutting/memory-management/SKILL.md"
+
+  project-init:
+    id: cp-project-init
+    name: "Project Init — 项目初始化"
+    stage: cross-cutting
+    roles: [product-owner]
+    pattern: scaffolding
+    mandatory: false
+    description: "项目脚手架生成：DnP 决策树、6步初始化流程、配置文件模板、目录结构"
+    file_path: "core/skills/cross-cutting/project-init/SKILL.md"
+
+  receiving-code-review:
+    id: cp-receiving-review
+    name: "Receiving Code Review — 接收代码审查"
+    stage: review
+    roles: [reviewer]
+    pattern: feedback-handling
+    mandatory: false
+    description: "接收和处理代码审查反馈：反馈处理、迭代指导、防御性响应"
+    file_path: "core/skills/review/receiving-code-review/SKILL.md"
+
+  user-journey:
+    id: cp-user-journey
+    name: "User Journey — 用户旅程分析"
+    stage: spec
+    roles: [product-owner]
+    pattern: journey-mapping
+    mandatory: false
+    trigger: deep_requirements
+    description: "用户旅程分析（deep-requirements 子模块）：角色画像、旅程图、状态机"
+    parent: deep-requirements
+    file_path: "core/skills/spec/deep-requirements/modules/user-journey/SKILL.md"
+
+  business-rules:
+    id: cp-business-rules
+    name: "Business Rules — 业务规则拆解"
+    stage: spec
+    roles: [product-owner]
+    pattern: br-analysis
+    mandatory: false
+    trigger: deep_requirements
+    description: "业务规则深度拆解（deep-requirements 子模块）：BR-Q分析，WHY→WHAT→HOW"
+    parent: deep-requirements
+    file_path: "core/skills/spec/deep-requirements/modules/business-rules/SKILL.md"
+
+  edge-cases:
+    id: cp-edge-cases
+    name: "Edge Cases — 边缘 Case 分析"
+    stage: spec
+    roles: [product-owner]
+    pattern: edge-analysis
+    mandatory: false
+    trigger: deep_requirements
+    description: "边缘 Case 分析（deep-requirements 子模块）：异常场景、并发、边界限制"
+    parent: deep-requirements
+    file_path: "core/skills/spec/deep-requirements/modules/edge-cases/SKILL.md"
+
+# === 变更追踪（来自 component-registry.yaml）===
+change_tracking:
+  enabled: true
+  mechanism: "git"
+  commit_format: "feat(harness): <component_class> — <change_description>"
+  require_prediction: true
+  prediction_template: |
+    ## 变更预测
+    **组件类**: <component_class>
+    **变更文件**: <file_path>
+    **变更内容**: <what_changed>
+    **预期效果**: <predicted_impact>
+    **验证方式**: <how_to_verify>
+    **验证轮次**: 下一轮 /harness <stage> 执行时自动验证
+
+rollback:
+  enabled: true
+  mechanism: "git revert"
+  trigger: "预测验证失败 / Gate 通过率下降 / 下一轮任务失败率上升"

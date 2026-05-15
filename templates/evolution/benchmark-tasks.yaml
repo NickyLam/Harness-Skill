@@ -1,0 +1,83 @@
+version: "1.0.0"
+description: "Harness Skill 进化基准任务集"
+
+tasks:
+  - id: bench-001
+    name: "完整 CRUD 功能开发"
+    type: full_pipeline
+    difficulty: medium
+    description: "从 spec 到 ship 开发一个 Todo CRUD 功能"
+    stages: [spec, plan, build, test, review, simplify, ship]
+    expected_artifacts:
+      - ".harness/specs/*-design.md"
+      - ".harness/plans/*-plan.md"
+      - "src/**/*.ts"
+      - "src/**/*.test.ts"
+      - ".harness/audits/reviews/*.md"
+    success_criteria:
+      gate_pass_rate: "7/7"
+      all_tests_pass: true
+      coverage_above_80: true
+      max_p1_issues: 3
+    timeout_minutes: 45
+
+  - id: bench-002
+    name: "需求分析完整性"
+    type: stage_only
+    stage: spec
+    difficulty: easy
+    description: "给定模糊需求，输出完整设计文档"
+    input: "用户想要一个带搜索和筛选的待办列表"
+    success_criteria:
+      has_acceptance_criteria: true
+      min_acceptance_criteria: 3
+      has_solution_comparison: true
+      document_approved: true
+    timeout_minutes: 10
+
+  - id: bench-003
+    name: "TDD 执行质量"
+    type: stage_only
+    stage: build
+    difficulty: medium
+    description: "实现一个有边界条件的函数，必须 TDD"
+    success_criteria:
+      tests_written_before_code: true
+      all_tests_pass: true
+      covers_edge_cases: true
+      function_under_50_lines: true
+    timeout_minutes: 15
+
+  - id: bench-004
+    name: "Gate 拒绝缺陷代码"
+    type: gate_test
+    difficulty: easy
+    description: "提交有已知问题的代码，验证 Gate 能正确拒绝"
+    injected_defects:
+      - "缺少类型标注"
+      - "函数超过50行"
+      - "无对应测试文件"
+    expected_behavior: "所有相关 Gate 应返回 fail"
+    timeout_minutes: 5
+
+  - id: bench-005
+    name: "系统化调试能力"
+    type: skill_test
+    skill: systematic-debugging
+    difficulty: hard
+    description: "在含 Bug 的代码库中定位并修复根因"
+    success_criteria:
+      root_cause_identified: true
+      fix_has_test: true
+      regression_pass: true
+      no_guessing_fix: true
+    timeout_minutes: 20
+
+config:
+  default_strictness: "L2-standard"
+  iterations:
+    max: 10
+  termination:
+    target_pass_rate: 0.95
+    prediction_accuracy_threshold: 0.8
+    no_improvement_limit: 2

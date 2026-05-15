@@ -1,0 +1,49 @@
+id: go
+name: "Go + go test + golangci-lint"
+version: "1.0.0"
+priority: 85
+
+build:
+  typecheck_command: "go vet ./..."
+  build_command: "go build ./..."
+  test_command: "go test ./..."
+  test_coverage_command: "go test -coverprofile=coverage.out ./... && go tool cover -func=coverage.out"
+  lint_command: "golangci-lint run ./..."
+  coverage_threshold: 75
+  strict_coverage_threshold: 85
+
+tdd:
+  test_template: |
+    package {{package_name}}
+
+    import "testing"
+
+    func Test{{FunctionName}}(t *testing.T) {
+        t.Run("{{behavior}}", func(t *testing.T) {
+            // RED: 先写失败测试
+            t.Fatal("not implemented")
+        })
+    }
+
+template: null
+
+conventions:
+  test_dir: ""
+  source_dir: ""
+  test_suffix: "_test.go"
+  config_files:
+    - "go.mod"
+
+e2e:
+  framework: "playwright"
+  dev_server_start: "go run ./cmd/server"
+  dev_server_port: 8080
+
+gate_overrides:
+  build_gate:
+    security_scan: "gosec ./..."
+  test_gate:
+    mutation_test: "go-mutesting ./..."
+
+detection_files:
+  - "go.mod"

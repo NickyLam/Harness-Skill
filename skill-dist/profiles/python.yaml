@@ -1,0 +1,40 @@
+id: python
+name: "Python + pytest + ruff"
+version: "1.0.0"
+priority: 90
+
+build:
+  typecheck_command: "ruff check . && pyright"
+  build_command: "python -m build"
+  test_command: "pytest"
+  test_coverage_command: "pytest --cov=. --cov-report=term-missing"
+  lint_command: "ruff check --fix . && ruff format ."
+  coverage_threshold: 80
+  strict_coverage_threshold: 90
+
+tdd:
+  test_template: |
+    import pytest
+
+    def test_{{function_name}}():
+        # RED: 先写失败测试
+        assert {{function_call}} == {{expected}}
+
+e2e:
+  framework: "playwright"
+  dev_server_start: "python -m http.server 8000"
+  dev_server_port: 8000
+
+template: null
+
+conventions:
+  test_dir: "tests"
+  test_suffix: "_test.py"
+  source_dir: "src"
+  config_files:
+    - "pyproject.toml"
+    - "setup.py"
+
+detection_files:
+  - "pyproject.toml"
+  - "setup.py"
