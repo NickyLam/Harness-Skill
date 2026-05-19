@@ -7,9 +7,9 @@ roles: [reviewer]
 pattern: gate-keeping
 mandatory: true
 depends: []
-version: "3.1"
+version: "4.0"
 compatibility:
-  tools: [RunCommand, Read, Write, SearchCodebase]
+  tools: [Bash, SendMessage, TaskList, TaskCreate, TaskUpdate, Read, Write]
   dependencies: ["bash", "git", "node >= 18"]
 ---
 
@@ -269,3 +269,57 @@ function analyzeGatePerformance(timings: GateTiming[]) {
 2. **部分失败？** → 根据失败矩阵回到对应阶段修复
 3. **需要调整严格度？** → 编辑 `core/pipeline.yaml`
 4. **想查看历史？** → 查看 `.harness/metrics/gate-trends.md`
+
+## Agent 模式 Gate 执行协议（v4.0 新增）
+
+在 Expert Team 模式下，Gate 检查由 Team Lead Agent 执行，作为 Stage 转换的必要条件。
+
+### Team Lead Gate 执行流程
+
+```
+角色 Agent 完成任务 → Team Lead 收到完成汇报
+    ↓
+Team Lead 执行 Gate 检查:
+    1. Bash: bash core/skills/cross-cutting/gating/scripts/check-{stage}-gate.sh
+    2. 解析 Gate 结果
+    ↓
+Gate PASS → SendMessage 通知当前 Agent 关闭 → spawn 下一 Stage Agent
+Gate FAIL → SendMessage 向当前 Agent 发送修复指令:
+    SendMessage({
+      type: "message",
+      recipient: "harness-implementer",
+      content: "## Gate 失败修复指令\nGate: build_gate\n失败原因: {原因}\n修复要求: {具体修复指令}\n约束: TDD 流程，只修改失败项",
+      summary: "Build gate fix required"
+    })
+```
+
+### Gate 检查在 Agent 中的嵌入方式
+
+| 模式 | Gate 执行者 | 执行方式 | 结果传递 |
+|------|-----------|---------|---------|
+| Expert Team | Team Lead Agent | Bash 运行脚本 | SendMessage 通知 |
+| Single Agent | 当前 Agent 自行执行 | Bash 运行脚本 | 文件记录 |
+
+### Wave 级 Gate（并行执行时的中间检查）
+
+在 Build 阶段的 Wave 并行执行时：
+- 每个 Wave 完成后，Team Lead 可选择性执行轻量 Gate（仅 build_gate 的子集）
+- 全部 Wave 完成后，执行完整的 build_gate
+- Wave 级 Gate 不通过 → 只修复失败 Wave 的 Agent 产出
+
+### Gate 失败自动修复协议
+
+```
+Gate 失败
+    ↓
+Team Lead 判断失败类型:
+    ├── 编译错误 → spawn harness-implementer (fix 指令)
+    ├── 测试失败 → spawn harness-implementer (systematic-debugging + fix)
+    ├── 覆盖率不足 → spawn harness-tester (补充测试)
+    ├── 审查问题 → spawn harness-implementer (fix P0/P1)
+    └── 无法自动修复 → 通知用户决策
+    ↓
+修复 Agent 完成 → 重新执行 Gate
+    ↓
+Gate PASS（最多重试 2 轮）
+```

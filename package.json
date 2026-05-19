@@ -1,4 +1,4 @@
-{"name": "harness-engineering-skill", "version": "3.2.0", "description": "多智能体软件研发协作引擎 — 运行时", "type": "module", "main": "core/engine/index.ts", "bin": {"harness": "./core/engine/cli.ts"}, "scripts": {
+{"name": "harness-engineering-skill", "version": "4.0.0", "description": "多智能体软件研发协作引擎 — 运行时", "type": "module", "main": "core/engine/index.ts", "bin": {"harness": "./core/engine/cli.ts"}, "scripts": {
     "build": "tsc -p core/engine/tsconfig.json",
     "typecheck": "tsc -p core/engine/tsconfig.json --noEmit",
     "gate:check": "npx tsx core/engine/gate-runner.ts",

@@ -7,31 +7,60 @@ roles: [orchestrator]
 pattern: routing
 mandatory: true
 depends: []
-version: "3.0"
+version: "4.0"
 compatibility:
-  tools: [AskUserQuestion, Read, Write]
+  tools: [AskUserQuestion, Agent, TaskCreate, TaskList, TaskUpdate, SendMessage, TeamCreate, Read, Write, Bash]
   dependencies: []
 ---
 
-# Orchestrator — 多角色协作编排器
+# Orchestrator — 多角色协作编排器 v4.0
 
-> **设计模式**：Pipeline（多步骤串行 + Checkpoint）
+> **设计模式**：Pipeline（多步骤串行 + Checkpoint）+ Multi-Agent Orchestration
 > **层级**：编排层 (Orchestration)
 > **触发**：任何 /harness 命令的入口路由
 
 ## 命令路由表
 
-| 命令 | 角色 | 阶段 | 触发 Skill | 设计模式 | 过程文档 |
-|------|------|------|-----------|---------|---------|
-| /harness spec | Product Owner | 定义 | brainstorming + spec-generator | Inversion → Generator | GHBANK 需求分析规格说明书 |
-| /harness plan | Architect | 规划 | office-hours + writing-plans | Inversion → Generator | GHBANK 系统设计说明书 |
-| /harness build | Implementer | 构建 | TDD + subagent-driven-dev | Pipeline + Role Isolation | — |
-| /harness test | Tester | 验证 | test-generator + TDD | Generator + Pipeline | — |
-| /harness review | Reviewer | 评审 | review + code-simplification | Reviewer | — |
-| /harness simplify | Reviewer | 简化 | code-simplification | Reviewer | — |
-| /harness ship | Shipper | 发布 | ship + gating | Pipeline + Gating | — |
+| 命令 | 角色 Agent | 阶段 | 触发 Skill | 设计模式 | 过程文档 |
+|------|-----------|------|-----------|---------|---------|
+| /harness spec | harness-po | 定义 | brainstorming + spec-generator | Inversion → Generator | GHBANK 需求分析规格说明书 |
+| /harness plan | harness-architect | 规划 | office-hours + writing-plans | Inversion → Generator | GHBANK 系统设计说明书 |
+| /harness build | harness-implementer | 构建 | TDD + subagent-driven-dev | Pipeline + Role Isolation | — |
+| /harness test | harness-tester | 验证 | test-generator + TDD | Generator + Pipeline | — |
+| /harness review | harness-reviewer | 评审 | review + code-simplification | Reviewer | — |
+| /harness simplify | harness-reviewer | 简化 | code-simplification | Reviewer | — |
+| /harness ship | harness-shipper | 发布 | ship + gating | Pipeline + Gating | — |
 
 > **兼容说明**：`/spec`、`/plan` 等短命令仍可使用，内部自动映射为 `/harness <stage>`。
+
+## 编排模式选择
+
+### Expert Team 模式（多 Agent 并行）
+
+**触发条件**：
+- 用户明确请求"专家团" / "expert team" / 多 Agent 模式
+- 任务跨 3+ Stage，且 Build 阶段有并行机会
+- 环境支持 TeamCreate + Agent + SendMessage
+
+**编排方式**：
+1. 读取 `.workbuddy/agents/harness-team-lead.yaml` 激活 Team Lead
+2. Team Lead 使用 TeamCreate 创建团队
+3. 按 Stage 顺序使用 Agent 工具 spawn 角色 Agent
+4. Agent 间通过 SendMessage 通信
+5. Team Lead 汇总结果、运行 Gate、向用户交付
+
+### Single Agent 模式（单 Agent 顺序，向后兼容）
+
+**触发条件**：
+- 用户未指定多 Agent 模式
+- 简单任务或单 Stage 任务
+- 环境不支持 TeamCreate
+
+**编排方式**：
+1. 按 First Decision 表读取对应角色 MD + Capsule SKILL.md
+2. 在同一上下文中顺序执行各 Stage
+3. 文件系统交接上下文
+4. 输出降级提示: "⚠️ 当前为单 Agent 降级模式，角色隔离受限"
 
 ## 增量迭代节奏
 
@@ -53,18 +82,20 @@ compatibility:
 
 ## 多角色协作模式
 
-### Sequential Pipeline（顺序流水线）
+### Sequential Pipeline（顺序流水线 — Expert Team 模式）
 
 ```
-PO → Architect → Implementer → Tester → Reviewer → Shipper
+Team Lead → Agent(harness-po) → Agent(harness-architect) → Agent(harness-implementer) → Agent(harness-tester) → Agent(harness-reviewer) → Agent(harness-shipper)
 ```
+
+每个 Agent 完成后通过 SendMessage 向 Team Lead 汇报，Team Lead 汇总后 spawn 下一个 Agent。
 
 适用场景：标准功能开发，需求明确
 
 ### Iterative Loop（迭代循环）
 
 ```
-Implementer ↔ Tester（TDD红绿循环）
+Agent(harness-implementer) ↔ Agent(harness-tester)（TDD红绿循环）
 ```
 
 适用场景：编码阶段，快速迭代
@@ -72,12 +103,57 @@ Implementer ↔ Tester（TDD红绿循环）
 ### Parallel Split（并行分支）
 
 ```
-Implementer A ─┐
-               ├→ Reviewer
-Implementer B ─┘
+Agent(harness-implementer, task=T1, run_in_background=true) ─┐
+                                                              ├→ Agent(harness-reviewer)
+Agent(harness-implementer, task=T2, run_in_background=true) ─┘
 ```
 
 适用场景：多个独立微任务可并行开发
+
+## Agent 间通信协议（v4.0 新增）
+
+### 任务分配
+
+Team Lead → 角色 Agent：
+```
+SendMessage({
+  type: "message",
+  recipient: "harness-implementer",
+  content: "## 任务分配\nWave: 1\nTask ID: T1.1\n任务: {描述}\n输入依赖: {文件}\n输出: {文件}",
+  summary: "Build stage task assignment"
+})
+```
+
+### 进度汇报
+
+角色 Agent → Team Lead：
+```
+SendMessage({
+  type: "message",
+  recipient: "harness-team-lead",
+  content: "## 任务完成报告\nTask ID: T1.1\n状态: 成功\n产出文件: {路径}\n测试: X/Y 通过",
+  summary: "T1.1 completed successfully"
+})
+```
+
+### Gate 失败修复
+
+Team Lead → 角色 Agent：
+```
+SendMessage({
+  type: "message",
+  recipient: "harness-implementer",
+  content: "## Gate 失败修复指令\nGate: build_gate\n失败原因: {原因}\n修复要求: {具体修复指令}\n约束: TDD 流程",
+  summary: "Build gate fix instruction"
+})
+```
+
+### 任务依赖管理
+
+```
+TaskCreate({subject: "T1.1: 实现登录组件", description: "..."})
+TaskCreate({subject: "T2.1: 实现登录API", description: "...", addBlockedBy: ["T1.1-task-id"]})
+```
 
 ## 渐进式 Skill 加载
 
@@ -93,6 +169,13 @@ Implementer B ─┘
 ### L2 完整指令（按需加载）
 
 用户触发对应命令时，才加载 Skill 的 SKILL.md + assets/ + references/。
+
+### L3 Agent Prompt（Expert Team 模式）
+
+在 Expert Team 模式下，L2 指令被注入到 Agent 的 prompt 中：
+- 读取 `.workbuddy/agents/harness-{role}.yaml` 获取 Agent 定义
+- 将 Capsule SKILL.md 的核心指令作为 prompt method section 注入
+- 将上下文交接信息作为 prompt context section 注入
 
 ## 组合模式路由
 
@@ -110,13 +193,36 @@ Implementer B ─┘
 **执行规则**：
 - 组合模式按顺序执行，前一个 Skill 完成才能进入下一个
 - 任一 Skill 失败 → 回退到该 Skill 的起点
-- 组合模式中的 Skill 共享上下文（通过交接协议）
+- Expert Team 模式: 组合模式中各 Skill 由独立 Agent 执行
+- Single Agent 模式: 组合模式中各 Skill 在同一上下文顺序执行
 
 ## 上下文交接协议
 
-角色切换时必须执行上下文交接，确保信息不丢失：
+### Expert Team 模式 — SendMessage 交接
 
-### 交接格式
+角色切换时通过 SendMessage 传递上下文：
+
+```
+SendMessage({
+  type: "message",
+  recipient: "harness-team-lead",
+  content: """
+  ## 上下文交接: {原角色} → {新角色}
+  
+  **功能**: {功能名}
+  **状态**: {Gate} PASS/FAIL
+  **产出文件**: {路径}
+  **已知问题**: {问题列表}
+  **下一步**: {新角色的任务}
+  **参考文件**: {文件路径列表}
+  """,
+  summary: "Stage handoff from {role} to {role}"
+})
+```
+
+### Single Agent 模式 — 文件交接
+
+角色切换时写入交接文件：
 
 ```markdown
 ## 上下文交接
@@ -153,11 +259,19 @@ Implementer B ─┘
 
 ## 冲突解决机制
 
+### Agent 间文件冲突
+
+| 场景 | 解决方式 |
+|------|---------|
+| 两个 Agent 修改同一文件 | TaskList.addBlockedBy 串行化，先到先改 |
+| Agent 修改范围超出任务 | Team Lead 发送 SendMessage 约束 |
+| 修改冲突导致测试失败 | 触发 systematic-debugging Agent 介入 |
+
 ### Implementer vs Reviewer 意见不一致
 
-1. **技术问题**（实现方式分歧）→ 由 Architect 仲裁
+1. **技术问题**（实现方式分歧）→ 由 Architect Agent 仲裁
 2. **规范问题**（代码风格分歧）→ 以 review-checklist.md 为准
-3. **设计问题**（与需求不符）→ 回到 PO 确认
+3. **设计问题**（与需求不符）→ 回到 PO Agent 确认
 
 ### 回滚触发条件
 
@@ -176,11 +290,11 @@ Implementer B ─┘
 ```markdown
 ## 增量进度
 
-| # | 增量 | 阶段 | 状态 | 产出 |
-|---|------|------|------|------|
-| 1 | <描述> | /harness spec | ✅ | spec 文档 |
-| 2 | <描述> | /harness plan | ✅ | 微任务列表 |
-| 3 | <描述> | /harness build | 🔄 | 代码 |
+| # | 增量 | 阶段 | Agent | 状态 | 产出 |
+|---|------|------|-------|------|------|
+| 1 | <描述> | /harness spec | harness-po | ✅ | spec 文档 |
+| 2 | <描述> | /harness plan | harness-architect | ✅ | 微任务列表 |
+| 3 | <描述> | /harness build | harness-implementer | 🔄 | 代码 |
 ```
 
 进度文件位置：`.harness/progress/current.md`
@@ -192,42 +306,18 @@ Implementer B ─┘
 1. 更新 `.harness/progress/current.md` 中的当前阶段状态
 2. 记录已完成的产出文件路径
 3. 记录已知问题和下一步操作
-4. 如果进度文件未更新，门禁检查将视为不通过
-
-### 进度文件更新模板
-
-```markdown
-# 当前进度
-
-**最后更新**：YYYY-MM-DD HH:MM
-**当前阶段**：<阶段名>
-**当前增量**：<增量描述>
-
-## 已完成阶段
-
-| 阶段 | 状态 | 产出 | 完成时间 |
-|------|------|------|---------|
-| spec | ✅ | .harness/specs/xxx.md | ... |
-| plan | ✅ | .harness/plans/xxx.md | ... |
-
-## 当前工作
-
-- 正在执行：<当前任务>
-- 已知问题：<问题列表>
-
-## 下一步
-
-- <下一步操作>
-```
+4. Expert Team 模式: Team Lead 更新 TaskList
+5. 如果进度文件未更新，门禁检查将视为不通过
 
 ## 失败处理
 
-| 失败场景 | 处理方式 | 恢复策略 |
-|---------|---------|---------|
-| 角色路由冲突 | 按优先级选择最匹配的角色 | 明确指定角色后重新路由 |
-| Skill 依赖循环 | 检测循环并打破，提示用户 | 移除循环依赖后重新编排 |
-| 阶段跳跃请求 | 检查前置 Gate 是否通过 | 通过前置 Gate 后再跳跃 |
-| 进度记录写入失败 | 使用内存缓存暂存 | 修复文件权限后重新写入 |
+| 失败场景 | Expert Team 处理 | Single Agent 处理 |
+|---------|-----------------|-------------------|
+| 角色路由冲突 | Team Lead 重新路由 | 按优先级选择最匹配的角色 |
+| Agent 执行失败 | SendMessage 修复指令 | 回退到当前 Stage 起点 |
+| Skill 依赖循环 | Team Lead 检测并打破 | 检测循环并提示用户 |
+| 阶段跳跃请求 | 检查前置 Gate + TaskList | 检查前置 Gate 是否通过 |
+| 进度记录写入失败 | SendMessage 通知 Team Lead | 使用内存缓存暂存 |
 
 ## 产出物
 
@@ -235,3 +325,4 @@ Implementer B ─┘
 |-------|---------|------|------|
 | 进度记录 | `.harness/progress.json` | JSON | 当前阶段和 Skill 执行状态 |
 | 路由决策日志 | `.harness/metrics/<runId>.jsonl` | JSONL | 角色路由和阶段转换记录 |
+| Agent 通信日志 | `.harness/metrics/<runId>-messages.jsonl` | JSONL | Agent 间 SendMessage 通信记录 |
