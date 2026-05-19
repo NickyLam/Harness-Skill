@@ -5,9 +5,84 @@ description: "Use when the user asks to run, design, or improve a software devel
 
 # Harness Engineering Skill
 
-Version: 3.2.0
+Version: 4.0.0
 
 Harness is a thin orchestration skill for disciplined software delivery. Keep this file as the router; load only the stage, role, profile, and gate references needed for the current request.
+
+## Execution Mode Decision
+
+Before acting, determine the execution mode:
+
+| Condition | Mode | Mechanism |
+|---|---|---|
+| Multi-agent environment available + user requests full pipeline or complex task | **Expert Team** | TeamCreate + Agent spawn (see Expert Team Mode below) |
+| Single-agent environment or simple task | **Single Agent** | Read role MD + capsule SKILL.md sequentially (backward compatible) |
+
+When in doubt, default to **Single Agent** mode. Switch to Expert Team only when:
+- The user explicitly requests "专家团" / "expert team" / multi-agent mode
+- The task spans 3+ stages and parallelism is beneficial
+- The environment supports TeamCreate and Agent tools
+
+## Expert Team Mode
+
+When Expert Team mode is active, follow this orchestration protocol:
+
+### 1. Activate Team Lead
+Read `.workbuddy/agents/harness-team-lead.yaml` and adopt the Team Lead persona. The Team Lead is responsible for:
+- Parsing user intent → determining starting stage
+- Spawning role Agents via Agent tool
+- Running Gate checks between stages
+- Coordinating parallel execution in build stage
+- Summarizing and delivering final results
+
+### 2. Role Agent Mapping
+
+| Stage | Agent YAML | Spawn Name | max_turns |
+|---|---|---|---|
+| spec | `.workbuddy/agents/harness-po.yaml` | harness-po | 20 |
+| plan | `.workbuddy/agents/harness-architect.yaml` | harness-architect | 15 |
+| build | `.workbuddy/agents/harness-implementer.yaml` | harness-implementer | 15 |
+| test | `.workbuddy/agents/harness-tester.yaml` | harness-tester | 15 |
+| review | `.workbuddy/agents/harness-reviewer.yaml` | harness-reviewer | 15 |
+| simplify | `.workbuddy/agents/harness-reviewer.yaml` | harness-reviewer | 15 |
+| ship | `.workbuddy/agents/harness-shipper.yaml` | harness-shipper | 12 |
+
+### 3. Stage Orchestration Flow
+
+```
+User Intent → Team Lead parses → determines stages
+    ↓
+For each stage (sequential):
+    1. Read Agent YAML for the role
+    2. Prepare context from previous stage output
+    3. Spawn Agent: Agent({name, description, prompt, subagent_type: "general-purpose", max_turns})
+    4. Wait for completion (check TaskList)
+    5. Run Gate check (Bash: core/skills/cross-cutting/gating/scripts/check-{stage}-gate.sh)
+    6. Gate PASS → next stage
+    7. Gate FAIL → SendMessage fix instruction to Agent, re-run
+```
+
+### 4. Build Stage Parallel Execution
+
+In the build stage, when the plan contains multiple Waves:
+- Same Wave, independent tasks → `Agent(run_in_background=true)` for each task
+- Cross-Wave → wait for all Agents in previous Wave to complete
+- Use `TaskList` with `addBlockedBy` to manage dependencies
+- Use `SendMessage` for inter-Agent coordination
+
+### 5. Review Mini-Wave Fix Loop
+
+When Reviewer finds P0/P1 issues:
+1. Team Lead spawns new Implementer Agent with fix instructions
+2. After fix, spawn new Reviewer Agent for re-review
+3. Loop until P1 cleared or max 2 fix rounds
+
+### 6. Degradation
+
+If Expert Team mode fails or is unavailable:
+- Fall back to Single Agent mode
+- Read role MD files sequentially
+- Output warning: "⚠️ 当前为单 Agent 降级模式，角色隔离受限"
 
 ## First Decision
 
