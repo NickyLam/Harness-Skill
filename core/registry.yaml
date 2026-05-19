@@ -1,8 +1,8 @@
-# Harness Skill v3.2 — 统一注册表
+# Harness Skill v4.0 — 统一注册表
 # 合并来源: core/component-registry.yaml + core/capsules/registry.yaml
-# 新增: react-dnd-wrapper, gsd, qa, gstack-review, gstack-ship
+# v4.0: 新增 Expert Team 模式支持 — Agent YAML 适配 + Wave 并行 + SendMessage 协作
 
-version: "3.2.0"
+version: "4.0.0"
 
 # === 组件类定义（来自 component-registry.yaml）===
 component_classes:
@@ -772,3 +772,69 @@ rollback:
   enabled: true
   mechanism: "git revert"
   trigger: "预测验证失败 / Gate 通过率下降 / 下一轮任务失败率上升"
+
+# === Expert Team 模式注册（v4.0 新增）===
+expert_team:
+  version: "1.0.0"
+  description: "Harness 专家团模式 — 多 Agent 并行协作执行流水线"
+  agents:
+    team_lead:
+      name: "harness-team-lead"
+      file_path: ".workbuddy/agents/harness-team-lead.yaml"
+      description: "专家团编排器：意图解析→Stage路由→Agent调度→Gate验证→汇总交付"
+      max_turns: 30
+
+    product_owner:
+      name: "harness-po"
+      file_path: ".workbuddy/agents/harness-po.yaml"
+      description: "产品负责人：需求采访+方案设计+文档审批"
+      stage: spec
+      max_turns: 20
+
+    architect:
+      name: "harness-architect"
+      file_path: ".workbuddy/agents/harness-architect.yaml"
+      description: "架构师：任务拆分+波次编排+架构规划"
+      stage: plan
+      max_turns: 15
+
+    implementer:
+      name: "harness-implementer"
+      file_path: ".workbuddy/agents/harness-implementer.yaml"
+      description: "实现者：TDD编码+微任务执行"
+      stage: build
+      max_turns: 15
+
+    tester:
+      name: "harness-tester"
+      file_path: ".workbuddy/agents/harness-tester.yaml"
+      description: "测试者：测试执行+覆盖率+证据收集"
+      stage: test
+      max_turns: 15
+
+    reviewer:
+      name: "harness-reviewer"
+      file_path: ".workbuddy/agents/harness-reviewer.yaml"
+      description: "审查者：Staff级6维审查+代码简化"
+      stage: [review, simplify]
+      max_turns: 15
+
+    shipper:
+      name: "harness-shipper"
+      file_path: ".workbuddy/agents/harness-shipper.yaml"
+      description: "发布者：版本管理+Git发布+最终把关"
+      stage: ship
+      max_turns: 12
+
+  protocols:
+    conflict_resolution:
+      file_path: "core/protocol/agent-conflict-resolution.md"
+      description: "Agent间文件冲突解决协议：预防+检测+解决"
+
+  orchestration:
+    mode: "sequential_stages_with_parallel_waves"
+    communication: "SendMessage + TaskList"
+    team_creation: "TeamCreate"
+    agent_spawning: "Agent(run_in_background=true) for parallel tasks"
+    gate_execution: "Bash scripts by Team Lead between stages"
+    degradation: "Single Agent sequential mode when Expert Team unavailable"

@@ -1,7 +1,7 @@
-# Harness Skill v3.2 — 流水线与门禁定义
-# 合并来源: core/pipeline/stages.yaml + core/gating/gate-definitions.yaml + core/gating/strictness-levels.yaml
+# Harness Skill v4.0 — 流水线与门禁定义
+# v4.0: 新增 Expert Team 模式 — Agent spawn 编排 + Wave 并行执行
 
-version: "3.2.0"
+version: "4.0.0"
 
 # === 严格度分级（来自 strictness-levels.yaml）===
 strictness_levels:
