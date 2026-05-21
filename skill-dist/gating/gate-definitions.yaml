@@ -604,6 +604,26 @@ rules:
   max_change_lines_per_wave: 100
   max_task_duration_minutes: 5
   rollback_enabled: true
+  memory_mode: append_distill
+  memory_distill_trigger: stage_complete
+  default_collaboration_level: L2
+  collaboration_levels:
+    L3:
+      name: "高协作"
+      description: "每个关键决策点都确认，Wave 间暂停等待用户 ACK"
+      trigger: "用户显式声明或连续 2 次要求查看详情"
+    L2:
+      name: "标准协作"
+      description: "关键决策确认，非关键自动执行，Wave 间轻量通知"
+      trigger: "默认等级"
+    L1:
+      name: "低协作"
+      description: "仅 P0 级问题确认，其余自动执行，精简输出"
+      trigger: "用户声明自主模式或连续 3 次选择自动继续"
+    L0:
+      name: "全自主"
+      description: "零确认，全部自动执行，所有决策记录到日志"
+      trigger: "用户显式声明全自主模式（需确认）"
 
 # === 快速检查命令 ===
 quick_check_command: >

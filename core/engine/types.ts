@@ -1,6 +1,27 @@
 // === 阶段与流水线 ===
 export type Stage = 'spec' | 'plan' | 'build' | 'test' | 'review' | 'simplify' | 'ship' | 'cross-cutting';
 
+export type CollaborationLevel = 'L3' | 'L2' | 'L1' | 'L0';
+
+export interface CollaborationLevelConfig {
+  name: string;
+  description: string;
+  trigger: string;
+}
+
+export interface HeartbeatEntry {
+  step: string;
+  time: string;
+  status: '✅' | '🔄' | '❌' | '⚠️';
+  note: string;
+}
+
+export interface TaskTimeoutConfig {
+  taskType: 'single-file' | 'multi-file' | 'debug-fix' | 'test-write';
+  maxTurns: number;
+  timeoutMinutes: number;
+}
+
 export interface StageDefinition {
   id: string;
   order: number;
