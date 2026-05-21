@@ -2,10 +2,68 @@
 
 > **灵感来源**：AHE (Agentic Harness Engineering) 的 evaluate → analyze → improve 外循环
 > **核心原则**：可观测性驱动的进化，而非试错驱动的进化
+> **v2.0 变更**：新增条件触发机制 + 健康度检查 + 手动触发命令
 
 ## 概述
 
 Evolution Loop 是 Harness 的自动改进机制。它不修改基础模型，而是进化 Harness 组件——系统提示、工具描述、技能、中间件、角色定义和长期记忆。
+
+## 触发机制（v2.0 新增）
+
+> **跨平台适配**：由于 Skill 无法自主定时执行，采用"条件触发 + 手动触发"替代 Cron 调度
+
+### 触发方式
+
+| 触发方式 | 执行者 | 说明 |
+|---------|--------|------|
+| 会话启动健康度检查 | 启动 Agent | 自动执行，低于阈值时建议运行 Evolution |
+| `/harness evolve` | 用户手动触发 | 完整 EVALUATE → ANALYZE → IMPROVE |
+| `/harness evolve evaluate` | 用户手动触发 | 只执行评估 |
+| `/harness evolve analyze` | 用户手动触发 | 只执行分析 |
+| `/harness evolve improve` | 用户手动触发 | 只执行改进 |
+| 平台 Cron（可选） | 平台定时能力 | Trae Schedule / WorkBuddy Cron 等 |
+
+### 健康度检查（会话启动时自动执行）
+
+```
+会话启动
+    │
+    ├── 读取 .harness/metrics/ 下的近期数据
+    ├── 计算健康度指标（7 日滑动窗口）：
+    │   · gate_pass_rate: Gate 通过率
+    │   · error_rate: P0+P1 错误率
+    │   · skill_hit_rate: Skill 命中率
+    │
+    ├── 健康度 ≥ 80% → 正常启动，不提示
+    ├── 健康度 60-80% → 轻量提示：
+    │   "📊 近期 Gate 通过率有所下降（当前 {rate}%），建议运行 /harness evolve"
+    └── 健康度 < 60% → 强烈建议：
+        "⚠️ Gate 通过率严重下降（当前 {rate}%），强烈建议运行 /harness evolve evaluate"
+```
+
+### 自动触发条件
+
+| 条件 | 阈值 | 触发动作 |
+|------|------|---------|
+| Gate 通过率下降 | 7 日通过率 < 85% | 建议运行 `/harness evolve evaluate` |
+| 错误率飙升 | P0+P1 错误率 3 日内上升 > 20% | 建议运行 `/harness evolve analyze` |
+| Skill 命中率低 | 任意 Skill 7 日命中率 < 60% | 建议运行对应 Skill 的 IMPROVE |
+
+### 平台 Cron 集成说明
+
+在支持定时任务的平台上，用户可以配置定时触发：
+
+**Trae SOLO**：
+```
+Schedule({
+  action: "create",
+  name: "harness-evolve-weekly",
+  cron_expression: "0 9 * * 1",
+  message: "运行 /harness evolve evaluate，检查 Harness 组件健康度"
+})
+```
+
+**WorkBuddy**：参考平台文档配置 Cron 任务
 
 ## 三步循环
 

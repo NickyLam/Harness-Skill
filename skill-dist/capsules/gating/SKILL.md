@@ -195,71 +195,10 @@ gating（贯穿所有阶段）
 
 ## 高级功能
 
-### 1. 门禁条件表达式（高级用户）
-
-支持组合条件：
-
-```yaml
-# .harness/config.yaml
-gate_conditions:
-  # 只在主分支启用全部 Gate
-  branch_specific:
-    main: "all"
-    develop: "spec+plan+build+test"
-    feature/*: "build+test" # 功能分支只检查构建和测试
-
-  # 基于文件变更的智能 Gate
-  file_based:
-    "**/*.ts": ["build", "test"]  # TS 文件变更触发 build+test gate
-    "**/*.md": ["spec"]          # MD 文件变更只触发 spec gate
-    "package.json": ["all"]      # package.json 变更触发全部 gate
-```
-
-### 2. 门禁 Webhook 通知
-
-```bash
-# 在 Gate 检查完成后发送通知
-notify_gate_result() {
-  local status=$1
-  local report_url=$2
-
-  if [ "$status" = "failed" ]; then
-    curl -X POST "$WEBHOOK_URL" \
-      -H 'Content-type: application/json' \
-      -d "{\"text\": \"❌ Gate check FAILED\\nReport: $report_url\"}"
-  else
-    curl -X POST "$WEBHOOK_URL" \
-      -H 'Content-type: application/json' \
-      -d "{\"text\": \"✅ All gates PASSED\"}"
-  fi
-}
-```
-
-### 3. 门禁性能监控
-
-```typescript
-// 追踪 Gate 检查耗时，识别瓶颈
-interface GateTiming {
-  gateName: string;
-  startTime: number;
-  endTime: number;
-  duration: number;
-}
-
-function analyzeGatePerformance(timings: GateTiming[]) {
-  const avgDuration = timings.reduce((sum, t) => sum + t.duration, 0) / timings.length;
-  const slowestGate = timings.sort((a, b) => b.duration - a.duration)[0];
-
-  return {
-    averageTime: `${avgDuration.toFixed(1)}s`,
-    slowestGate: slowestGate.gateName,
-    slowestTime: `${slowestGate.duration}s`,
-    recommendation: slowestGate.duration > 20
-      ? `Consider optimizing '${slowestGate.gateName}' (took ${slowestGate.duration}s)`
-      : 'All gates within acceptable time range',
-  };
-}
-```
+> 完整的高级功能文档见 [references/gate-details.md](references/gate-details.md)，包含：
+> - 门禁条件表达式（分支/文件变更智能 Gate）
+> - 门禁 Webhook 通知
+> - 门禁性能监控（GateTiming 接口与瓶颈分析）
 
 ## 下一步行动
 
@@ -323,3 +262,76 @@ Team Lead 判断失败类型:
     ↓
 Gate PASS（最多重试 2 轮）
 ```
+
+---
+
+## Gate 强制暂停协议（CRITICAL — v4.0 必需）
+
+> **⚠️ 这是 Harness Skill 的核心约束：每个 Gate 完成后必须暂停等待用户确认，禁止自动进入下一阶段。**
+
+### 单智能体模式 Gate 暂停流程
+
+```
+阶段完成 → 执行 Gate 检查 → Gate PASS
+    ↓
+【强制暂停】输出确认请求:
+    "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    ✅ {Gate名称} 已通过
+    
+    当前阶段产出物:
+    - {列出关键产出物}
+    
+    Gate 检查结果:
+    - {列出检查项及通过状态}
+    
+    请确认是否继续进入下一阶段:
+    - 输入 '继续' 或 'approved' → 进入下一阶段
+    - 输入 '回退' → 返回当前阶段修复问题
+    - 输入 '暂停' → 暂停等待进一步指示
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ↓
+等待用户回复
+    ↓
+用户确认 → 继续
+用户拒绝 → 回退修复
+无回复 → 保持暂停状态（不自动继续）
+```
+
+### Expert Team 模式 Gate 暂停流程
+
+```
+角色 Agent 完成任务 → Team Lead 收到完成汇报
+    ↓
+Team Lead 执行 Gate 检查 → Gate PASS
+    ↓
+Team Lead 使用 AskUserQuestion 工具向用户确认:
+    questions: [
+      {
+        header: "Gate确认",
+        question: "{Gate名称}已通过，是否继续进入下一阶段？",
+        options: [
+          {label: "继续", description: "进入下一阶段"},
+          {label: "回退修复", description: "返回当前阶段修复问题"},
+          {label: "暂停等待", description: "暂停等待进一步指示"}
+        ]
+      }
+    ]
+    ↓
+用户选择"继续" → Team Lead spawn 下一阶段 Agent
+用户选择"回退" → Team Lead 向当前 Agent 发送修复指令
+用户选择"暂停" → Team Lead 保持等待状态
+```
+
+### Gate 暂停确认模板
+
+> 完整的暂停确认模板、违规检测和确认模式对比见 [references/gate-details.md](references/gate-details.md)
+
+**核心规则**：每个 Gate PASS 后必须暂停等待用户确认，禁止自动进入下一阶段。
+
+| 确认模式 | 行为 | 适用场景 |
+|---------|------|---------|
+| **强确认（默认）** | 每个 Gate 暂停，等待用户明确回复 | 关键项目、正式交付 |
+| **弱确认** | 通知用户，5分钟无回复自动继续 | 日常开发、快速迭代 |
+| **静默** | 仅 Ship Gate 暂停确认 | 验证性/实验性项目 |
+
+**用户可通过 `/gating mode <强确认|弱确认|静默>` 切换模式。**

@@ -1,6 +1,6 @@
 ---
 name: harness-engineering-skill
-description: "Use when the user asks to run, design, or improve a software development workflow with explicit requirements, planning, implementation, testing, review, release gates, multi-agent coordination, SDD, TDD, or Harness commands."
+description: "Use when the user requests a full software delivery pipeline (spec→plan→build→test→review→ship), multi-agent collaboration with role isolation, TDD workflow, quality gates, or mentions /harness commands. Also use for SDD, strict stage-gated development, or when the user says '专家团', 'expert team', or needs disciplined software delivery. Not for simple one-off coding tasks or single-file edits."
 ---
 
 # Harness Engineering Skill
@@ -98,6 +98,7 @@ Classify the user's request before acting:
 | `/harness review`, code quality | Review | `core/skills/review/staff-review/SKILL.md` |
 | `/harness simplify`, complexity reduction | Simplify | `core/skills/review/code-simplification/SKILL.md` |
 | `/harness ship`, release readiness | Ship | `core/skills/ship/ship-pipeline/SKILL.md` |
+| `/harness evolve`, evolution, health check | Evolution | `core/evolution/evolution-loop.md` |
 | quality gate, stage verification, pre-merge check | Gate only | `core/skills/cross-cutting/gating/SKILL.md`, `core/pipeline.yaml` |
 
 If the user only asks a narrow question, answer the question directly after reading the smallest relevant reference. Do not run the whole pipeline unless the user asks for lifecycle execution.

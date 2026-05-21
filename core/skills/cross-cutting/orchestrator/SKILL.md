@@ -29,9 +29,36 @@ compatibility:
 | /harness test | harness-tester | 验证 | test-generator + TDD | Generator + Pipeline | — |
 | /harness review | harness-reviewer | 评审 | review + code-simplification | Reviewer | — |
 | /harness simplify | harness-reviewer | 简化 | code-simplification | Reviewer | — |
-| /harness ship | harness-shipper | 发布 | ship + gating | Pipeline + Gating | — |
+| /harness ship | harness-shipper | 发布 | ship + gating | Pipeline + Gating | 发布确认 |
+| /harness evolve | — | 进化 | evolution-loop | Evaluate→Analyze→Improve | 进化报告 |
 
 > **兼容说明**：`/spec`、`/plan` 等短命令仍可使用，内部自动映射为 `/harness <stage>`。
+
+## 会话启动健康度检查（v4.1 新增）
+
+> **灵感来源**: Claude Code KAIROS 模式的 morning-checkin Cron 任务
+> **跨平台适配**: 不依赖 Cron，在每次会话启动时自动执行
+
+每次 Harness 会话启动时，自动执行轻量级健康度检查：
+
+```
+会话启动
+    │
+    ├── 1. 读取 .harness/metrics/ 下的近期数据（如果存在）
+    ├── 2. 计算健康度指标（7 日滑动窗口）：
+    │   · gate_pass_rate: Gate 通过率
+    │   · error_rate: P0+P1 错误率
+    │   · skill_hit_rate: Skill 命中率
+    │
+    ├── 3. 健康度评估：
+    │   ├── ≥ 80% → 正常启动，不提示
+    │   ├── 60-80% → 轻量提示："📊 近期质量指标有所下降，建议运行 /harness evolve"
+    │   └── < 60% → 强烈建议："⚠️ 质量指标严重下降，强烈建议运行 /harness evolve evaluate"
+    │
+    └── 4. 继续执行用户请求的任务
+```
+
+**注意**：如果 `.harness/metrics/` 目录不存在或无数据，跳过健康度检查，直接执行用户任务。
 
 ## 编排模式选择
 
